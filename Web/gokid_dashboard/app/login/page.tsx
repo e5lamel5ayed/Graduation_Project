@@ -3,15 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/src/lib/utils';
-import { 
-  UserIcon, 
+import {  
   LockClosedIcon, 
   ArrowTrendingUpIcon, 
   ChartBarIcon, 
   ClipboardDocumentListIcon,
   ArrowLeftOnRectangleIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  EnvelopeIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, FeatureCard, Input } from '@/src/components';
@@ -101,9 +101,9 @@ export default function LoginPage() {
       </div>
 
       {/* Main Container */}
-      <div className="w-full max-w-6xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden flex relative z-10 border border-white/50">
+      <div className="w-full max-w-6xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl overflow-hidden flex relative z-10 border border-white/50">
         {/* Left Side - Welcome Section */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#f0e8f4] via-[#f5f0f7] to-[#faf8fb] relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#cdb4db] via-[#f8f4fa] to-[#faf8fb] relative overflow-hidden">
           {/* Animated Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 border-2 border-purple-300 rounded-full animate-pulse"></div>
@@ -182,7 +182,7 @@ export default function LoginPage() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={handleEmailChange}
-                    leftIcon={<UserIcon className="w-5 h-5 text-gray-400" />}
+                    leftIcon={<EnvelopeIcon className="w-5 h-5 text-gray-400" />}
                     dir="rtl"
                     required
                   />
