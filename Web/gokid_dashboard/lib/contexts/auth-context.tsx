@@ -13,6 +13,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
+  signup: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
 };
@@ -54,6 +55,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
+  const signup = async (name: string, email: string, password: string, phone: string): Promise<boolean> => {
+    // Static signup for demo purposes
+    // In a real app, this would make an API call to register the user
+    try {
+      const newUser = {
+        id: Date.now().toString(), // Simple ID generation for demo
+        name,
+        email,
+        role: 'user',
+      };
+      
+      localStorage.setItem('user', JSON.stringify(newUser));
+      setUser(newUser);
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('user');
     setUser(null);
@@ -63,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     login,
+    signup,
     logout,
     loading,
   };
