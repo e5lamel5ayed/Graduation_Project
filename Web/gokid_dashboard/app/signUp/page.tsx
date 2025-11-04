@@ -11,7 +11,9 @@ import {
   ArrowLeftOnRectangleIcon,
   EyeIcon,
   EyeSlashIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  UserIcon,
+  PhoneIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, FeatureCard, Input } from '@/src/components';
@@ -59,11 +61,14 @@ const features = [
   },
 ];
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const router = useRouter();
-  const { login } = useAuth() as { login: (email: string, password: string) => Promise<boolean> };
+  const { signup } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -71,25 +76,55 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     
+    // Validation
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    setIsLoading(true);
+    
     try {
-      const success = await login(email, password);
+      const success = await signup(name, email, password, phone);
       if (success) {
         router.push('/home');
       } else {
-        setError('Incorrect email or password');
+        setError('Failed to create account. Please try again.');
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      setError('An error occurred during registration. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(e.target.value);
+  };
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+  };
+
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+  };
+
+  const navigateToLogin = () => {
+    router.push('/login');
   };
 
   return (
@@ -146,18 +181,17 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Sign Up Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
           {/* Mobile Background with Enhanced Gradient */}
           <div className="lg:hidden absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-white opacity-60"></div>
         
           <div className="w-full max-w-md relative z-10">
             <Card shadow='none' className="bg-white/90 backdrop-blur-md border-0 ">
-              <CardHeader className="text-center space-y-1">
+              <CardHeader className="text-center mb-4">
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#5c5163] to-[#8b7a94] bg-clip-text text-transparent">
-                  Welcome Back
+                  Create New Account
                 </CardTitle>
-                <p className="text-[#7b6c83]">Sign in to access your account</p>
               </CardHeader>
               
               <CardContent className="space-y-6">
@@ -174,6 +208,20 @@ export default function LoginPage() {
                     </div>
                   )}
 
+                  {/* Name Field */}
+                  <Input
+                    label="Full Name"
+                    id="name"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={handleNameChange}
+                    leftIcon={<UserIcon className="w-5 h-5 text-gray-400" />}
+                    dir="rtl"
+                    autoComplete="off"
+                    required
+                  />
+
                   {/* Email Field */}
                   <Input
                     label="Email"
@@ -188,6 +236,19 @@ export default function LoginPage() {
                     required
                   />
 
+                  {/* Phone Field */}
+                  {/* <Input
+                    label="Phone Number"
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    leftIcon={<PhoneIcon className="w-5 h-5 text-gray-400" />}
+                    dir="rtl"
+                    required
+                  /> */}
+
                   {/* Password Field */}
                   <PasswordInput
                     label="Password"
@@ -201,19 +262,41 @@ export default function LoginPage() {
                     required
                   />
 
-                  {/* Remember & Forgot */}
-                  <div className="flex items-center justify-between text-sm">
-                    <button 
-                      type="button" 
-                      className="text-[#5c5163] hover:text-[#8b7a94] font-medium hover:underline transition-all duration-200 hover:translate-x-1"
-                    >
-                      Forgot password?
-                    </button>
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <span className="text-[#5c5163] group-hover:text-[#8b7a94] transition-colors duration-200">
-                        Remember me
-                      </span>
-                      <input type="checkbox" className="w-4 h-4 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163]" />
+                  {/* Confirm Password Field */}
+                  {/* <PasswordInput
+                    label="Confirm Password"
+                    id="confirmPassword"
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
+                    dir="rtl"
+                    required
+                  /> */}
+
+                  {/* Terms and Conditions */}
+                  <div className="flex items-start gap-3 text-sm">
+                    <input 
+                      type="checkbox" 
+                      id="terms"
+                      className="w-4 h-4 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163] mt-0.5"
+                      required
+                    />
+                    <label htmlFor="terms" className="text-[#5c5163] cursor-pointer">
+                      I agree to the{' '}
+                      <button 
+                        type="button"
+                        className="font-medium hover:text-[#8b7a94] hover:underline transition-colors duration-200"
+                      >
+                        Terms and Conditions
+                      </button>
+                      {' '}and{' '}
+                      <button 
+                        type="button"
+                        className="font-medium hover:text-[#8b7a94] hover:underline transition-colors duration-200"
+                      >
+                        Privacy Policy
+                      </button>
                     </label>
                   </div>
 
@@ -232,10 +315,10 @@ export default function LoginPage() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          <span>Loading...</span>
+                          <span>Creating Account...</span>
                         </>
                       ) : (
-                        <span>Sign In</span>
+                        <span>Create Account</span>
                       )}
                     </span>
                   </Button>
@@ -245,13 +328,13 @@ export default function LoginPage() {
               {/* Footer with Better Design */}
               <CardFooter className="justify-center pt-6 border-t border-gray-100">
                 <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
+                  Already have an account?{' '}
                   <button 
                     type="button"
-                    onClick={() => router.push('/signUp')}
+                    onClick={navigateToLogin}
                     className="text-[#5c5163] font-bold hover:text-[#8b7a94] hover:underline transition-all duration-200 hover:translate-x-1"
                   >
-                    Sign up now
+                    Sign in here
                   </button>
                 </p>
               </CardFooter>
