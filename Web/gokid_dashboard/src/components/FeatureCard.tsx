@@ -25,21 +25,21 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   return (
     <div
       className={cn(
-        'flex items-center space-x-4 space-x-reverse p-4 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-white/50 transition-all duration-300 hover:scale-105 hover:shadow-xl group',
+        'flex items-center space-x-4 space-x-reverse p-3 bg-white/30 backdrop-blur-md rounded-xl shadow-lg   transition-all duration-300 hover:scale-105 hover:shadow-xl group',
         className
       )}
       style={style}
       {...props}
     >
-      <div className="w-12 h-12 bg-gradient-to-br from-gray-50 to-white rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
+      <div className="w-12 h-12   flex items-center justify-center  group-hover:transition-all">
         {React.cloneElement(icon, {
-          className: 'w-6 h-6 text-gray-700 group-hover:scale-110 transition-transform',
+          className: 'w-6 h-6 text-[#5c5163] group-hover:scale-110 transition-transform',
           'aria-hidden': 'true'
         })}
       </div>
       <div className="flex-1 text-right">
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h3 className="font-semibold text-[#5c5163]">{title}</h3>
+        <p className="text-xs text-[#9a87a4]">{description}</p>
       </div>
     </div>
   );

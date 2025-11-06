@@ -12,7 +12,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
   EnvelopeIcon
-} from '@heroicons/react/24/outline';
+} from '@heroicons/react/24/solid';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, FeatureCard, Input } from '@/src/components';
 
