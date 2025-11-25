@@ -7,27 +7,11 @@ import Link from 'next/link';
 import { Settings, LogOut, Menu, X } from 'lucide-react';
 const navigation = [
   { name: 'Dashboard', href: '/home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+  { name: 'Classes', href: '/classes', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
   { name: 'Users', href: '/users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
   { name: 'Products', href: '/products', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
   { name: 'Orders', href: '/orders', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
 ];
-
-const theme = {
-  light: {
-    active: '#f0e8f4',
-    normal: '#cdb4db',
-    hover: '#b9a2c5',
-    activeDark: '#a490af',
-    dark: '#9a87a4',
-    darkHover: '#7b6c83',
-    darkActive: '#5c5163',
-    darker: '#483f4d',
-  },
-  text: {
-    light: '#ffffff',
-    dark: '#1f2937',
-  },
-};
 
 export default function AppLayout({
   children,
@@ -79,11 +63,10 @@ export default function AppLayout({
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${
-                      pathname === item.href
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${pathname === item.href
                         ? 'bg-[#a490af] text-white shadow-md'
                         : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
-                    }`}
+                      }`}
                   >
                     <svg
                       className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
@@ -129,19 +112,23 @@ export default function AppLayout({
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64 bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-6 mb-8">
-              <h1 className="text-2xl font-bold text-white">GoKid</h1>
+            <div className="flex items-center justify-center flex-shrink-0 mb-5">
+              {/* <h1 className="text-2xl font-bold text-white">GoKid</h1> */}
+              <img
+                src="/SideParLogo.png"
+                alt="GoKid Logo"
+                className="w-50"
+              />
             </div>
             <nav className="flex-1 px-3 space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${
-                    pathname === item.href
+                  className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${pathname === item.href
                       ? 'bg-[#a490af] text-white shadow-md'
                       : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
-                  }`}
+                    }`}
                 >
                   <svg
                     className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
@@ -175,7 +162,7 @@ export default function AppLayout({
                 >
                   <Settings className="h-5 w-5" />
                 </Link>
-                
+
               </div>
             </div>
           </div>
@@ -191,7 +178,7 @@ export default function AppLayout({
           >
             <Menu className="h-6 w-6" />
           </button>
-          
+
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1 flex max-w-2xl">
               <div className="w-full flex">
@@ -211,7 +198,7 @@ export default function AppLayout({
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button
                 type="button"
@@ -224,7 +211,7 @@ export default function AppLayout({
               </button>
 
               <div className="h-8 w-px bg-gray-200"></div>
-              
+
               <div className="flex items-center">
                 <div className="text-right mr-3 hidden md:block">
                   <p className="text-sm font-medium text-gray-700">{user.name}</p>

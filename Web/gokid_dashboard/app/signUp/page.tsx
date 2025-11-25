@@ -218,7 +218,6 @@ export default function SignUpPage() {
                       value={name}
                       onChange={handleNameChange}
                       leftIcon={<UserIcon className="w-5 h-5 text-gray-400" />}
-                      dir="rtl"
                       autoComplete="off"
                       required
                     />
@@ -231,7 +230,6 @@ export default function SignUpPage() {
                       value={email}
                       onChange={handleEmailChange}
                       leftIcon={<EnvelopeIcon className="w-5 h-5 text-gray-400" />}
-                      dir="rtl"
                       autoComplete="off"
                       required
                     />
@@ -259,7 +257,6 @@ export default function SignUpPage() {
                       value={password}
                       onChange={handlePasswordChange}
                       leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
-                      dir="rtl"
                       autoComplete="new-password"
                       required
                     />
@@ -271,7 +268,6 @@ export default function SignUpPage() {
                       value={confirmPassword}
                       onChange={handleConfirmPasswordChange}
                       leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
-                      dir="rtl"
                       required
                     />
                   </div>

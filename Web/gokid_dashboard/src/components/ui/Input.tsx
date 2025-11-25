@@ -37,7 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <label
             htmlFor={inputId}
             className={cn(
-              'block text-sm font-semibold text-gray-700 text-right',
+              'block text-sm font-semibold text-gray-700 text-left',
               labelClassName
             )}
           >
@@ -48,7 +48,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             className={cn(
-              'block w-full h-14 px- py-3 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-200 focus:border-purple-300 focus:outline-none transition-all duration-200 text-left',
+              'block w-full h-14 px-2 py-3 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-200 focus:border-purple-300 focus:outline-none transition-all duration-200 text-left',
               {
                 'pl-5': leftIcon,
                 'border-red-500': error,

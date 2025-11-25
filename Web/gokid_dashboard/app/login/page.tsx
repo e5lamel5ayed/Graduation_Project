@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
@@ -183,7 +185,6 @@ export default function LoginPage() {
                     value={email}
                     onChange={handleEmailChange}
                     leftIcon={<EnvelopeIcon className="w-5 h-5 text-gray-400" />}
-                    dir="rtl"
                     autoComplete="off"
                     required
                   />
@@ -196,7 +197,6 @@ export default function LoginPage() {
                     value={password}
                     onChange={handlePasswordChange}
                     leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
-                    dir="rtl"
                     autoComplete="new-password"
                     required
                   />
