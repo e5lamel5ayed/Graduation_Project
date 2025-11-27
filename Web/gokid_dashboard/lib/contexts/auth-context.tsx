@@ -39,19 +39,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Static login for demo purposes
+    // Static login for demo purposes with two roles: admin & institution
+    let mockUser: User | null = null;
+
     if (email === 'admin@example.com' && password === 'password') {
-      const mockUser = {
+      mockUser = {
         id: '1',
         name: 'Admin User',
         email: 'admin@example.com',
         role: 'admin',
       };
-      
+    } else if (email === 'institution@example.com' && password === 'password') {
+      mockUser = {
+        id: '2',
+        name: 'Institution User',
+        email: 'institution@example.com',
+        role: 'institution',
+      };
+    }
+
+    if (mockUser) {
       localStorage.setItem('user', JSON.stringify(mockUser));
       setUser(mockUser);
       return true;
     }
+
     return false;
   };
 

@@ -34,9 +34,9 @@ export default function ClassesPage() {
   };
 
   const handleDelete = (classItem: Class) => {
-    if (confirm(`Are you sure you want to delete ${classItem.name}?`)) {
+    // if (confirm(`Are you sure you want to delete ${classItem.name}?`)) {
       setClasses(classes.filter(c => c.id !== classItem.id));
-    }
+    // }
   };
 
   const handleSubmit = async (formData: ClassFormData) => {

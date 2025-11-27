@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ['latin'] });
 const noLayoutRoutes = ['/login'];
 
 // List of all valid routes that should use the app layout
-const validAppRoutes = ['/home', '/users', '/classes','/supervisors'];
+const validAppRoutes = ['/home', '/users', '/classes','/supervisors','/categories'];
 
 // Function to get page title based on route
 const getPageTitle = (pathname: string | null): string => {
@@ -25,6 +25,8 @@ const getPageTitle = (pathname: string | null): string => {
     '/classes': 'Classes',
     '/users': 'Users',
     '/login': 'Login',
+    '/supervisors': 'Supervisors',
+    '/categories': 'Categories',
   };
 
   return routeTitles[pathname] || 'Page Not Found';

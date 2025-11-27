@@ -4,16 +4,23 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3 } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart } from 'lucide-react';
 
-const navigation = [
+const adminNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Classes', href: '/classes', icon: School },
   { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
   { name: 'Users', href: '/users', icon: User },
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
+];
+
+// Institution role has access to a limited set of pages
+const institutionNavigation = [
+  { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+  { name: 'Categories', href: '/categories', icon: Grid3X3 },
+  // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
 
 export default function AppLayout({
@@ -26,11 +33,29 @@ export default function AppLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const navigation = user?.role === 'institution' ? institutionNavigation : adminNavigation;
+  const allowedPaths = navigation.map((item) => item.href);
+
+  const roleLabel = user?.role === 'admin'
+    ? 'Admin'
+    : user?.role === 'institution'
+      ? 'Institution'
+      : user?.role ?? '';
+
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      // If current path is not allowed for this role, redirect to first allowed page
+      if (!allowedPaths.includes(pathname)) {
+        router.push(allowedPaths[0] ?? '/home');
+      }
+    }
+  }, [allowedPaths, loading, pathname, router, user]);
 
   if (loading || !user) {
     return (
@@ -214,7 +239,7 @@ export default function AppLayout({
               <div className="flex items-center">
                 <div className="text-right mr-3 hidden md:block">
                   <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                  <p className="text-xs text-gray-500">Admin</p>
+                  <p className="text-xs text-gray-500">{roleLabel}</p>
                 </div>
                 <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm">
                   {user.name?.charAt(0).toUpperCase()}
