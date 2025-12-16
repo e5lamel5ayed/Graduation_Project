@@ -3,9 +3,11 @@
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/contexts/auth-context';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import AppLayout from './app-layout';
 import './globals.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -13,13 +15,13 @@ const inter = Inter({ subsets: ['latin'] });
 const noLayoutRoutes = ['/login'];
 
 // List of all valid routes that should use the app layout
-const validAppRoutes = ['/home', '/users', '/classes','/supervisors','/categories'];
+const validAppRoutes = ['/home', '/users', '/classes', '/supervisors', '/categories'];
 
 // Function to get page title based on route
 const getPageTitle = (pathname: string | null): string => {
   if (!pathname) return 'Dashboard';
-  
-  const routeTitles: {[key: string]: string} = {
+
+  const routeTitles: { [key: string]: string } = {
     '/': 'Dashboard',
     '/home': 'Home',
     '/classes': 'Classes',
@@ -42,7 +44,7 @@ export default function RootLayout({
   const isValidRoute = validAppRoutes.some(route => pathname?.startsWith(route));
   const isNotFound = !isPublicRoute && !isValidRoute && pathname !== '/';
   const pageTitle = getPageTitle(pathname);
-
+  const [queryClient] = useState(() => new QueryClient());
   // Set document title
   useEffect(() => {
     document.title = `${pageTitle} | Dashboard`;
@@ -54,13 +56,17 @@ export default function RootLayout({
         <title>{`${pageTitle} | Dashboard`}</title>
       </head>
       <body className={inter.className}>
-        <AuthProvider>
-          {isPublicRoute || isNotFound ? (
-            <>{children}</>
-          ) : (
-            <AppLayout>{children}</AppLayout>
-          )}
-        </AuthProvider>
+        <QueryClientProvider client={queryClient}>
+
+          <AuthProvider>
+            {isPublicRoute || isNotFound ? (
+              <>{children}</>
+            ) : (
+              <AppLayout>{children}</AppLayout>
+            )}
+          </AuthProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </body>
     </html>
   );
