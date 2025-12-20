@@ -31,8 +31,8 @@ Thumbs.db
 *.env
 
 
-# /app/models/whisper_base.py
-# /app/services/transcribe_base.py
+/app/models/whisper_base.py
+/app/services/transcribe_base.py
 
-/app/models/whisper_small.py
-/app/services/transcribe_small.py
+# /app/models/whisper_small.py
+# /app/services/transcribe_small.py

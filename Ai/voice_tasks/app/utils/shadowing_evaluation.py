@@ -6,8 +6,8 @@ def sequance_matching_score(target_tokens, transcription_tokens):
 
     matcher = difflib.SequenceMatcher(None, target_tokens, transcription_tokens)
     
-    #report = []
-    report = {}
+    report = []
+    #report = {}
     correct_words_count = 0
     total_teacher_words = len(target_tokens)
 
@@ -18,20 +18,20 @@ def sequance_matching_score(target_tokens, transcription_tokens):
             correct_words_count += chunk_len
             
             for i in range(i1, i2):
-                # report.append({
-                #     "word": target_tokens[i],
-                #     "status": "Green"
+                report.append({
+                    "word": target_tokens[i],
+                    "status": "Green"
             
-                # })
-                report[target_tokens[i]] = "Green"
+                })
+                #report[target_tokens[i]] = "Green"
 
         elif tag == 'delete':
             for i in range(i1, i2):
-                # report.append({
-                #      "word": target_tokens[i],
-                #      "status": "Red"  
-                # })
-                report[target_tokens[i]] = "Red"
+                report.append({
+                     "word": target_tokens[i],
+                     "status": "Red"  
+                })
+                #report[target_tokens[i]] = "Red"
 
         elif tag == 'replace':
 
@@ -44,11 +44,11 @@ def sequance_matching_score(target_tokens, transcription_tokens):
                     break  
 
                 if w_word is None:
-                    # report.append({
-                    #      "word": t_word,
-                    #      "status": "Red"
-                    # })
-                    report[t_word] = "Red"
+                    report.append({
+                         "word": t_word,
+                         "status": "Red"
+                    })
+                    #report[t_word] = "Red"
                     continue 
 
                 else:
@@ -56,17 +56,17 @@ def sequance_matching_score(target_tokens, transcription_tokens):
                     
                     if similarity >= 0.7:
                         correct_words_count += 1
-                        # report.append({
-                        #      "word": t_word, 
-                        #      "status": "Yellow"   
-                        # })
-                        report[t_word] = "Yellow"
+                        report.append({
+                             "word": t_word, 
+                             "status": "Yellow"   
+                        })
+                        #report[t_word] = "Yellow"
                     else:
-                        # report.append({
-                        #      "word": t_word, 
-                        #      "status": "Red"  
-                        # })
-                        report[t_word] = "Red"
+                        report.append({
+                             "word": t_word, 
+                             "status": "Red"  
+                        })
+                        #report[t_word] = "Red"
 
     if total_teacher_words == 0:
         final_score = 0

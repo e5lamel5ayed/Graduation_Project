@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile , Form , File
-from services.transcribe_base import transcribe_audio 
+from services.transcribe_small import transcribe_audio 
 from services.task_evaluation import evaluate
 import os
 import shutil

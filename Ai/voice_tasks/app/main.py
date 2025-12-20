@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
 from contextlib import asynccontextmanager
-from models.whisper_base import load_model
+from models.whisper_small import load_model
 from api.routes import router
 
 @asynccontextmanager
