@@ -1,6 +1,6 @@
-from app.utils.fuzzy_evaluation import check_fuzzy_keywords
-from app.utils.shadowing_evaluation import sequance_matching_score
-from app.utils.text_preprocessing import text_preprocessing
+from utils.fuzzy_evaluation import check_fuzzy_keywords
+from utils.shadowing_evaluation import sequance_matching_score
+from utils.text_preprocessing import text_preprocessing
 
 
 def evaluate(target_text: str, transcription_text: str, task_type: str):

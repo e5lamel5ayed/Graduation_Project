@@ -1,4 +1,4 @@
-from app.models import whisper_base 
+from models import whisper_base 
 
 def transcribe_audio(fpath: str):
         model = whisper_base.base

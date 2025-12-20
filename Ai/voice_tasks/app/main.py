@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 import uvicorn
 from contextlib import asynccontextmanager
-from app.models.whisper_small import load_model
-from app.api.routes import router
+from models.whisper_base import load_model
+from api.routes import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
