@@ -22,6 +22,7 @@ export interface CreateCategoryDto {
   nameEn: string;
   iconFile?: File | null;
   colorHex: string;
+  categoryId?: string; // Required for SubCategory
 }
 
 export type UpdateCategoryDto = Partial<CreateCategoryDto>;

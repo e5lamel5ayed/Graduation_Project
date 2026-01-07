@@ -20,6 +20,8 @@ const adminNavigation = [
 const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
+    { name: 'SubCategories', href: '/subCategories', icon: Grid3X3 },
+
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
 
