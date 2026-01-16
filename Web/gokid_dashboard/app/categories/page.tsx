@@ -106,7 +106,7 @@ export default function CategoriesPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="py-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
           Error loading categories: {(error as Error).message}
         </div>
@@ -124,7 +124,7 @@ export default function CategoriesPage() {
         </Button>
       </div>
 
-      <div className="p-6">
+      <div className="py-6">
         {!categories || categories.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             No categories found. Click the button above to add a new category.

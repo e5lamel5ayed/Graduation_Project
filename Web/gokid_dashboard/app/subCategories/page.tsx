@@ -134,23 +134,11 @@ export default function CategoriesPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-10">
-        <div className="group cursor-default">
-          <div className="flex items-center gap-3">
-          
-            <div>
-         <h1 className="text-2xl font-bold text-gray-800">
-                SubCategories
-              </h1>
-            </div>
-          </div>
-        </div>
-        <Button 
-          onClick={handleAddNew}
-          className="h-12 px-6 rounded-2xl shadow-lg shadow-purple-100 hover:shadow-purple-200 transition-all duration-300"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          <span className="font-bold">Add New SubCategory</span>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">SubCategories</h1>
+        <Button onClick={handleAddNew}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add New SubCategory
         </Button>
       </div>
 
@@ -175,7 +163,7 @@ export default function CategoriesPage() {
                     style={{ 
                       borderTopColor: categoryColor, 
                       borderTopWidth: '4px',
-                      // @ts-ignore
+                      // @ts-expect-error - CSS custom property for dynamic styling
                       '--category-color': categoryColor
                     }}
                   >

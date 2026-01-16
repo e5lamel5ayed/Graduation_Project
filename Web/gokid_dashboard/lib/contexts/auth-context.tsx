@@ -2,16 +2,11 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-};
+import { AuthUser } from '@/src/types/auth';
+import { authService } from '@/src/services/authService';
 
 type AuthContextType = {
-  user: User | null;
+  user: AuthUser | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
   logout: () => void;
@@ -21,7 +16,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -39,32 +34,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Static login for demo purposes with two roles: admin & institution
-    let mockUser: User | null = null;
+    try {
+      // Static login for InstitutionAdmin
+      if (email === 'institution@example.com' && password === 'password') {
+        const mockUser: AuthUser = {
+          id: '1',
+          name: 'institution Admin',
+          email: 'institution@example.com',
+          role: 'institution',
+        };
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        setUser(mockUser);
+        return true;
+      }
 
-    if (email === 'admin@example.com' && password === 'password') {
-      mockUser = {
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@example.com',
-        role: 'admin',
-      };
-    } else if (email === 'institution@example.com' && password === 'password') {
-      mockUser = {
-        id: '2',
-        name: 'Institution User',
-        email: 'institution@example.com',
+      // API login for PlatformAdmin
+      const response = await authService.login({
+        identifier: email,
+        password: password,
+        loginAs: 'PlatformAdmin',
+      });
+
+      const apiUser: AuthUser = {
+        id: response.id || response.userId || '',
+        name: response.name || response.fullName || '',
+        email: email,
         role: 'institution',
+        token: response.token,
       };
-    }
 
-    if (mockUser) {
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
+      // Store token
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+
+      localStorage.setItem('user', JSON.stringify(apiUser));
+      setUser(apiUser);
       return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-
-    return false;
   };
 
   const signup = async (name: string, email: string, password: string, phone: string): Promise<boolean> => {
@@ -89,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     setUser(null);
     router.push('/login');
   };
