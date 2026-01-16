@@ -17,15 +17,38 @@ export interface CategoryDetail extends Category {
   iconFile: string;
 }
 
+export interface SubCategory {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  icon?: CategoryIcon;
+  categoryId?: string;
+  categoryNameEn?: string;
+  categoryNameAr?: string;
+  category?: {
+    id: string;
+    nameAr: string;
+    nameEn: string;
+    colorHex: string;
+  };
+}
+
 export interface CreateCategoryDto {
   nameAr: string;
   nameEn: string;
   iconFile?: File | null;
   colorHex: string;
-  categoryId?: string; // Required for SubCategory
+}
+
+export interface CreateSubCategoryDto {
+  nameAr: string;
+  nameEn: string;
+  iconFile?: File | null;
+  categoryId?: string;
 }
 
 export type UpdateCategoryDto = Partial<CreateCategoryDto>;
+export type UpdateSubCategoryDto = Partial<CreateSubCategoryDto>;
 
 export interface ApiResponse<T> {
   statusCode: string;

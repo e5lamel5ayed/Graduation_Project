@@ -2,7 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { subCategoryService } from '../services/subCategoryService';
-import { CreateCategoryDto, UpdateCategoryDto } from '../types/category';
+import { CreateSubCategoryDto, UpdateSubCategoryDto } from '../types/category';
 
 const QUERY_KEY = 'TaskSubCategory';
 
@@ -25,7 +25,7 @@ export const useCreateSubCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateCategoryDto) => subCategoryService.create(data),
+    mutationFn: (data: CreateSubCategoryDto) => subCategoryService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       toast.success('تم إضافة الفئة الفرعية بنجاح');
@@ -40,7 +40,7 @@ export const useUpdateSubCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryDto }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateSubCategoryDto }) =>
       subCategoryService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });

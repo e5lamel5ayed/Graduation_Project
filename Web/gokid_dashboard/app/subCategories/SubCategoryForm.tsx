@@ -3,8 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui';
 import { Upload, X } from 'lucide-react';
 import { useCategories } from '@/src/hooks/useCategories';
 
@@ -14,7 +13,6 @@ export interface CategoryFormData {
   nameEn: string;
   iconFile?: File | null;
   existingIconUrl?: string | null;
-  colorHex: string;
   categoryId?: string;
 }
 
@@ -31,7 +29,6 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
     nameEn: '',
     iconFile: null,
     existingIconUrl: null,
-    colorHex: '#3498db',
     categoryId: '',
   });
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -44,7 +41,6 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
         nameEn: initialData.nameEn || '',
         iconFile: null,
         existingIconUrl: initialData.existingIconUrl || null,
-        colorHex: initialData.colorHex || '#3498db',
         categoryId: initialData.categoryId || '',
       });
       if (initialData.existingIconUrl) {
@@ -53,7 +49,7 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -96,7 +92,6 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
       nameEn: '',
       iconFile: null,
       existingIconUrl: null,
-      colorHex: '#3498db',
       categoryId: '',
     });
     setPreviewUrl(null);
@@ -105,7 +100,7 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="nameAr" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="nameAr" className="block text-sm font-semibold text-gray-700 text-left mb-1">
           Arabic Name <span className="text-red-500">*</span>
         </label>
         <Input
@@ -119,7 +114,7 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
       </div>
 
       <div>
-        <label htmlFor="nameEn" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="nameEn" className="block text-sm font-semibold text-gray-700 text-left mb-1">
           English Name <span className="text-red-500">*</span>
         </label>
         <Input
@@ -132,29 +127,31 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
         />
       </div>
 
-      <div>
-        <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="space-y-2">
+        <label className="block text-sm font-semibold text-gray-700 text-left">
           Category <span className="text-red-500">*</span>
         </label>
-        <select
-          id="categoryId"
-          name="categoryId"
+        <Select
           value={formData.categoryId}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          required
+          onValueChange={(value) => setFormData(prev => ({ ...prev, categoryId: value }))}
         >
-          <option value="">Select a category</option>
-          {isLoadingCategories ? (
-            <option disabled>Loading categories...</option>
-          ) : (
-            categories?.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.nameEn}
-              </option>
-            ))
-          )}
-        </select>
+          <SelectTrigger className="h-14 rounded-2xl border-gray-200">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {isLoadingCategories ? (
+              <div className="p-4 text-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600 mx-auto"></div>
+              </div>
+            ) : (
+              categories?.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.nameEn}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
@@ -206,32 +203,7 @@ export function CategoryForm({ initialData, onSubmit, isLoading = false }: Categ
         </p>
       </div>
 
-      <div>
-        <label htmlFor="colorHex" className="block text-sm font-medium text-gray-700 mb-1">
-          Color <span className="text-red-500">*</span>
-        </label>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="color"
-            id="colorHex"
-            name="colorHex"
-            value={formData.colorHex}
-            onChange={handleChange}
-            className="w-16 h-10 p-1 cursor-pointer"
-            required
-          />
-          <Input
-            type="text"
-            value={formData.colorHex}
-            onChange={handleChange}
-            name="colorHex"
-            placeholder="#3498db"
-            className="flex-1"
-            pattern="^#[0-9A-Fa-f]{6}$"
-            required
-          />
-        </div>
-      </div>
+
 
       <div className="flex justify-end space-x-3 pt-4">
         <Button

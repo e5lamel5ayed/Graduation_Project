@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X, FolderTree, Grid3X3 } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart } from 'lucide-react';
 
 const adminNavigation = [
@@ -18,9 +18,9 @@ const adminNavigation = [
 
 // Institution role has access to a limited set of pages
 const institutionNavigation = [
-  { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/home', icon: Home },
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
-    { name: 'SubCategories', href: '/subCategories', icon: Grid3X3 },
+  { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
 
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
@@ -66,8 +66,7 @@ export default function AppLayout({
       </div>
     );
   }
-
-  return (
+return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}
       <div className="md:hidden">
@@ -135,7 +134,7 @@ export default function AppLayout({
           </div>
         </div>
       </div>
-
+      
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64 bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl">
@@ -204,7 +203,6 @@ export default function AppLayout({
           >
             <Menu className="h-6 w-6" />
           </button>
-
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1 flex max-w-2xl">
               <div className="w-full flex">

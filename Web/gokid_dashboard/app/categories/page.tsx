@@ -138,12 +138,12 @@ export default function CategoriesPage() {
                 style={{ borderTopColor: category.colorHex, borderTopWidth: '4px' }}
               >
                 {category.icon?.url && (
-                  <img
-                    src={category.icon.url}
-                    alt={`${category.nameEn} icon`}
+                    <img
+                      src={category.icon.url}
+                      alt={`${category.nameEn} icon`}
                     className="absolute top-2 right-2 w-10 h-10 rounded-full border border-gray-200 object-cover bg-white"
-                  />
-                )}
+                    />
+                  )}
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <h2 className="text-lg font-semibold text-gray-900 truncate" title={category.nameEn}>
