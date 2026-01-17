@@ -28,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(JSON.parse(storedUser));
       }
       setLoading(false);
+  
     };
 
     checkAuth();
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+
       // Static login for InstitutionAdmin
       if (email === 'institution@example.com' && password === 'password') {
         const mockUser: AuthUser = {
@@ -59,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: response.id || response.userId || '',
         name: response.name || response.fullName || '',
         email: email,
-        role: 'institution',
+        role: response.userType || 'institution',
         token: response.token,
       };
 

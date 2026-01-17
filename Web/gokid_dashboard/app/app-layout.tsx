@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart } from 'lucide-react';
 
-const adminNavigation = [
+const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Classes', href: '/classes', icon: School },
   { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
@@ -17,7 +17,7 @@ const adminNavigation = [
 ];
 
 // Institution role has access to a limited set of pages
-const institutionNavigation = [
+const adminNavigation = [
   { name: 'Dashboard', href: '/home', icon: Home },
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
@@ -38,7 +38,7 @@ export default function AppLayout({
   const navigation = user?.role === 'institution' ? institutionNavigation : adminNavigation;
   const allowedPaths = navigation.map((item) => item.href);
 
-  const roleLabel = user?.role === 'admin'
+  const roleLabel = user?.role === 'PlatformAdmin'
     ? 'Admin'
     : user?.role === 'institution'
       ? 'Institution'

@@ -20,6 +20,7 @@ export interface LoginResponse {
   name?: string;
   fullName?: string;
   email?: string;
+  userType?: string;
   token: string;
   refreshToken?: string;
 }
