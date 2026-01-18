@@ -80,7 +80,6 @@ export default function CategoriesPage() {
   const handleSubmit = async (formData: CategoryFormData) => {
     try {
       if (formData.id) {
-        // Update existing subcategory
         await updateMutation.mutateAsync({  
             id: formData.id,
             data: {
@@ -138,7 +137,7 @@ export default function CategoriesPage() {
         <h1 className="text-2xl font-bold text-gray-800">SubCategories</h1>
         <Button onClick={handleAddNew}>
           <Plus className="h-4 w-4 mr-2" />
-          Add New SubCategory
+          New SubCategory
         </Button>
       </div>
 

@@ -120,7 +120,7 @@ export default function CategoriesPage() {
         <h1 className="text-2xl font-bold text-gray-800">Categories</h1>
         <Button onClick={handleAddNew}>
           <Plus className="h-4 w-4 mr-2" />
-          Add New Category
+           New Category
         </Button>
       </div>
 
