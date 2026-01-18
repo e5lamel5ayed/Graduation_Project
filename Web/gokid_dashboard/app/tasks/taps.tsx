@@ -1,6 +1,7 @@
 'use client';
 
 import { FileText, Mic, LayoutGrid } from 'lucide-react';
+import { useState } from 'react';
 
 interface TabsProps {
   activeTab: string;

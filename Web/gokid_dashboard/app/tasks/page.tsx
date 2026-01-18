@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { useState } from 'react';
@@ -63,7 +64,7 @@ export default function TasksPage() {
   const filteredTasks = tasks.filter(task => {
     const matchesTab = activeTab === 'all' || task.type === activeTab;
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      task.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -113,7 +114,7 @@ export default function TasksPage() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between text-sm text-gray-500 mt-4 pt-3 border-t border-gray-50">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-1.5">
@@ -146,8 +147,8 @@ export default function TasksPage() {
           <p className="text-gray-500 max-w-xs mx-auto">
             We couldn't find any tasks matching your current filters or search terms.
           </p>
-          <button 
-            onClick={() => {setActiveTab('all'); setSearchTerm('');}}
+          <button
+            onClick={() => { setActiveTab('all'); setSearchTerm(''); }}
             className="mt-6 text-purple-600 font-medium hover:text-purple-700 underline underline-offset-4"
           >
             Clear all filters
