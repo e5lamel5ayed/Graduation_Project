@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart } from 'lucide-react';
 
 const adminNavigation = [
@@ -14,6 +14,7 @@ const adminNavigation = [
   { name: 'Users', href: '/users', icon: User },
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
 ];
 
 // Institution role has access to a limited set of pages
@@ -21,6 +22,7 @@ const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: Home },
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
 
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
