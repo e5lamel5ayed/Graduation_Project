@@ -1,0 +1,68 @@
+name: rewarding_kids
+description: "Rewarding Kids System Graduation Project"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+
+  # Audio
+  audioplayers: ^5.2.1
+
+  # UI & Layout
+  cupertino_icons: ^1.0.8
+  equatable: ^2.0.5
+  flutter:
+    sdk: flutter
+  flutter_audio_waveforms: ^1.2.1+8
+
+  # State Management
+  flutter_bloc: ^8.1.4
+  flutter_screenutil: ^5.9.0
+  flutter_sound: ^9.2.13
+  flutter_sound_platform_interface: ^9.2.13
+  flutter_svg: ^2.2.1
+
+  # Routing
+  go_router: ^14.0.2
+
+  # Optional (gscanKit if still needed)
+  gscankit: ^1.0.3
+  image_cropper: ^8.0.2
+
+  # Image & Media
+  image_picker: ^1.1.1
+  permission_handler: ^11.3.0
+  qr_flutter: ^4.1.0
+
+  # QR Scanner
+  # Reactive programming
+  rxdart: ^0.28.0
+  smooth_page_indicator: ^1.1.0
+  voice_message_package: ^2.2.1
+
+dev_dependencies:
+  audio_waveforms: ^2.0.1
+  camera: ^0.11.3
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  just_waveform: ^0.0.7
+  liquid_glass_renderer: ^0.2.0-dev.4
+  mobile_scanner: ^7.1.4
+  path_provider: ^2.1.5
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/onboarding/
+    - assets/icons/
+    - assets/child/
+    - assets/sounds/
+    - assets/animations/
+    - assets/avatars/
+    - assets/gifts/
