@@ -24,7 +24,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           'inline-flex cursor-pointer items-center justify-center rounded-2xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
           {
-            'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg hover:from-purple-700 hover:to-pink-700': variant === 'default',
+            'bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg hover:from-purple-700 hover:to-purple-900': variant === 'default',
             'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50': variant === 'outline',
             'bg-transparent hover:bg-gray-100 text-gray-700': variant === 'ghost',
             'bg-transparent text-purple-600 hover:underline': variant === 'link',
