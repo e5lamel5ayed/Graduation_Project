@@ -1,7 +1,6 @@
 
 'use client';
 
-import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/contexts/auth-context';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -9,8 +8,6 @@ import AppLayout from './app-layout';
 import './globals.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-const inter = Inter({ subsets: ['latin'] });
 
 // List of routes that should not use the app layout
 const noLayoutRoutes = ['/login'];
@@ -58,7 +55,7 @@ export default function RootLayout({
       <head>
         <title>{`${pageTitle} | Dashboard`}</title>
       </head>
-      <body className={inter.className}>
+      <body className="font-sans antialiased">
         <QueryClientProvider client={queryClient}>
 
           <AuthProvider>
