@@ -1,12 +1,12 @@
 'use client';
 
-import { Mic, LayoutGrid, Gift, FileCheck } from 'lucide-react';
+import { Mic, Gift, FileCheck, Grid } from 'lucide-react';
 
 interface TabsProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   counts?: {
-    general: number;
+    all: number;
     voice: number;
     instantReward: number;
     evidenceSubmission: number;
@@ -16,16 +16,10 @@ interface TabsProps {
 export function Tabs({ activeTab, onTabChange, counts }: TabsProps) {
   const tabs = [
     { 
-      id: 'general', 
-      label: 'General', 
-      icon: LayoutGrid,
-      count: counts?.general 
-    },
-    { 
-      id: 'voice', 
-      label: 'Voice', 
-      icon: Mic,
-      count: counts?.voice 
+      id: 'all', 
+      label: 'All', 
+      icon: Grid,
+      count: counts?.all 
     },
     { 
       id: 'instantReward', 
@@ -38,6 +32,12 @@ export function Tabs({ activeTab, onTabChange, counts }: TabsProps) {
       label: 'Evidence Submission', 
       icon: FileCheck,
       count: counts?.evidenceSubmission 
+    },
+    { 
+      id: 'voice', 
+      label: 'Voice', 
+      icon: Mic,
+      count: counts?.voice 
     },
   ];
 

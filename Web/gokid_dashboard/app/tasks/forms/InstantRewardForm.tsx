@@ -1,21 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui';
-import { Upload, Star, Image as ImageIcon, Sparkles, X } from 'lucide-react';
-
-export interface InstantRewardFormData {
-  id?: string;
-  titleAr: string;
-  titleEn: string;
-  descriptionAr: string;
-  descriptionEn: string;
-  basePoints: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  subCategoryId: string;
-  taskImageFile: File | null;
-  iconFile: File | null;
-}
+import { Star, Image as ImageIcon, Sparkles, X } from 'lucide-react';
+import { subCategoryService } from '@/src/services/subCategoryService';
+import { SubCategory } from '@/src/types/category';
+import { InstantRewardFormData } from '@/src/types/task';
 
 interface InstantRewardFormProps {
   initialData?: InstantRewardFormData | null;
@@ -25,6 +15,8 @@ interface InstantRewardFormProps {
 
 export default function InstantRewardForm({ initialData, onSubmit, isLoading = false }: InstantRewardFormProps) {
   const [visualType, setVisualType] = useState<'image' | 'icon'>('image');
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [isLoadingSubCategories, setIsLoadingSubCategories] = useState(false);
   const [formData, setFormData] = useState<InstantRewardFormData>({
     titleAr: initialData?.titleAr || '',
     titleEn: initialData?.titleEn || '',
@@ -36,6 +28,23 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
     taskImageFile: null,
     iconFile: null,
   });
+
+  // Fetch sub categories on mount
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      try {
+        setIsLoadingSubCategories(true);
+        const data = await subCategoryService.getAll();
+        setSubCategories(data);
+      } catch (error) {
+        console.error('Error fetching sub categories:', error);
+      } finally {
+        setIsLoadingSubCategories(false);
+      }
+    };
+
+    fetchSubCategories();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -50,9 +59,6 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
       setFormData(prev => ({
         ...prev,
         [fieldName]: e.target.files![0],
-        // Clear the other file when one is selected to ensure exclusivity in state if needed,
-        // though the UI toggle mainly controls what is submitted/shown.
-        [fieldName === 'taskImageFile' ? 'iconFile' : 'taskImageFile']: null, 
       }));
     }
   };
@@ -63,12 +69,24 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (!formData.titleEn || !formData.titleAr) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (!formData.subCategoryId) {
+      alert('Please enter a Sub Category ID');
+      return;
+    }
+
+    // Submit with only one file type based on what's selected
     onSubmit({
       ...formData,
       id: initialData?.id,
-      // Ensure only the selected type is sent, just in case
-      taskImageFile: visualType === 'image' ? formData.taskImageFile : null,
-      iconFile: visualType === 'icon' ? formData.iconFile : null,
+      taskImageFile: formData.taskImageFile,
+      iconFile: formData.iconFile,
     });
   };
 
@@ -91,14 +109,14 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 w-full">
-      
+
       {/* Section 1: Task Information */}
       <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 space-y-6">
         <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
           <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
           Task Details
         </h3>
-        
+
         {/* Titles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-1.5">
@@ -174,7 +192,7 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
           <span className="w-1 h-4 bg-yellow-500 rounded-full"></span>
           Configuration
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="">
             <label htmlFor="basePoints" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -214,18 +232,58 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="subCategoryId" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Sub Category ID
+            <label
+              htmlFor="subCategoryId"
+              className="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+            >
+              Sub Category <span className="text-red-500">*</span>
             </label>
-            <Input
-              id="subCategoryId"
-              name="subCategoryId"
+
+            <Select
               value={formData.subCategoryId}
-              onChange={handleChange}
-              placeholder="Enter ID"
-              className="bg-white rounded-lg"
-            />
+              onValueChange={(value: string) =>
+                setFormData(prev => ({ ...prev, subCategoryId: value }))
+              }
+              disabled={isLoadingSubCategories}
+            >
+              <SelectTrigger
+                className="
+        h-[52px]
+        rounded-xl
+        border border-gray-200
+        bg-white
+        shadow-sm
+        transition-all
+        focus:ring-2 focus:ring-purple-200
+        focus:border-purple-300
+        disabled:opacity-60
+        disabled:cursor-not-allowed
+      "
+              >
+                <SelectValue
+                  placeholder={
+                    isLoadingSubCategories ? 'Loading...' : 'Select sub category'
+                  }
+                />
+              </SelectTrigger>
+
+              <SelectContent className="rounded-xl">
+                {subCategories.map((subCat) => (
+                  <SelectItem key={subCat.id} value={subCat.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{subCat.nameEn}</span>
+                      {subCat.categoryNameEn && (
+                        <span className="text-xs text-gray-500">
+                          ({subCat.categoryNameEn})
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
         </div>
       </div>
 
@@ -235,7 +293,7 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
           <span className="w-1 h-4 bg-pink-500 rounded-full"></span>
           Visual Assets
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Task Image Upload */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-white hover:border-purple-400 transition-all group bg-white/50">
@@ -244,16 +302,16 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
                 <ImageIcon className="h-6 w-6" />
               </div>
               {formData.taskImageFile ? (
-                  <div className="flex items-center gap-2 text-sm text-purple-700 font-medium bg-purple-50 px-4 py-2 rounded-full max-w-full">
-                    <span className="truncate max-w-[150px]">{formData.taskImageFile.name}</span>
-                    <button 
-                      type="button"
-                      onClick={(e) => { e.preventDefault(); clearFile('taskImageFile'); }}
-                      className="p-1 hover:bg-purple-200 rounded-full shrink-0"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2 text-sm text-purple-700 font-medium bg-purple-50 px-4 py-2 rounded-full max-w-full">
+                  <span className="truncate max-w-[150px]">{formData.taskImageFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); clearFile('taskImageFile'); }}
+                    className="p-1 hover:bg-purple-200 rounded-full shrink-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
               ) : (
                 <>
                   <span className="block text-sm font-semibold text-gray-900">Upload Task Image</span>
@@ -278,16 +336,16 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
                 <Sparkles className="h-6 w-6" />
               </div>
               {formData.iconFile ? (
-                  <div className="flex items-center gap-2 text-sm text-pink-700 font-medium bg-pink-50 px-4 py-2 rounded-full max-w-full">
-                    <span className="truncate max-w-[150px]">{formData.iconFile.name}</span>
-                    <button 
-                      type="button"
-                      onClick={(e) => { e.preventDefault(); clearFile('iconFile'); }}
-                      className="p-1 hover:bg-pink-200 rounded-full shrink-0"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2 text-sm text-pink-700 font-medium bg-pink-50 px-4 py-2 rounded-full max-w-full">
+                  <span className="truncate max-w-[150px]">{formData.iconFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); clearFile('iconFile'); }}
+                    className="p-1 hover:bg-pink-200 rounded-full shrink-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
               ) : (
                 <>
                   <span className="block text-sm font-semibold text-gray-900">Upload SVG/PNG Icon</span>
@@ -318,9 +376,9 @@ export default function InstantRewardForm({ initialData, onSubmit, isLoading = f
         >
           Reset
         </Button>
-        <Button 
-          type="submit" 
-          isLoading={isLoading} 
+        <Button
+          type="submit"
+          isLoading={isLoading}
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90 shadow-lg shadow-purple-200 transition-all hover:scale-[1.02]"
         >
           {initialData?.id ? 'Update' : 'Create'} Reward Task
