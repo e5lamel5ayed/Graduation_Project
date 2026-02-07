@@ -63,9 +63,10 @@ const features = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth() as { login: (email: string, password: string) => Promise<boolean> };
+  const { login } = useAuth() as { login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin') => Promise<boolean> };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginAsInstitution, setLoginAsInstitution] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,7 +75,8 @@ export default function LoginPage() {
     setError('');
     
     try {
-      const success = await login(email, password);
+      const loginAs = loginAsInstitution ? 'InstitutionAdmin' : 'PlatformAdmin';
+      const success = await login(email, password, loginAs);
       if (success) {
         router.push('/home');
       } else {
@@ -200,6 +202,23 @@ export default function LoginPage() {
                     autoComplete="new-password"
                     required
                   />
+
+                  {/* Login As Institution Admin Checkbox */}
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
+                    <input
+                      type="checkbox"
+                      id="loginAsInstitution"
+                      checked={loginAsInstitution}
+                      onChange={(e) => setLoginAsInstitution(e.target.checked)}
+                      className="w-5 h-5 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163]"
+                    />
+                    <label
+                      htmlFor="loginAsInstitution"
+                      className="flex-1 text-sm font-medium text-[#5c5163] cursor-pointer select-none"
+                    >
+                      Login as Institution Admin
+                    </label>
+                  </div>
 
                   {/* Remember & Forgot */}
                   <div className="flex items-center justify-between text-sm">

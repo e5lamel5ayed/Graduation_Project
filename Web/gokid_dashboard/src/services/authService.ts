@@ -1,28 +1,24 @@
 import { axiosInstance } from '../lib/axios';
-import { LoginDto, LoginResponse, ApiResponse } from '../types/auth';
+import { LoginCredentials, LoginResponse, SignupCredentials } from '../types/auth';
 
 export const authService = {
-  // Login
-  login: async (loginData: LoginDto) => {
-    const { data } = await axiosInstance.post<ApiResponse<LoginResponse>>(
-      '/Account/login',
-      loginData
-    );
-    return data.data;
-  },
-
-  // Logout (if you have logout endpoint)
-  logout: async () => {
-    const { data } = await axiosInstance.post<ApiResponse<void>>('/Account/logout');
+  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    const { data } = await axiosInstance.post<LoginResponse>('/Account/login', credentials);
     return data;
   },
 
-  // Refresh token (if you have refresh endpoint)
+  signup: async (credentials: SignupCredentials) => {
+    const { data } = await axiosInstance.post('/Account/signup', credentials);
+    return data;
+  },
+
+  logout: async () => {
+    const { data } = await axiosInstance.post('/Account/logout');
+    return data;
+  },
+
   refreshToken: async (refreshToken: string) => {
-    const { data } = await axiosInstance.post<ApiResponse<LoginResponse>>(
-      '/Account/refresh-token',
-      { refreshToken }
-    );
-    return data.data;
+    const { data } = await axiosInstance.post('/Account/refresh-token', { refreshToken });
+    return data;
   },
 };

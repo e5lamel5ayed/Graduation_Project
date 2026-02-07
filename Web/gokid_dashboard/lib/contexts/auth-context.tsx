@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthUser } from '@/src/types/auth';
 import { authService } from '@/src/services/authService';
+import { toast } from 'sonner';
 
 type AuthContextType = {
   user: AuthUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin') => Promise<boolean>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -34,47 +36,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, loginAs: 'PlatformAdmin' | 'InstitutionAdmin' = 'PlatformAdmin'): Promise<boolean> => {
     try {
-
-      // Static login for InstitutionAdmin
-      if (email === 'institution@example.com' && password === 'password') {
-        const mockUser: AuthUser = {
-          id: '1',
-          name: 'institution Admin',
-          email: 'institution@example.com',
-          role: 'institution',
-        };
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        setUser(mockUser);
-        return true;
-      }
-
-      // API login for PlatformAdmin
+      // API login for both PlatformAdmin and InstitutionAdmin
       const response = await authService.login({
         identifier: email,
         password: password,
-        loginAs: 'PlatformAdmin',
+        loginAs: loginAs,
       });
 
+      console.log('Login response:', response); // للتأكد من الـ response
+
+      // Check if login was successful
+      if (!response.succeeded) {
+        toast.error(response.message || 'Login failed');
+        return false;
+      }
+
+      if (!response.data) {
+        toast.error('Invalid response from server');
+        return false;
+      }
+
+      const { data } = response;
+
       const apiUser: AuthUser = {
-        id: response.id || response.userId || '',
-        name: response.name || response.fullName || '',
-        email: email,
-        role: response.userType || 'institution',
-        token: response.token,
+        id: data.userId || '',
+        name: data.displayName || data.email || '',
+        email: data.email || email,
+        role: loginAs === 'InstitutionAdmin' ? 'institution' : (data.userType || 'platform'),
+        token: data.accessToken,
       };
 
-      // Store token
-      if (response.token) {
-        localStorage.setItem('token', response.token);
+      // Store tokens
+      if (data.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+      }
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
       }
 
       localStorage.setItem('user', JSON.stringify(apiUser));
       setUser(apiUser);
+      toast.success('Login successful');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      
+      // Handle error response
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.response?.data?.errors) {
+        const errorMessages = Array.isArray(error.response.data.errors) 
+          ? error.response.data.errors.join(', ')
+          : error.response.data.errors;
+        toast.error(errorMessages);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+      
       return false;
     }
   };
@@ -102,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
     router.push('/login');
   };

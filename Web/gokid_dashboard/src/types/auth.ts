@@ -14,15 +14,36 @@ export interface AuthUser {
   token?: string;
 }
 
+export interface LoginCredentials {
+  identifier: string;
+  password: string;
+  loginAs: 'PlatformAdmin' | 'InstitutionAdmin';
+}
+
+export interface LoginData {
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+  displayName: string;
+  email: string;
+  userType: string;
+  childId: string | null;
+  parentId: string | null;
+}
+
 export interface LoginResponse {
-  id: string;
-  userId?: string;
-  name?: string;
-  fullName?: string;
-  email?: string;
-  userType?: string;
-  token: string;
-  refreshToken?: string;
+  statusCode: string;
+  succeeded: boolean;
+  message: string;
+  errors: string[] | null;
+  data: LoginData;
+}
+
+export interface SignupCredentials {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
 }
 
 export interface ApiResponse<T> {

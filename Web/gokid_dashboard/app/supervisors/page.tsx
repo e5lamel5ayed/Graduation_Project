@@ -1,28 +1,39 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DataTable } from '@/src/components/ui';
 import { Button } from '@/src/components/ui/Button';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus } from 'lucide-react';
 import { SupervisorForm, SupervisorFormData } from './SupervisorForm';
-  
-interface Supervisor extends SupervisorFormData {
-  id: string;
-  email: string;
-  phoneNumber: number ;
-}
+import { supervisorService } from '@/src/services/supervisorService';
+import { Supervisor } from '@/src/types/supervisor';
+import { toast } from 'sonner';
 
 export default function SupervisorsPage() {
-  const [supervisors, setSupervisors] = useState<Supervisor[]>([
-    { id: '1', name: 'John Doe', email: 'john.doe@example.com', phoneNumber: 1234567890},
-    { id: '2', name: 'Jane Smith', email: 'jane.smith@example.com', phoneNumber: 2345678901 },
-    { id: '3', name: 'Robert Johnson', email: 'robert.johnson@example.com', phoneNumber: 3456789012},
-  ]);
-  
+  const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSupervisors();
+  }, []);
+
+  const fetchSupervisors = async () => {
+    try {
+      setIsLoading(true);
+      const data = await supervisorService.getAll();
+      setSupervisors(data);
+    } catch (error) {
+      console.error('Error fetching supervisors:', error);
+      toast.error('Failed to load supervisors');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddNew = () => {
     setSelectedSupervisor(null);
@@ -34,41 +45,69 @@ export default function SupervisorsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (supervisor: Supervisor) => {
-      setSupervisors(supervisors.filter(s => s.id !== supervisor.id));
- 
+  const handleDelete = async (supervisor: Supervisor) => {
+    if (!window.confirm('Are you sure you want to delete this supervisor?')) {
+      return;
+    }
+
+    try {
+      await supervisorService.delete(supervisor.id);
+      toast.success('Supervisor deleted successfully');
+      fetchSupervisors();
+    } catch (error) {
+      console.error('Error deleting supervisor:', error);
+      toast.error('Failed to delete supervisor');
+    }
   };
 
   const handleSubmit = async (formData: SupervisorFormData) => {
     setIsSubmitting(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000)); // simulate API
+    try {
+      if (formData.id) {
+        // Update existing supervisor
+        const updateData: any = {
+          email: formData.email,
+          fullName: formData.fullName,
+          phoneNumber: formData.phoneNumber,
+        };
 
-    if (formData.id) {
-      // Update existing supervisor
-      setSupervisors(supervisors.map(s =>
-        s.id === formData.id
-          ? { ...formData } as Supervisor
-          : s
-      ));
-    } else {
-      // Add new supervisor
-      const newSupervisor: Supervisor = {
-        ...formData,
-        id: Date.now().toString(),
-        Email: '',
-      } as Supervisor;
-      setSupervisors([...supervisors, newSupervisor]);
+        if (formData.password) {
+          updateData.password = formData.password;
+        }
+
+        if (formData.avatarFile) {
+          updateData.avatarFile = formData.avatarFile;
+        }
+
+        await supervisorService.update(formData.id, updateData);
+        toast.success('Supervisor updated successfully');
+      } else {
+        // Create new supervisor
+        await supervisorService.create({
+          email: formData.email,
+          fullName: formData.fullName,
+          password: formData.password,
+          phoneNumber: formData.phoneNumber,
+          avatarFile: formData.avatarFile,
+        });
+        toast.success('Supervisor created successfully');
+      }
+
+      setIsDialogOpen(false);
+      fetchSupervisors();
+    } catch (error) {
+      console.error('Error saving supervisor:', error);
+      toast.error('Failed to save supervisor');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    setIsDialogOpen(false);
   };
 
   const columns = [
     {
-      header: 'Supervisor Name',
-      accessor: (item: Supervisor) => item.name,
+      header: 'Full Name',
+      accessor: (item: Supervisor) => item.fullName,
     },
     {
       header: 'Email',
@@ -78,8 +117,6 @@ export default function SupervisorsPage() {
       header: 'Phone Number',
       accessor: (item: Supervisor) => item.phoneNumber,
     },
-    
-   
   ];
 
   return (
@@ -99,6 +136,7 @@ export default function SupervisorsPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           emptyMessage="No supervisors found. Click the button above to add a new supervisor."
+          isLoading={isLoading}
         />
       </div>
 
@@ -109,7 +147,14 @@ export default function SupervisorsPage() {
         maxWidth="lg"
       >
         <SupervisorForm
-          initialData={selectedSupervisor || undefined}
+          initialData={selectedSupervisor ? {
+            id: selectedSupervisor.id,
+            fullName: selectedSupervisor.fullName,
+            email: selectedSupervisor.email,
+            password: '',
+            phoneNumber: selectedSupervisor.phoneNumber,
+            avatarUrl: selectedSupervisor.avatarUrl,
+          } : undefined}
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         />
