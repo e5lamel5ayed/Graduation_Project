@@ -4,8 +4,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare } from 'lucide-react';
-import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart, Compass } from 'lucide-react';
 
 const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
@@ -15,6 +15,7 @@ const institutionNavigation = [
   { name: 'Products', href: '/products', icon: Package },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
 ];
 
 // Institution role has access to a limited set of pages
@@ -23,6 +24,7 @@ const adminNavigation = [
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
 
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
@@ -36,6 +38,7 @@ export default function AppLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navigation = user?.role === 'institution' ? institutionNavigation : adminNavigation;
   const allowedPaths = navigation.map((item) => item.href);
@@ -54,8 +57,12 @@ export default function AppLayout({
 
   useEffect(() => {
     if (!loading && user) {
-      // If current path is not allowed for this role, redirect to first allowed page
-      if (!allowedPaths.includes(pathname)) {
+      // Check if the current pathname starts with any of the allowed paths
+      const isAllowed = allowedPaths.some(path => 
+        pathname === path || pathname.startsWith(`${path}/`)
+      );
+
+      if (!isAllowed && pathname !== '/') {
         router.push(allowedPaths[0] ?? '/home');
       }
     }
@@ -139,57 +146,84 @@ return (
       
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64 bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center justify-center flex-shrink-0 mb-5">
-              {/* <h1 className="text-2xl font-bold text-white">GoKid</h1> */}
+        <div className={`flex flex-col ${isCollapsed ? 'w-20' : 'w-64'} bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl transition-all duration-300 relative`}>
+          {/* Collapse Toggle Button */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="absolute -right-3 top-20 bg-[#b9a2c5] text-[#483f4d] rounded-full p-1 shadow-md z-30 hover:bg-white transition-colors"
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+
+          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto overflow-x-hidden">
+            <div className={`flex items-center justify-center flex-shrink-0 mb-5 transition-all duration-300 ${isCollapsed ? 'px-2' : 'px-4'}`}>
               <img
-                src="/SideParLogo.png"
+                src={isCollapsed ? "/LogoIcon.png" : "/SideParLogo.png"}
                 alt="GoKid Logo"
-                className="w-50"
+                className={`${isCollapsed ? 'w-12' : 'w-48'} h-auto object-contain transition-all duration-300`}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (isCollapsed) {
+                    target.src = "/SideParLogo.png";
+                    target.className = "w-10 h-auto object-contain";
+                  }
+                }}
               />
             </div>
             <nav className="flex-1 px-3 space-y-1">
               {navigation.map((item) => {
                 const IconComponent = item.icon;
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${pathname === item.href
+                    title={isCollapsed ? item.name : ""}
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${isActive
                         ? 'bg-[#a490af] text-white shadow-md'
                         : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
-                      }`}
+                      } ${isCollapsed ? 'justify-center px-2' : ''}`}
                   >
                     <IconComponent 
-                      className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
+                      className={`${isCollapsed ? '' : 'mr-3'} h-5 w-5 ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'} flex-shrink-0`}
                       strokeWidth={2}
                     />
-                    {item.name}
+                    {!isCollapsed && <span className="truncate">{item.name}</span>}
                   </Link>
                 );
               })}
             </nav>
           </div>
-          <div className="p-4 border-t border-[#5c5163]">
-            <div className="flex items-center justify-between">
+          <div className={`p-4 border-t border-[#5c5163] ${isCollapsed ? 'flex justify-center' : ''}`}>
+            <div className={`flex items-center ${isCollapsed ? 'flex-col gap-4' : 'justify-between w-full'}`}>
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-[#b9a2c5] flex items-center justify-center text-[#483f4d] font-bold">
+                <div className="h-10 w-10 rounded-full bg-[#b9a2c5] flex-shrink-0 flex items-center justify-center text-[#483f4d] font-bold">
                   {user.name?.charAt(0).toUpperCase()}
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">{user.name}</p>
-                  <p className="text-xs text-gray-300">{user.email}</p>
-                </div>
+                {!isCollapsed && (
+                  <div className="ml-3 truncate">
+                    <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                    <p className="text-xs text-gray-300 truncate">{user.email}</p>
+                  </div>
+                )}
               </div>
-              <div className="flex space-x-2">
+              <div className={`flex ${isCollapsed ? 'flex-col gap-2' : 'space-x-2'}`}>
                 <Link
                   href="/settings"
+                  title="Settings"
                   className="p-2 rounded-full text-gray-300 hover:bg-[#7b6c83] hover:text-white transition-colors"
                 >
                   <Settings className="h-5 w-5" />
                 </Link>
-
+                {isCollapsed && (
+                   <button
+                    onClick={logout}
+                    title="Logout"
+                    className="p-2 rounded-full text-gray-300 hover:bg-[#7b6c83] hover:text-white transition-colors"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -258,7 +292,7 @@ return (
         </div>
         <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50">
           <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 md:px-8">
               {children}
             </div>
           </div>

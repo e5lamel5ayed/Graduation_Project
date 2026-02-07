@@ -13,7 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 const noLayoutRoutes = ['/login'];
 
 // List of all valid routes that should use the app layout
-const validAppRoutes = ['/home', '/users', '/classes', '/supervisors', '/categories', '/subCategories', '/tasks'];
+const validAppRoutes = ['/home', '/users', '/classes', '/supervisors', '/categories', '/subCategories', '/tasks', '/adventures'];
 
 // Function to get page title based on route
 const getPageTitle = (pathname: string | null): string => {
@@ -29,6 +29,8 @@ const getPageTitle = (pathname: string | null): string => {
     '/categories': 'Categories',
     '/subCategories': 'SubCategories',
     '/tasks': 'Tasks',
+    '/adventures': 'Adventures',
+    '/adventures/builder': 'Adventure Builder',
   };
 
   return routeTitles[pathname] || 'Page Not Found';
@@ -55,7 +57,7 @@ export default function RootLayout({
       <head>
         <title>{`${pageTitle} | Dashboard`}</title>
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
 
           <AuthProvider>
