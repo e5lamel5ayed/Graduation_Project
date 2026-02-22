@@ -7,7 +7,7 @@ import { CheckSquare, Plus, Calendar, User, Tag, Mic, Gift, FileCheck, LayoutGri
 import { Tabs } from './taps';
 import { Button } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
-import { GeneralTaskForm, VoiceTaskForm, InstantRewardForm, EvidenceSubmissionForm } from './forms';
+import { VoiceTaskForm, InstantRewardForm, EvidenceSubmissionForm } from './forms';
 import { taskService } from '@/src/services/taskService';
 import { TaskTemplate, TemplateType, Difficulty } from '@/src/types/task';
 import Image from 'next/image';

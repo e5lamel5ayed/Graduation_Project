@@ -1,5 +1,6 @@
 'use client';
 
+import { Adventure } from '@/src/types/adventure';
 import { 
   MoreVertical, 
   Compass, 
@@ -10,7 +11,6 @@ import {
   Target
 } from 'lucide-react';
 import Link from 'next/link';
-import { Adventure } from '@/app/adventures/types';
 
 interface AdventureCardProps {
   adventure: Adventure;

@@ -8,9 +8,6 @@ import { Input } from '@/src/components/ui/Input';
 export interface ClassFormData {
   id?: string;
   name: string;
-  teacher: string;
-  maxStudents: number | string;
-  schedule: string;
 }
 
 interface ClassFormProps {
@@ -22,9 +19,6 @@ interface ClassFormProps {
 export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFormProps) {
   const [formData, setFormData] = useState<ClassFormData>({
     name: '',
-    teacher: '',
-    maxStudents: '',
-    schedule: '',
   });
 
   useEffect(() => {
@@ -32,9 +26,6 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
       setFormData({
         id: initialData.id,
         name: initialData.name || '',
-        teacher: initialData.teacher || '',
-        maxStudents: initialData.maxStudents || '',
-        schedule: initialData.schedule || '',
       });
     }
   }, [initialData]);
@@ -43,16 +34,13 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'maxStudents' ? (value ? parseInt(value) : '') : value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      maxStudents: formData.maxStudents === '' ? 0 : Number(formData.maxStudents),
-    });
+    onSubmit(formData);
   };
 
   return (
@@ -71,59 +59,12 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
         />
       </div>
 
-      <div>
-        <label htmlFor="teacher" className="block text-sm font-medium text-gray-700 mb-1">
-          Teacher <span className="text-red-500">*</span>
-        </label>
-        <Input
-          id="teacher"
-          name="teacher"
-          value={formData.teacher}
-          onChange={handleChange}
-          placeholder="Teacher's name"
-          required
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="maxStudents" className="block text-sm font-medium text-gray-700 mb-1">
-            Maximum Students
-          </label>
-          <Input
-            id="maxStudents"
-            name="maxStudents"
-            type="number"
-            min="1"
-            value={formData.maxStudents}
-            onChange={handleChange}
-            placeholder="30"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="schedule" className="block text-sm font-medium text-gray-700 mb-1">
-            Schedule
-          </label>
-          <Input
-            id="schedule"
-            name="schedule"
-            value={formData.schedule}
-            onChange={handleChange}
-            placeholder="e.g. Mon, Wed, Fri 9:00 AM"
-          />
-        </div>
-      </div>
-
       <div className="flex justify-end space-x-3 pt-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => setFormData({
             name: '',
-            teacher: '',
-            maxStudents: '',
-            schedule: '',
           })}
           disabled={isLoading}
         >
