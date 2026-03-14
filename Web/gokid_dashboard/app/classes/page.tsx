@@ -1,16 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { DataTable } from '@/src/components/ui';
-import { Button } from '@/src/components/ui/Button';
-import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
+import { DataTable, Button, HeadlessDialog, ConfirmDeleteDialog } from '@/src/components/ui';
 import { Plus } from 'lucide-react';
-import { ClassForm, ClassFormData } from './ClassForm';
+import { ClassForm } from './ClassForm';
+import { Class, ClassFormData } from '@/src/types/class';
 
-interface Class extends ClassFormData {
-  id: string;
-  studentsCount: number;
-}
 
 export default function ClassesPage() {
   const [classes, setClasses] = useState<Class[]>([
@@ -22,6 +17,8 @@ export default function ClassesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [classToDelete, setClassToDelete] = useState<Class | null>(null);
 
   const handleAddNew = () => {
     setSelectedClass(null);
@@ -34,9 +31,21 @@ export default function ClassesPage() {
   };
 
   const handleDelete = (classItem: Class) => {
-    // if (confirm(`Are you sure you want to delete ${classItem.name}?`)) {
-      setClasses(classes.filter(c => c.id !== classItem.id));
-    // }
+    setClassToDelete(classItem);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (classToDelete) {
+      setClasses(classes.filter(c => c.id !== classToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setClassToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setClassToDelete(null);
   };
 
   const handleSubmit = async (formData: ClassFormData) => {
@@ -117,6 +126,13 @@ export default function ClassesPage() {
           isLoading={isSubmitting}
         />
       </HeadlessDialog>
+
+      <ConfirmDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        itemName={classToDelete?.name}
+      />
     </div>
   );
 }

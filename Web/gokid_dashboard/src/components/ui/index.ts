@@ -6,3 +6,4 @@ export * from './DataTable';
 export * from './HeadlessDialog';
 export * from './Select';
 export * from './Pagination';
+export * from './ConfirmDeleteDialog';

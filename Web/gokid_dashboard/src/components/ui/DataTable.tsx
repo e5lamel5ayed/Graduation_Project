@@ -4,12 +4,7 @@ import { cn } from '@/src/lib/utils';
 import { ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { HeadlessDialog, HeadlessDialogActions } from './HeadlessDialog';
 
-export interface Column<T> {
-  header: string;
-  accessor: keyof T | ((item: T) => React.ReactNode);
-  cell?: (value: unknown, item: T) => React.ReactNode;
-  className?: string;
-}
+import { Column } from '@/src/types/ui';
 
 interface DataTableProps<T> {
   data: T[];
@@ -21,6 +16,7 @@ interface DataTableProps<T> {
   className?: string;
   emptyMessage?: string;
 }
+
 
 export function DataTable<T>({
   data,

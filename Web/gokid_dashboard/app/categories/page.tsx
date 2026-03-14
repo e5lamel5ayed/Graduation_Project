@@ -3,7 +3,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/src/components/ui/Button';
+import { Button, ConfirmDeleteDialog } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { CategoryForm, CategoryFormData } from './CategoryForm';
@@ -206,36 +206,13 @@ export default function CategoriesPage() {
         )}
       </HeadlessDialog>
 
-      <HeadlessDialog
+      <ConfirmDeleteDialog
         isOpen={isDeleteDialogOpen}
         onClose={handleCancelDelete}
-        title="Confirm Delete"
-        maxWidth="sm"
-      >
-        <div className="mt-4">
-          <p className="text-gray-700">
-            {categoryToDelete
-              ? `Are you sure you want to delete "${categoryToDelete.name}"?`
-              : 'Are you sure you want to delete this category?'}
-          </p>
-          <div className="mt-6 flex justify-end space-x-2">
-            <Button
-              onClick={handleConfirmDelete}
-              isLoading={deleteMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCancelDelete}
-              disabled={deleteMutation.isPending}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </HeadlessDialog>
+        onConfirm={handleConfirmDelete}
+        itemName={categoryToDelete?.name}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

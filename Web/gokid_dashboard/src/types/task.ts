@@ -1,3 +1,5 @@
+import { ApiResponse, PaginatedResponse } from './shared';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type TemplateType = 'InstantReward' | 'TextQuestion' | 'VoiceQuestion' | 'EvidenceSubmission';
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
@@ -114,19 +116,5 @@ export interface TaskTemplateParams {
   pageSize?: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  pageNumber: number;
-  totalCount: number;
-  totalPages: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-}
+export { type ApiResponse, type PaginatedResponse };
 
-export interface ApiResponse<T> {
-  statusCode: string;
-  succeeded: boolean;
-  message: string;
-  errors: any[] | null;
-  data: T;
-}

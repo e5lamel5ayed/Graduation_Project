@@ -6,22 +6,14 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { User, X } from 'lucide-react';
-
-export interface SupervisorFormData {
-  id?: string;
-  fullName: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  avatarFile?: File;
-  avatarUrl?: string;
-}
+import { SupervisorFormData } from '@/src/types/supervisor';
 
 interface SupervisorFormProps {
   initialData?: SupervisorFormData | null;
   onSubmit: (data: SupervisorFormData) => void;
   isLoading?: boolean;
 }
+
 
 export function SupervisorForm({ initialData, onSubmit, isLoading = false }: SupervisorFormProps) {
   const [formData, setFormData] = useState<SupervisorFormData>({

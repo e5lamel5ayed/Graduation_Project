@@ -3,13 +3,8 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button } from './Button';
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  className?: string;
-  siblingCount?: number;
-}
+import { PaginationProps } from '@/src/types/ui';
+
 
 export function Pagination({
   currentPage,

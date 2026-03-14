@@ -2,10 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DataTable } from '@/src/components/ui';
-import { Button } from '@/src/components/ui/Button';
-import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
-import { Plus } from 'lucide-react';
+import { DataTable, Button, HeadlessDialog, ConfirmDeleteDialog } from '@/src/components/ui';
+import { Plus, Trash2 } from 'lucide-react';
 import { SupervisorForm, SupervisorFormData } from './SupervisorForm';
 import { supervisorService } from '@/src/services/supervisorService';
 import { Supervisor } from '@/src/types/supervisor';
@@ -15,8 +13,11 @@ export default function SupervisorsPage() {
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [supervisorToDelete, setSupervisorToDelete] = useState<Supervisor | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchSupervisors();
@@ -45,19 +46,32 @@ export default function SupervisorsPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (supervisor: Supervisor) => {
-    if (!window.confirm('Are you sure you want to delete this supervisor?')) {
-      return;
-    }
+  const handleDelete = (supervisor: Supervisor) => {
+    setSupervisorToDelete(supervisor);
+    setIsDeleteDialogOpen(true);
+  };
 
+  const handleConfirmDelete = async () => {
+    if (!supervisorToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await supervisorService.delete(supervisor.id);
+      await supervisorService.delete(supervisorToDelete.id);
       toast.success('Supervisor deleted successfully');
+      setIsDeleteDialogOpen(false);
+      setSupervisorToDelete(null);
       fetchSupervisors();
     } catch (error) {
       console.error('Error deleting supervisor:', error);
       toast.error('Failed to delete supervisor');
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setSupervisorToDelete(null);
   };
 
   const handleSubmit = async (formData: SupervisorFormData) => {
@@ -159,6 +173,14 @@ export default function SupervisorsPage() {
           isLoading={isSubmitting}
         />
       </HeadlessDialog>
+
+      <ConfirmDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        itemName={supervisorToDelete?.fullName}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

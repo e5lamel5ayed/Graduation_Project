@@ -4,20 +4,14 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
-
-export interface ClassFormData {
-  id?: string;
-  name: string;
-  teacher: string;
-  maxStudents: number | string;
-  schedule: string;
-}
+import { ClassFormData } from '@/src/types/class';
 
 interface ClassFormProps {
   initialData?: ClassFormData | null;
   onSubmit: (data: ClassFormData) => void;
   isLoading?: boolean;
 }
+
 
 export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFormProps) {
   const [formData, setFormData] = useState<ClassFormData>({

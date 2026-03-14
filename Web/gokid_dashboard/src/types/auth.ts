@@ -1,3 +1,5 @@
+import { ApiResponse } from './shared';
+
 export type LoginAs = 'PlatformAdmin' | 'InstitutionAdmin' | 'Parent';
 
 export interface LoginDto {
@@ -46,8 +48,5 @@ export interface SignupCredentials {
   phone: string;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  success: boolean;
-}
+export { type ApiResponse };
+

@@ -10,13 +10,71 @@ import {
   Target
 } from 'lucide-react';
 import Link from 'next/link';
-import { Adventure } from '@/app/adventures/types';
+import { Adventure } from '@/src/types';
+
 
 interface AdventureCardProps {
   adventure: Adventure;
+  isListView?: boolean;
 }
 
-export const AdventureCard = ({ adventure }: AdventureCardProps) => {
+export const AdventureCard = ({ adventure, isListView = false }: AdventureCardProps) => {
+  if (isListView) {
+    return (
+      <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-purple-200 flex items-center p-3 gap-4">
+        {/* Left Section: Icon */}
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md shadow-purple-100 text-white shrink-0 group-hover:scale-105 transition-transform duration-300">
+          <Compass className="h-6 w-6" />
+        </div>
+
+        {/* Middle Section: Title & Details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-0.5">
+            <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-purple-600 transition-colors">
+              {adventure.title}
+            </h3>
+            <span className="px-2 py-0.5 rounded-lg bg-gray-50 border border-gray-100 text-[9px] font-black uppercase tracking-wider text-gray-400">
+              {adventure.category}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <p className="text-gray-400 text-[11px] truncate max-w-[400px]">
+              {adventure.description}
+            </p>
+            <div className="flex items-center gap-1.5 text-gray-300 shrink-0">
+              <Calendar className="h-3 w-3" />
+              <span className="text-[10px] font-bold">
+                {new Date(adventure.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section: Progress/Goal Summary or Quick Actions */}
+        <div className="hidden md:flex items-center gap-3 bg-purple-50/50 px-3 py-2 rounded-xl border border-purple-100/30">
+          <Target className="h-3.5 w-3.5 text-purple-400" />
+          <p className="text-[11px] font-bold text-gray-600 truncate max-w-[200px]">
+             {adventure.goal}
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
+          <Link 
+            href={`/adventures/builder?id=${adventure.id}`}
+            className="flex items-center gap-1.5 text-white font-bold text-[11px] bg-gray-900 hover:bg-purple-600 px-4 py-2 rounded-xl transition-all shadow-sm"
+          >
+            Edit <ChevronRight className="h-3 w-3" />
+          </Link>
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600 transition-colors">
+            <MoreVertical className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-purple-200 flex flex-col h-full">
       {/* Top Section */}
@@ -82,3 +140,4 @@ export const AdventureCard = ({ adventure }: AdventureCardProps) => {
     </div>
   );
 };
+
