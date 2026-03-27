@@ -1,16 +1,30 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X } from 'lucide-react';
-const navigation = [
-  { name: 'Dashboard', href: '/home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { name: 'Classes', href: '/classes', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Users', href: '/users', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Products', href: '/products', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-  { name: 'Orders', href: '/orders', icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, School, Users as Supervisors, Compass } from 'lucide-react';
+
+const institutionNavigation = [
+  { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+  { name: 'Classes', href: '/classes', icon: School },
+  { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
+];
+
+// Institution role has access to a limited set of pages
+const adminNavigation = [
+  { name: 'Dashboard', href: '/home', icon: Home },
+  { name: 'Categories', href: '/categories', icon: Grid3X3 },
+  { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
+
+  // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
 
 export default function AppLayout({
@@ -22,12 +36,35 @@ export default function AppLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const navigation = user?.role === 'institution' ? institutionNavigation : adminNavigation;
+  const allowedPaths = navigation.map((item) => item.href);
+
+  const roleLabel = user?.role === 'PlatformAdmin'
+    ? 'Admin'
+    : user?.role === 'institution'
+      ? 'Institution'
+      : user?.role ?? '';
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Check if the current pathname starts with any of the allowed paths
+      const isAllowed = allowedPaths.some(path =>
+        pathname === path || pathname.startsWith(`${path}/`)
+      );
+
+      if (!isAllowed && pathname !== '/') {
+        router.push(allowedPaths[0] ?? '/home');
+      }
+    }
+  }, [allowedPaths, loading, pathname, router, user]);
 
   if (loading || !user) {
     return (
@@ -36,7 +73,6 @@ export default function AppLayout({
       </div>
     );
   }
-
   return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}
@@ -59,27 +95,25 @@ export default function AppLayout({
                 <h1 className="text-xl font-bold text-white">GoKid</h1>
               </div>
               <nav className="mt-5 px-2 space-y-2">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${pathname === item.href
+                {navigation.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${pathname === item.href
                         ? 'bg-[#a490af] text-white shadow-md'
                         : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
-                      }`}
-                  >
-                    <svg
-                      className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                        }`}
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
-                    </svg>
-                    {item.name}
-                  </Link>
-                ))}
+                      <IconComponent
+                        className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
+                        strokeWidth={2}
+                      />
+                      {item.name}
+                    </Link>
+                  );
+                })}
               </nav>
             </div>
             <div className="flex-shrink-0 p-4 border-t border-[#5c5163]">
@@ -110,59 +144,84 @@ export default function AppLayout({
 
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64 bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center justify-center flex-shrink-0 mb-5">
-              {/* <h1 className="text-2xl font-bold text-white">GoKid</h1> */}
+        <div className={`flex flex-col ${isCollapsed ? 'w-20' : 'w-64'} bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl transition-all duration-300 relative`}>
+          {/* Collapse Toggle Button */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="absolute -right-3 top-20 bg-[#b9a2c5] text-[#483f4d] rounded-full p-1 shadow-md z-30 hover:bg-white transition-colors"
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+
+          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto overflow-x-hidden">
+            <div className={`flex items-center justify-center flex-shrink-0 mb-5 transition-all duration-300 ${isCollapsed ? 'px-2' : 'px-4'}`}>
               <img
-                src="/SideParLogo.png"
+                src={isCollapsed ? "/LogoIcon.png" : "/SideParLogo.png"}
                 alt="GoKid Logo"
-                className="w-50"
+                className={`${isCollapsed ? 'w-12' : 'w-48'} h-auto object-contain transition-all duration-300`}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (isCollapsed) {
+                    target.src = "/SideParLogo.png";
+                    target.className = "w-10 h-auto object-contain";
+                  }
+                }}
               />
             </div>
             <nav className="flex-1 px-3 space-y-1">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${pathname === item.href
+              {navigation.map((item) => {
+                const IconComponent = item.icon;
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    title={isCollapsed ? item.name : ""}
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${isActive
                       ? 'bg-[#a490af] text-white shadow-md'
                       : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
-                    }`}
-                >
-                  <svg
-                    className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                      } ${isCollapsed ? 'justify-center px-2' : ''}`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
-                  </svg>
-                  {item.name}
-                </Link>
-              ))}
+                    <IconComponent
+                      className={`${isCollapsed ? '' : 'mr-3'} h-5 w-5 ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'} flex-shrink-0`}
+                      strokeWidth={2}
+                    />
+                    {!isCollapsed && <span className="truncate">{item.name}</span>}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
-          <div className="p-4 border-t border-[#5c5163]">
-            <div className="flex items-center justify-between">
+          <div className={`p-4 border-t border-[#5c5163] ${isCollapsed ? 'flex justify-center' : ''}`}>
+            <div className={`flex items-center ${isCollapsed ? 'flex-col gap-4' : 'justify-between w-full'}`}>
               <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-[#b9a2c5] flex items-center justify-center text-[#483f4d] font-bold">
+                <div className="h-10 w-10 rounded-full bg-[#b9a2c5] flex-shrink-0 flex items-center justify-center text-[#483f4d] font-bold">
                   {user.name?.charAt(0).toUpperCase()}
                 </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">{user.name}</p>
-                  <p className="text-xs text-gray-300">{user.email}</p>
-                </div>
+                {!isCollapsed && (
+                  <div className="ml-3 truncate">
+                    <p className="text-sm font-medium text-white truncate">{user.name}</p>
+                    <p className="text-xs text-gray-300 truncate">{user.email}</p>
+                  </div>
+                )}
               </div>
-              <div className="flex space-x-2">
+              <div className={`flex ${isCollapsed ? 'flex-col gap-2' : 'space-x-2'}`}>
                 <Link
                   href="/settings"
+                  title="Settings"
                   className="p-2 rounded-full text-gray-300 hover:bg-[#7b6c83] hover:text-white transition-colors"
                 >
                   <Settings className="h-5 w-5" />
                 </Link>
-
+                {isCollapsed && (
+                  <button
+                    onClick={logout}
+                    title="Logout"
+                    className="p-2 rounded-full text-gray-300 hover:bg-[#7b6c83] hover:text-white transition-colors"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -178,7 +237,6 @@ export default function AppLayout({
           >
             <Menu className="h-6 w-6" />
           </button>
-
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1 flex max-w-2xl">
               <div className="w-full flex">
@@ -215,7 +273,7 @@ export default function AppLayout({
               <div className="flex items-center">
                 <div className="text-right mr-3 hidden md:block">
                   <p className="text-sm font-medium text-gray-700">{user.name}</p>
-                  <p className="text-xs text-gray-500">Admin</p>
+                  <p className="text-xs text-gray-500">{roleLabel}</p>
                 </div>
                 <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm">
                   {user.name?.charAt(0).toUpperCase()}
@@ -232,7 +290,7 @@ export default function AppLayout({
         </div>
         <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50">
           <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <div className="max-w-full mx-auto px-4 sm:px-6 md:px-8">
               {children}
             </div>
           </div>

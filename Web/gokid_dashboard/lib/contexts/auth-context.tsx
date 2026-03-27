@@ -1,18 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-};
+import { AuthUser } from '@/src/types/auth';
+import { authService } from '@/src/services/authService';
+import { toast } from 'sonner';
 
 type AuthContextType = {
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  user: AuthUser | null;
+  login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin') => Promise<boolean>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -21,7 +18,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -33,26 +30,73 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(JSON.parse(storedUser));
       }
       setLoading(false);
+  
     };
 
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Static login for demo purposes
-    if (email === 'admin@example.com' && password === 'password') {
-      const mockUser = {
-        id: '1',
-        name: 'Admin User',
-        email: 'admin@example.com',
-        role: 'admin',
+  const login = async (email: string, password: string, loginAs: 'PlatformAdmin' | 'InstitutionAdmin' = 'PlatformAdmin'): Promise<boolean> => {
+    try {
+      // API login for both PlatformAdmin and InstitutionAdmin
+      const response = await authService.login({
+        identifier: email,
+        password: password,
+        loginAs: loginAs,
+      });
+
+      console.log('Login response:', response); // للتأكد من الـ response
+
+      // Check if login was successful
+      if (!response.succeeded) {
+        toast.error(response.message || 'Login failed');
+        return false;
+      }
+
+      if (!response.data) {
+        toast.error('Invalid response from server');
+        return false;
+      }
+
+      const { data } = response;
+
+      const apiUser: AuthUser = {
+        id: data.userId || '',
+        name: data.displayName || data.email || '',
+        email: data.email || email,
+        role: loginAs === 'InstitutionAdmin' ? 'institution' : (data.userType || 'platform'),
+        token: data.accessToken,
       };
-      
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
+
+      // Store tokens
+      if (data.accessToken) {
+        localStorage.setItem('token', data.accessToken);
+      }
+      if (data.refreshToken) {
+        localStorage.setItem('refreshToken', data.refreshToken);
+      }
+
+      localStorage.setItem('user', JSON.stringify(apiUser));
+      setUser(apiUser);
+      toast.success('Login successful');
       return true;
+    } catch (error: any) {
+      console.error('Login error:', error);
+      
+      // Handle error response
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.response?.data?.errors) {
+        const errorMessages = Array.isArray(error.response.data.errors) 
+          ? error.response.data.errors.join(', ')
+          : error.response.data.errors;
+        toast.error(errorMessages);
+      } else {
+        toast.error('Login failed. Please try again.');
+      }
+      
+      return false;
     }
-    return false;
   };
 
   const signup = async (name: string, email: string, password: string, phone: string): Promise<boolean> => {
@@ -77,6 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
     router.push('/login');
   };

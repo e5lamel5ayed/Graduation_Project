@@ -1,27 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DataTable } from '@/src/components/ui';
 import { Button } from '@/src/components/ui/Button';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus } from 'lucide-react';
 import { ClassForm, ClassFormData } from './ClassForm';
-
-interface Class extends ClassFormData {
-  id: string;
-  studentsCount: number;
-}
+import { classService } from '@/src/services/classService';
+import { Class } from '@/src/types/class';
+import { toast } from 'sonner';
 
 export default function ClassesPage() {
-  const [classes, setClasses] = useState<Class[]>([
-    { id: '1', name: 'Math 101', studentsCount: 25, teacher: 'John Doe', maxStudents: 30, schedule: 'Mon, Wed, Fri 9:00 AM' },
-    { id: '2', name: 'Science 201', studentsCount: 20, teacher: 'Jane Smith', maxStudents: 25, schedule: 'Tue, Thu 10:30 AM' },
-    { id: '3', name: 'History 150', studentsCount: 30, teacher: 'Robert Johnson', maxStudents: 35, schedule: 'Mon, Wed 1:00 PM' },
-  ]);
-  
+  const [classes, setClasses] = useState<Class[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
+
+  const fetchClasses = async () => {
+    try {
+      setIsLoading(true);
+      const data = await classService.getAll();
+      setClasses(data);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      toast.error('Failed to load classes');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddNew = () => {
     setSelectedClass(null);
@@ -33,55 +44,53 @@ export default function ClassesPage() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (classItem: Class) => {
-    if (confirm(`Are you sure you want to delete ${classItem.name}?`)) {
-      setClasses(classes.filter(c => c.id !== classItem.id));
+  const handleDelete = async (classItem: Class) => {
+    if (!window.confirm('Are you sure you want to delete this class?')) {
+      return;
+    }
+
+    try {
+      await classService.delete(classItem.id);
+      toast.success('Class deleted successfully');
+      fetchClasses();
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      toast.error('Failed to delete class');
     }
   };
 
   const handleSubmit = async (formData: ClassFormData) => {
     setIsSubmitting(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000)); // simulate API
+    try {
+      if (formData.id) {
+        // Update existing class
+        await classService.update(formData.id, {
+          name: formData.name,
+        });
+        toast.success('Class updated successfully');
+      } else {
+        // Create new class
+        await classService.create({
+          name: formData.name,
+        });
+        toast.success('Class created successfully');
+      }
 
-    if (formData.id) {
-      // Update existing class
-      setClasses(classes.map(c =>
-        c.id === formData.id
-          ? { ...formData, studentsCount: c.studentsCount } as Class
-          : c
-      ));
-    } else {
-      // Add new class
-      const newClass: Class = {
-        ...formData,
-        id: Date.now().toString(),
-        studentsCount: 0,
-      };
-      setClasses([...classes, newClass]);
+      setIsDialogOpen(false);
+      fetchClasses();
+    } catch (error) {
+      console.error('Error saving class:', error);
+      toast.error('Failed to save class');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
-    setIsDialogOpen(false);
   };
 
   const columns = [
     {
       header: 'Class Name',
       accessor: (item: Class) => item.name,
-    },
-    {
-      header: 'Teacher',
-      accessor: (item: Class) => item.teacher,
-    },
-    {
-      header: 'Students',
-      accessor: (item: Class) => `${item.studentsCount} / ${item.maxStudents}`,
-      className: 'text-center',
-    },
-    {
-      header: 'Schedule',
-      accessor: (item: Class) => item.schedule,
     },
   ];
 
@@ -102,6 +111,7 @@ export default function ClassesPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           emptyMessage="No classes found. Click the button above to add a new class."
+          isLoading={isLoading}
         />
       </div>
 
@@ -112,7 +122,10 @@ export default function ClassesPage() {
         maxWidth="lg"
       >
         <ClassForm
-          initialData={selectedClass || undefined}
+          initialData={selectedClass ? {
+            id: selectedClass.id,
+            name: selectedClass.name,
+          } : undefined}
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         />
