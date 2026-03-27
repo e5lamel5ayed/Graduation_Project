@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
@@ -5,15 +6,12 @@ import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
-import { LayoutDashboard, School, Users as Supervisors, User, Package, ShoppingCart, Compass } from 'lucide-react';
+import { LayoutDashboard, School, Users as Supervisors, Compass } from 'lucide-react';
 
 const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Classes', href: '/classes', icon: School },
   { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
-  { name: 'Users', href: '/users', icon: User },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Orders', href: '/orders', icon: ShoppingCart },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Adventures', href: '/adventures', icon: Compass },
 ];
@@ -58,7 +56,7 @@ export default function AppLayout({
   useEffect(() => {
     if (!loading && user) {
       // Check if the current pathname starts with any of the allowed paths
-      const isAllowed = allowedPaths.some(path => 
+      const isAllowed = allowedPaths.some(path =>
         pathname === path || pathname.startsWith(`${path}/`)
       );
 
@@ -75,7 +73,7 @@ export default function AppLayout({
       </div>
     );
   }
-return (
+  return (
     <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar */}
       <div className="md:hidden">
@@ -104,11 +102,11 @@ return (
                       key={item.name}
                       href={item.href}
                       className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200 ${pathname === item.href
-                          ? 'bg-[#a490af] text-white shadow-md'
-                          : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
+                        ? 'bg-[#a490af] text-white shadow-md'
+                        : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
                         }`}
                     >
-                      <IconComponent 
+                      <IconComponent
                         className={`mr-3 h-5 w-5 ${pathname === item.href ? 'text-white' : 'text-gray-300 group-hover:text-white'}`}
                         strokeWidth={2}
                       />
@@ -143,7 +141,7 @@ return (
           </div>
         </div>
       </div>
-      
+
       {/* Static sidebar for desktop */}
       <div className="hidden md:flex md:flex-shrink-0">
         <div className={`flex flex-col ${isCollapsed ? 'w-20' : 'w-64'} bg-gradient-to-b from-[#483f4d] to-[#5c5163] shadow-xl transition-all duration-300 relative`}>
@@ -180,11 +178,11 @@ return (
                     href={item.href}
                     title={isCollapsed ? item.name : ""}
                     className={`group flex items-center px-4 py-3 text-sm font-medium rounded-lg mx-2 transition-colors duration-200 ${isActive
-                        ? 'bg-[#a490af] text-white shadow-md'
-                        : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
+                      ? 'bg-[#a490af] text-white shadow-md'
+                      : 'text-gray-200 hover:bg-[#7b6c83] hover:text-white'
                       } ${isCollapsed ? 'justify-center px-2' : ''}`}
                   >
-                    <IconComponent 
+                    <IconComponent
                       className={`${isCollapsed ? '' : 'mr-3'} h-5 w-5 ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'} flex-shrink-0`}
                       strokeWidth={2}
                     />
@@ -216,7 +214,7 @@ return (
                   <Settings className="h-5 w-5" />
                 </Link>
                 {isCollapsed && (
-                   <button
+                  <button
                     onClick={logout}
                     title="Logout"
                     className="p-2 rounded-full text-gray-300 hover:bg-[#7b6c83] hover:text-white transition-colors"
