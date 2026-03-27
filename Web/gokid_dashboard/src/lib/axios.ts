@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net';
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net/api';
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
