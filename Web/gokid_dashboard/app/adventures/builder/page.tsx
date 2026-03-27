@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   DndContext, 
   DragOverlay, 
@@ -17,7 +18,8 @@ import {
   sortableKeyboardCoordinates, 
 } from '@dnd-kit/sortable';
 import { taskService } from '@/src/services/taskService';
-import { TaskTemplate } from '@/src/types/task';
+import { adventureService } from '@/src/services/adventureService';
+import { Difficulty, TaskTemplate, TemplateType } from '@/src/types/task';
 import { toast } from 'sonner';
 
 // Import local components and types
@@ -30,10 +32,17 @@ import {
 } from '@/src/components/adventures/builder';
 
 export default function AdventureBuilderPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const adventureId = searchParams.get('id');
+  const isEditMode = Boolean(adventureId);
+
   // --- State ---
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAdventure, setIsLoadingAdventure] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTask, setActiveTask] = useState<TaskTemplate | null>(null);
   
   // Adventure Details State
@@ -43,6 +52,9 @@ export default function AdventureBuilderPage() {
   const [adventureDescriptionAr, setAdventureDescriptionAr] = useState('');
   const [adventureGoalEn, setAdventureGoalEn] = useState('');
   const [adventureGoalAr, setAdventureGoalAr] = useState('');
+  const [weekDuration, setWeekDuration] = useState(7);
+  const [bonusPoints, setBonusPoints] = useState(0);
+  const [descriptionVoiceFile, setDescriptionVoiceFile] = useState<File | null>(null);
   
   // Pagination State
   const [page, setPage] = useState(1);
@@ -58,6 +70,20 @@ export default function AdventureBuilderPage() {
       task: null
     }))
   );
+
+  const normalizeTemplateType = (value?: string): TemplateType => {
+    if (value === 'TextQuestion' || value === 'VoiceQuestion' || value === 'InstantReward' || value === 'EvidenceSubmission') {
+      return value;
+    }
+    return 'TextQuestion';
+  };
+
+  const createEmptyDays = (length: number): AdventureDay[] =>
+    Array.from({ length }, (_, i) => ({
+      id: `day-${i + 1}`,
+      dayNumber: i + 1,
+      task: null,
+    }));
 
   // --- DND Sensors ---
   const sensors = useSensors(
@@ -98,7 +124,7 @@ export default function AdventureBuilderPage() {
       // Check if any category still has more items
       const hasAnyMore = text.hasNextPage || voice.hasNextPage || rewards.hasNextPage || evidence.hasNextPage;
       setHasMore(hasAnyMore);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load tasks library');
     } finally {
       setIsLoading(false);
@@ -109,6 +135,85 @@ export default function AdventureBuilderPage() {
   useEffect(() => {
     fetchTasks(1, true);
   }, []);
+
+  useEffect(() => {
+    if (!adventureId) return;
+
+    const fetchAdventureDetails = async () => {
+      try {
+        setIsLoadingAdventure(true);
+        const adventure = await adventureService.getById(adventureId);
+
+        setAdventureTitleEn(adventure.title);
+        setAdventureTitleAr('');
+        setAdventureDescriptionEn(adventure.description);
+        setAdventureDescriptionAr('');
+        setWeekDuration(Math.max(1, adventure.weekDuration));
+        setBonusPoints(adventure.bonusPoints);
+
+        setDays(
+          Array.from({ length: Math.max(1, adventure.weekDuration) }, (_, i) => {
+            const dayNumber = i + 1;
+            const assignedTask = adventure.tasks.find((task) => task.dayNumber === dayNumber);
+
+            const fallbackTask = adventure.rawTasks.find((task) => {
+              const taskTemplateId =
+                task.taskTemplateId ||
+                task.taskTemplateID ||
+                task.templateId ||
+                task.taskId ||
+                task.id;
+              return taskTemplateId === assignedTask?.taskTemplateId;
+            });
+
+            const mappedFallbackTask = assignedTask && fallbackTask
+              ? {
+                  id: assignedTask.taskTemplateId,
+                  titleEn: fallbackTask.titleEn || fallbackTask.title || 'Assigned Task',
+                  titleAr: fallbackTask.titleAr || '',
+                  descriptionEn: fallbackTask.descriptionEn || '',
+                  descriptionAr: fallbackTask.descriptionAr || '',
+                  iconUrl: fallbackTask.iconUrl || '',
+                  subCategoryId: '',
+                  subCategoryNameEn: '',
+                  difficulty: 'Easy' as Difficulty,
+                  basePoints: fallbackTask.basePoints ?? 0,
+                  templateType: normalizeTemplateType(fallbackTask.templateType),
+                  createdAt: '',
+                }
+              : null;
+
+            return {
+              id: `day-${dayNumber}`,
+              dayNumber,
+              task: mappedFallbackTask,
+            };
+          })
+        );
+      } catch {
+        toast.error('Failed to load adventure details');
+      } finally {
+        setIsLoadingAdventure(false);
+      }
+    };
+
+    fetchAdventureDetails();
+  }, [adventureId]);
+
+  useEffect(() => {
+    const normalizedDuration = Math.max(1, weekDuration);
+    setDays((prev) => {
+      const previousByDay = new Map(prev.map((day) => [day.dayNumber, day.task]));
+      return Array.from({ length: normalizedDuration }, (_, i) => {
+        const dayNumber = i + 1;
+        return {
+          id: `day-${dayNumber}`,
+          dayNumber,
+          task: previousByDay.get(dayNumber) ?? null,
+        };
+      });
+    });
+  }, [weekDuration]);
 
   const loadMoreTasks = () => {
     if (!isFetchingMore && hasMore) {
@@ -125,7 +230,7 @@ export default function AdventureBuilderPage() {
   );
 
   const completedCount = days.filter(d => d.task).length;
-  const isComplete = completedCount === 7;
+  const isComplete = completedCount === days.length;
 
   // --- Handlers ---
   const handleDragStart = (event: DragStartEvent) => {
@@ -158,13 +263,90 @@ export default function AdventureBuilderPage() {
     ));
   };
 
+  const submitAdventure = async (mode: 'save' | 'publish') => {
+    const title = (adventureTitleEn || adventureTitleAr).trim();
+    const description = (adventureDescriptionEn || adventureDescriptionAr).trim();
+    const selectedTasks = days
+      .filter((day) => day.task)
+      .map((day) => ({
+        dayNumber: day.dayNumber,
+        taskTemplateId: day.task!.id,
+      }));
+
+    if (!title) {
+      toast.error('Adventure title is required');
+      return;
+    }
+
+    if (!description) {
+      toast.error('Adventure description is required');
+      return;
+    }
+
+    if (selectedTasks.length === 0) {
+      toast.error('Please assign at least one task before submitting');
+      return;
+    }
+
+    const calculatedBonusPoints = selectedTasks.reduce((sum, task) => {
+      const matchedDay = days.find((day) => day.dayNumber === task.dayNumber);
+      return sum + (matchedDay?.task?.basePoints ?? 0);
+    }, 0);
+
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        title,
+        description,
+        weekDuration,
+        bonusPoints: bonusPoints > 0 ? bonusPoints : calculatedBonusPoints,
+        descriptionVoiceFile,
+        tasks: selectedTasks,
+      };
+
+      if (isEditMode && adventureId) {
+        await adventureService.update(adventureId, payload);
+      } else {
+        await adventureService.create(payload);
+      }
+
+      if (isEditMode) {
+        toast.success('Adventure updated successfully');
+      } else {
+        toast.success(mode === 'publish' ? 'Adventure published successfully' : 'Adventure saved successfully');
+      }
+      router.push('/adventures');
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
+          ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+          : 'Failed to submit adventure';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const resetAdventure = () => {
     toast('Reset Adventure?', {
-      description: 'All assigned tasks will be cleared.',
+      description: 'All adventure data will be cleared.',
       action: {
         label: 'Reset',
         onClick: () => {
-          setDays(prev => prev.map(day => ({ ...day, task: null })));
+          setAdventureTitleEn('');
+          setAdventureTitleAr('');
+          setAdventureDescriptionEn('');
+          setAdventureDescriptionAr('');
+          setAdventureGoalEn('');
+          setAdventureGoalAr('');
+          setSearchQuery('');
+          setBonusPoints(0);
+          setDescriptionVoiceFile(null);
+          setWeekDuration(7);
+          setDays(createEmptyDays(7));
           toast.success('Adventure reset successfully');
         }
       },
@@ -187,15 +369,23 @@ export default function AdventureBuilderPage() {
           
           {/* Top Section - Adventure Details */}
           <AdventureDetails 
+            isEditMode={isEditMode}
             titleEn={adventureTitleEn} setTitleEn={setAdventureTitleEn}
             titleAr={adventureTitleAr} setTitleAr={setAdventureTitleAr}
             descriptionEn={adventureDescriptionEn} setDescriptionEn={setAdventureDescriptionEn}
             descriptionAr={adventureDescriptionAr} setDescriptionAr={setAdventureDescriptionAr}
             goalEn={adventureGoalEn} setGoalEn={setAdventureGoalEn}
             goalAr={adventureGoalAr} setGoalAr={setAdventureGoalAr}
+            weekDuration={weekDuration} setWeekDuration={setWeekDuration}
+            bonusPoints={bonusPoints} setBonusPoints={setBonusPoints}
+            descriptionVoiceFile={descriptionVoiceFile} setDescriptionVoiceFile={setDescriptionVoiceFile}
             completedCount={completedCount}
+            totalDays={days.length}
             isComplete={isComplete}
             onReset={resetAdventure}
+            onSave={() => submitAdventure('save')}
+            onPublish={() => submitAdventure('publish')}
+            isSubmitting={isSubmitting || isLoadingAdventure}
           />
 
           <div className="flex flex-col xl:flex-row gap-6 flex-1">
