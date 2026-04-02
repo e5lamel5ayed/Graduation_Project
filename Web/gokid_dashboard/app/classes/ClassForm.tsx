@@ -19,6 +19,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     teacher: '',
     maxStudents: '',
     schedule: '',
+    adventuresCount: 0,
   });
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
         teacher: initialData.teacher || '',
         maxStudents: initialData.maxStudents || '',
         schedule: initialData.schedule || '',
+        adventuresCount: initialData.adventuresCount || 0,
       });
     }
   }, [initialData]);
@@ -37,7 +39,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'maxStudents' ? (value ? parseInt(value) : '') : value,
+      [name]: (name === 'maxStudents' || name === 'adventuresCount') ? (value ? parseInt(value) : '') : value,
     }));
   };
 
@@ -46,6 +48,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     onSubmit({
       ...formData,
       maxStudents: formData.maxStudents === '' ? 0 : Number(formData.maxStudents),
+      adventuresCount: (formData.adventuresCount as any) === '' ? 0 : Number(formData.adventuresCount),
     });
   };
 
@@ -96,17 +99,32 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
         </div>
 
         <div>
-          <label htmlFor="schedule" className="block text-sm font-medium text-gray-700 mb-1">
-            Schedule
+          <label htmlFor="adventuresCount" className="block text-sm font-medium text-gray-700 mb-1">
+            Number of Adventures
           </label>
           <Input
-            id="schedule"
-            name="schedule"
-            value={formData.schedule}
+            id="adventuresCount"
+            name="adventuresCount"
+            type="number"
+            min="0"
+            value={formData.adventuresCount}
             onChange={handleChange}
-            placeholder="e.g. Mon, Wed, Fri 9:00 AM"
+            placeholder="0"
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="schedule" className="block text-sm font-medium text-gray-700 mb-1">
+          Schedule
+        </label>
+        <Input
+          id="schedule"
+          name="schedule"
+          value={formData.schedule}
+          onChange={handleChange}
+          placeholder="e.g. Mon, Wed, Fri 9:00 AM"
+        />
       </div>
 
       <div className="flex justify-end space-x-3 pt-4">
@@ -118,12 +136,13 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
             teacher: '',
             maxStudents: '',
             schedule: '',
+            adventuresCount: 0,
           })}
           disabled={isLoading}
         >
           Reset
         </Button>
-        <Button type="submit" isLoading={isLoading}>
+        <Button type="submit" isLoading={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
           {initialData ? 'Update' : 'Create'} Class
         </Button>
       </div>
