@@ -11,9 +11,6 @@ const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Classes', href: '/classes', icon: School },
   { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
-  { name: 'Users', href: '/users', icon: User },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Orders', href: '/orders', icon: ShoppingCart },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Adventures', href: '/adventures', icon: Compass },
 ];
