@@ -6,14 +6,14 @@ export interface ClassFormData {
   teacher: string;
   maxStudents: number | string;
   schedule: string;
-  adventuresCount?: number;
+  activeAdventuresCount?: number;
   createdAt?: string;
 }
 
 export interface Class extends ClassFormData {
   id: string;
-  studentsCount: number;
-  adventuresCount: number;
+  childrenCount: number;
+  activeAdventuresCount: number;
   createdAt: string;
 }
 
@@ -27,8 +27,8 @@ export interface ClassApiItem {
 
 export interface ClassCardItem extends ClassFormData {
   id: string;
-  studentsCount: number;
-  adventuresCount: number;
+  childrenCount: number;
+  activeAdventuresCount: number;
   createdAt: string;
 }
 

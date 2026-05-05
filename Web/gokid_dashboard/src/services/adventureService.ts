@@ -9,7 +9,13 @@ import {
     CreateAdventureDto,
     UpdateAdventureDto,
     ApiResponse,
+    SupervisorAdventure,
+    SupervisorAdventureApiModel,
+    SupervisorAdventureClass,
+    SupervisorAdventureChild,
+    SupervisorChildHistory,
 } from '../types/adventure';
+import { PaginatedResponse, SupervisorAdventureTask, SupervisorTaskReviewDto } from '../types/task';
 
 const BASE_PATH = '/Adventure';
 
@@ -72,6 +78,24 @@ const mapAdventure = (adventure: AdventureApiModel): Adventure => {
     };
 };
 
+const mapSupervisorAdventure = (adventure: SupervisorAdventureApiModel): SupervisorAdventure => {
+    const title = adventure.titleEn?.trim() || adventure.titleAr?.trim() || 'Untitled Adventure';
+
+    return {
+        weeklyAdventureId: adventure.weeklyAdventureId,
+        adventureId: adventure.adventureId,
+        title,
+        titleEn: adventure.titleEn,
+        titleAr: adventure.titleAr,
+        className: adventure.className,
+        classId: adventure.classId,
+        startDate: adventure.startDate,
+        endDate: adventure.endDate,
+        totalChildren: adventure.totalChildren,
+        pendingReviewsCount: adventure.pendingReviewsCount,
+    };
+};
+
 const normalizeListResponse = (payload: unknown): AdventureApiModel[] => {
     if (Array.isArray(payload)) {
         return payload as AdventureApiModel[];
@@ -112,6 +136,94 @@ const normalizeSingleResponse = (payload: unknown): AdventureApiModel | null => 
     return null;
 };
 
+const normalizeSupervisorListResponse = (payload: unknown): SupervisorAdventureApiModel[] => {
+    if (Array.isArray(payload)) {
+        return payload as SupervisorAdventureApiModel[];
+    }
+
+    if (payload && typeof payload === 'object') {
+        const dataPayload = (payload as Record<string, any>).data;
+
+        if (Array.isArray(dataPayload)) {
+            return dataPayload as SupervisorAdventureApiModel[];
+        }
+
+        if (dataPayload && typeof dataPayload === 'object' && Array.isArray((dataPayload as Record<string, any>).items)) {
+            return (dataPayload as Record<string, any>).items as SupervisorAdventureApiModel[];
+        }
+
+        if (Array.isArray((payload as Record<string, any>).items)) {
+            return (payload as Record<string, any>).items as SupervisorAdventureApiModel[];
+        }
+    }
+
+    return [];
+};
+
+const normalizePaginatedResponse = <T>(payload: unknown): T[] => {
+    if (Array.isArray(payload)) {
+        return payload as T[];
+    }
+
+    if (payload && typeof payload === 'object') {
+        const record = payload as Record<string, any>;
+
+        if (Array.isArray(record.data)) {
+            return record.data as T[];
+        }
+
+        if (Array.isArray(record.items)) {
+            return record.items as T[];
+        }
+
+        if (record.data && typeof record.data === 'object') {
+            const dataRecord = record.data as Record<string, any>;
+
+            if (Array.isArray(dataRecord.items)) {
+                return dataRecord.items as T[];
+            }
+
+            if (Array.isArray(dataRecord.data)) {
+                return dataRecord.data as T[];
+            }
+        }
+    }
+
+    return [];
+};
+
+const normalizeClassListResponse = (payload: unknown): SupervisorAdventureClass[] => {
+    if (Array.isArray(payload)) {
+        return payload as SupervisorAdventureClass[];
+    }
+
+    if (payload && typeof payload === 'object') {
+        const record = payload as Record<string, any>;
+
+        if (Array.isArray(record.data)) {
+            return record.data as SupervisorAdventureClass[];
+        }
+
+        if (Array.isArray(record.items)) {
+            return record.items as SupervisorAdventureClass[];
+        }
+
+        if (record.data && typeof record.data === 'object') {
+            const dataRecord = record.data as Record<string, any>;
+
+            if (Array.isArray(dataRecord.items)) {
+                return dataRecord.items as SupervisorAdventureClass[];
+            }
+
+            if (Array.isArray(dataRecord.data)) {
+                return dataRecord.data as SupervisorAdventureClass[];
+            }
+        }
+    }
+
+    return [];
+};
+
 const getTaskTemplateId = (task: Record<string, unknown>): string | null => {
     const candidateKeys = ['taskTemplateId', 'taskTemplateID', 'templateId', 'taskId', 'id'];
     for (const key of candidateKeys) {
@@ -144,7 +256,13 @@ const mapToBuilderData = (adventure: AdventureApiModel): AdventureBuilderData =>
     return {
         id: adventure.id,
         title: adventure.title ?? adventure.titleEn ?? adventure.titleAr ?? '',
+        titleEn: adventure.titleEn ?? adventure.title ?? '',
+        titleAr: adventure.titleAr ?? '',
         description: adventure.description ?? adventure.descriptionEn ?? adventure.descriptionAr ?? '',
+        descriptionEn: adventure.descriptionEn ?? adventure.description ?? '',
+        descriptionAr: adventure.descriptionAr ?? '',
+        goalEn: (adventure as Record<string, any>).goalEn ?? '',
+        goalAr: (adventure as Record<string, any>).goalAr ?? '',
         weekDuration: adventure.weekDuration ?? 7,
         bonusPoints: adventure.bonusPoints ?? 0,
         tasks,
@@ -164,10 +282,23 @@ export const adventureService = {
         return normalizeListResponse(data).map(mapAdventure);
     },
 
+    getSupervisorAdventures: async (): Promise<SupervisorAdventure[]> => {
+        const { data } = await axiosInstance.get<ApiResponse<SupervisorAdventureApiModel[]> | SupervisorAdventureApiModel[]>('/supervisor/adventures');
+
+        return normalizeSupervisorListResponse(data).map(mapSupervisorAdventure);
+    },
+
     create: async (adventureData: CreateAdventureDto) => {
         const formData = toFormData({
             Title: adventureData.title,
+            TitleEn: adventureData.titleEn,
+            TitleAr: adventureData.titleAr,
             Description: adventureData.description,
+            DescriptionEn: adventureData.descriptionEn,
+            DescriptionAr: adventureData.descriptionAr,
+            GoalEn: adventureData.goalEn,
+            GoalAr: adventureData.goalAr,
+            BannerImage: adventureData.bannerImage,
             WeekDuration: adventureData.weekDuration ?? 7,
             BonusPoints: adventureData.bonusPoints ?? 0,
             DescriptionVoiceFile: adventureData.descriptionVoiceFile,
@@ -204,7 +335,14 @@ export const adventureService = {
     update: async (adventureId: string, adventureData: UpdateAdventureDto) => {
         const formData = toFormData({
             Title: adventureData.title,
+            TitleEn: adventureData.titleEn,
+            TitleAr: adventureData.titleAr,
             Description: adventureData.description,
+            DescriptionEn: adventureData.descriptionEn,
+            DescriptionAr: adventureData.descriptionAr,
+            GoalEn: adventureData.goalEn,
+            GoalAr: adventureData.goalAr,
+            BannerImage: adventureData.bannerImage,
             WeekDuration: adventureData.weekDuration ?? 7,
             BonusPoints: adventureData.bonusPoints ?? 0,
             DescriptionVoiceFile: adventureData.descriptionVoiceFile,
@@ -251,6 +389,74 @@ export const adventureService = {
 
     delete: async (adventureId: string) => {
         const { data } = await axiosInstance.delete<ApiResponse<void>>(`${BASE_PATH}/${adventureId}`);
+        return data;
+    },
+
+    getSupervisorAdventureClasses: async (weeklyAdventureId: string): Promise<SupervisorAdventureClass[]> => {
+        const { data } = await axiosInstance.get<ApiResponse<SupervisorAdventureClass[]> | SupervisorAdventureClass[]>(
+            `/Adventure/${weeklyAdventureId}/classes`
+        );
+
+        return normalizeClassListResponse(data);
+    },
+
+    getSupervisorAdventureClassChildren: async (weeklyAdventureId: string, classId: string): Promise<SupervisorAdventureChild[]> => {
+        const { data } = await axiosInstance.get<ApiResponse<SupervisorAdventureChild[]> | SupervisorAdventureChild[]>(
+            `/supervisor/adventures/${weeklyAdventureId}/classes/${classId}/children`
+        );
+
+        return normalizePaginatedResponse<SupervisorAdventureChild>(data);
+    },
+
+    getSupervisorChildHistory: async (weeklyAdventureId: string, childId: string): Promise<SupervisorChildHistory | null> => {
+        const { data } = await axiosInstance.get<ApiResponse<SupervisorChildHistory> | { data: SupervisorChildHistory }>(
+            `/supervisor/adventures/${weeklyAdventureId}/children/${childId}/history`
+        );
+
+        if (!data) return null;
+
+        // API wraps the payload under `data` object
+        const record = (data as any).data ?? data;
+
+        return record as SupervisorChildHistory;
+    },
+
+    getSupervisorAdventureTasks: async (
+        weeklyAdventureId: string,
+        status?: SupervisorAdventureTask['status']
+    ): Promise<SupervisorAdventureTask[]> => {
+        const { data } = await axiosInstance.get<ApiResponse<PaginatedResponse<SupervisorAdventureTask>> | PaginatedResponse<SupervisorAdventureTask> | SupervisorAdventureTask[]>(
+            `/supervisor/adventures/${weeklyAdventureId}/tasks`,
+            {
+                params: {
+                    Status: status || undefined,
+                },
+            }
+        );
+
+        return normalizePaginatedResponse<SupervisorAdventureTask>(data).map((task) => ({
+            childAdventureTaskId: task.childAdventureTaskId,
+            childId: task.childId,
+            childName: task.childName,
+            childAvatarUrl: task.childAvatarUrl,
+            dayNumber: task.dayNumber,
+            taskTitleEn: task.taskTitleEn,
+            taskTitleAr: task.taskTitleAr,
+            evidenceUrl: task.evidenceUrl,
+            status: task.status,
+            submittedAt: task.submittedAt,
+            isApproved: task.isApproved,
+            reviewedBy: task.reviewedBy,
+            reviewedAt: task.reviewedAt,
+        }));
+    },
+
+    reviewSupervisorTask: async (childAdventureTaskId: string, payload: SupervisorTaskReviewDto) => {
+        const { data } = await axiosInstance.put<ApiResponse<unknown>>(
+            `/supervisor/tasks/${childAdventureTaskId}/review`,
+            payload
+        );
+
         return data;
     },
 };

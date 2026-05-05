@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/lib/contexts/auth-context';
 import {
   Button,
   HeadlessDialog,
@@ -47,12 +48,17 @@ const mapApiClassToCard = (classItem: ClassApiItem): ClassCardItem => ({
   teacher: 'TBD',
   maxStudents: 30,
   schedule: 'TBD',
-  studentsCount: classItem.childrenCount,
-  adventuresCount: 0,
-  createdAt: new Date(classItem.createdAt).toISOString().split('T')[0],
+  childrenCount: classItem.childrenCount,
+  activeAdventuresCount: classItem.activeAdventuresCount,
+  createdAt: (() => {
+    const createdAt = new Date(classItem.createdAt);
+    return Number.isNaN(createdAt.getTime()) ? '' : createdAt.toISOString().split('T')[0];
+  })(),
 });
 
 export default function ClassesPage() {
+  const { user } = useAuth();
+  const isSupervisor = user?.role === 'supervisor';
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<ClassCardItem | null>(null);
@@ -83,11 +89,17 @@ export default function ClassesPage() {
     pageNumber: currentPage,
     pageSize: PAGE_SIZE,
     SearchName: searchName || undefined,
-  });
+  }, isSupervisor);
 
   const apiClasses = useMemo(
-    () => (classData?.items || []).map(mapApiClassToCard),
-    [classData]
+    () => {
+      if (user?.role === 'supervisor') {
+        return ((classData || []) as ClassApiItem[]).map(mapApiClassToCard);
+      }
+
+      return ((classData as { items?: ClassApiItem[] } | undefined)?.items || []).map(mapApiClassToCard);
+    },
+    [classData, user?.role]
   );
 
   const {
@@ -208,10 +220,12 @@ export default function ClassesPage() {
               className="h-12"
             />
           </div>
-          <Button onClick={handleAddNew} className="bg-linear-to-r from-purple-600 to-indigo-600 border-none shadow-lg hover:shadow-indigo-200/50 transition-all duration-300">
-            <Plus className="h-5 w-5 mr-2" />
-            Create New Class
-          </Button>
+          {!isSupervisor ? (
+            <Button onClick={handleAddNew} className="bg-linear-to-r from-purple-600 to-indigo-600 border-none shadow-lg hover:shadow-indigo-200/50 transition-all duration-300">
+              <Plus className="h-5 w-5 mr-2" />
+              Create New Class
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -227,9 +241,9 @@ export default function ClassesPage() {
         <>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {classes.length > 0 ? (
-          classes.map((classItem) => (
+          classes.map((classItem, index) => (
             <div 
-              key={classItem.id}
+              key={`${classItem.id || 'class'}-${index}`}
               className="group relative bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-100/40 transition-all duration-500 overflow-hidden"
             >
               {/* Card Header Pattern */}
@@ -249,27 +263,29 @@ export default function ClassesPage() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleOpenAssignDialog(classItem)}
-                      className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleEdit(classItem)}
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(classItem)}
-                      className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
+
+                  {!isSupervisor ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleOpenAssignDialog(classItem)}
+                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                      >
+                        <UserPlus className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleEdit(classItem)}
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(classItem)}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-6">
@@ -282,7 +298,7 @@ export default function ClassesPage() {
                       Students
                     </div>
                     <div className="text-lg font-bold text-slate-800">
-                      {classItem.studentsCount} <span className="text-slate-400 font-normal">/ {classItem.maxStudents}</span>
+                      {classItem.childrenCount} <span className="text-slate-400 font-normal">/ {classItem.maxStudents}</span>
                     </div>
                   </div>
                   
@@ -292,7 +308,7 @@ export default function ClassesPage() {
                       Adventures
                     </div>
                     <div className="text-lg font-bold text-slate-800">
-                      {classItem.adventuresCount}
+                      {classItem.activeAdventuresCount}
                     </div>
                   </div>
                 </div>

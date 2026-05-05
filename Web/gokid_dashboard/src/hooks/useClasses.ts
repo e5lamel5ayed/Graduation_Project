@@ -6,10 +6,10 @@ import { AssignSupervisorDto, ClassQueryParams, CreateClassDto, UpdateClassDto }
 
 const QUERY_KEY = 'Class';
 
-export const useClasses = (params: ClassQueryParams = {}) => {
+export const useClasses = (params: ClassQueryParams = {}, isSupervisor: boolean = false) => {
   return useQuery({
-    queryKey: [QUERY_KEY, params.pageNumber || 1, params.pageSize || 8, params.SearchName || ''],
-    queryFn: () => classService.getAll(params),
+    queryKey: [QUERY_KEY, params.pageNumber || 1, params.pageSize || 8, params.SearchName || '', isSupervisor],
+    queryFn: () => isSupervisor ? classService.getAllForSupervisor(params) : classService.getAll(params),
   });
 };
 

@@ -116,5 +116,29 @@ export interface TaskTemplateParams {
   pageSize?: number;
 }
 
+// Supervisor Adventure Review Task Types
+export type AdventureChildTaskStatus = 'Pending' | 'Completed' | 'Missed' | 'Locked';
+
+export interface SupervisorAdventureTask {
+  childAdventureTaskId: string;
+  childId: string;
+  childName: string;
+  childAvatarUrl?: string;
+  dayNumber: number;
+  taskTitleEn: string;
+  taskTitleAr: string;
+  evidenceUrl?: string;
+  status: AdventureChildTaskStatus;
+  submittedAt?: string;
+  isApproved?: boolean;
+  reviewedBy?: string;
+  reviewedAt?: string;
+}
+
+export interface SupervisorTaskReviewDto {
+  isApproved: boolean;
+  rejectionReason: string;
+}
+
 export { type ApiResponse, type PaginatedResponse };
 

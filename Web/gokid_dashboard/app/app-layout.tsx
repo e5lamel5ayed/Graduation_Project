@@ -16,6 +16,13 @@ const institutionNavigation = [
   { name: 'Adventures', href: '/adventures', icon: Compass },
 ];
 
+const supervisorNavigation = [
+  { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+  { name: 'Classes', href: '/classes', icon: School },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
+];
+
 // Institution role has access to a limited set of pages
 const adminNavigation = [
   { name: 'Dashboard', href: '/home', icon: Home },
