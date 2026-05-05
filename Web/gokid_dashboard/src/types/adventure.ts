@@ -181,10 +181,4 @@ export interface AssignAdventureToClassDto {
   startDate: string;
 }
 
-export interface ApiResponse<T> {
-  statusCode: string;
-  succeeded: boolean;
-  message: string;
-  errors: unknown[] | null;
-  data: T;
-}
+// Reuse ApiResponse from ./shared.ts

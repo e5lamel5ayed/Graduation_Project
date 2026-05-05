@@ -18,7 +18,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     teacher: '',
     maxStudents: '',
     schedule: '',
-    adventuresCount: 0,
+    activeAdventuresCount: 0,
   });
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
         teacher: initialData.teacher || '',
         maxStudents: initialData.maxStudents || '',
         schedule: initialData.schedule || '',
-        adventuresCount: initialData.adventuresCount || 0,
+          activeAdventuresCount: initialData.activeAdventuresCount || 0,
       });
     }
   }, [initialData]);
@@ -74,7 +74,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
             teacher: '',
             maxStudents: '',
             schedule: '',
-            adventuresCount: 0,
+            activeAdventuresCount: 0,
           })}
           disabled={isLoading}
         >

@@ -6,7 +6,8 @@ import { useState } from 'react';
 import { Button, Pagination, ConfirmDeleteDialog } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus, Pencil, Trash2, Loader2, FolderOpen, Tag, Layers } from 'lucide-react';
-import { CategoryForm, CategoryFormData } from './SubCategoryForm';
+import { CategoryForm } from './SubCategoryForm';
+import type { SubCategoryFormData } from '@/src/types/category';
 import {
   useSubCategories,
   useCreateSubCategory,
@@ -26,7 +27,7 @@ export default function CategoriesPage() {
   const deleteMutation = useDeleteSubCategory();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<CategoryFormData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<SubCategoryFormData | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,7 +49,7 @@ export default function CategoriesPage() {
   };
 
   // Build initialData from fetched single category when available
-  const initialDataFromSelected: CategoryFormData | undefined = selectedFullCategory
+  const initialDataFromSelected: SubCategoryFormData | undefined = selectedFullCategory
     ? {
       id: selectedFullCategory.id,
       nameAr: selectedFullCategory.nameAr,
@@ -77,7 +78,7 @@ export default function CategoriesPage() {
     setCategoryToDelete(null);
   };
 
-  const handleSubmit = async (formData: CategoryFormData) => {
+  const handleSubmit = async (formData: SubCategoryFormData) => {
     try {
       if (formData.id) {
         await updateMutation.mutateAsync({  

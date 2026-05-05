@@ -8,13 +8,13 @@ import {
     AdventureQueryParams,
     CreateAdventureDto,
     UpdateAdventureDto,
-    ApiResponse,
     SupervisorAdventure,
     SupervisorAdventureApiModel,
     SupervisorAdventureClass,
     SupervisorAdventureChild,
     SupervisorChildHistory,
 } from '../types/adventure';
+import { ApiResponse } from '../types/shared';
 import { PaginatedResponse, SupervisorAdventureTask, SupervisorTaskReviewDto } from '../types/task';
 
 const BASE_PATH = '/Adventure';

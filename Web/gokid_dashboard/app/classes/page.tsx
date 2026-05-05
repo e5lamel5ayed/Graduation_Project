@@ -49,7 +49,7 @@ const mapApiClassToCard = (classItem: ClassApiItem): ClassCardItem => ({
   maxStudents: 30,
   schedule: 'TBD',
   childrenCount: classItem.childrenCount,
-  activeAdventuresCount: classItem.activeAdventuresCount,
+  activeAdventuresCount: (classItem as any).activeAdventuresCount ?? 0,
   createdAt: (() => {
     const createdAt = new Date(classItem.createdAt);
     return Number.isNaN(createdAt.getTime()) ? '' : createdAt.toISOString().split('T')[0];

@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { Button, ConfirmDeleteDialog } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { CategoryForm, CategoryFormData } from './CategoryForm';
+import { CategoryForm } from './CategoryForm';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, useCategory } from '@/src/hooks/useCategories';
-import type { Category } from '@/src/types/category';
+import type { Category, CategoryFormData } from '@/src/types/category';
 
 export default function CategoriesPage() {
   const { data: categories, isLoading, error } = useCategories();
