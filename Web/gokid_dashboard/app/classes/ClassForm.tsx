@@ -4,15 +4,11 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
-
-export interface ClassFormData {
-  id?: string;
-  name: string;
-}
+import { ClassFormData } from '@/src/types/class';
 
 interface ClassFormProps {
   initialData?: ClassFormData | null;
-  onSubmit: (data: ClassFormData) => void;
+  onSubmit: (data: ClassFormData) => void | Promise<void>;
   isLoading?: boolean;
 }
 
@@ -23,7 +19,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     maxStudents: '',
     schedule: '',
     activeAdventuresCount: 0,
-  });
+  } as ClassFormData);
 
   useEffect(() => {
     if (initialData) {
@@ -31,10 +27,11 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
         id: initialData.id,
         name: initialData.name || '',
         teacher: initialData.teacher || '',
-        maxStudents: initialData.maxStudents || '',
+        maxStudents: initialData.maxStudents ?? '',
         schedule: initialData.schedule || '',
-          activeAdventuresCount: initialData.activeAdventuresCount || 0,
-      });
+        activeAdventuresCount: initialData.activeAdventuresCount ?? 0,
+        createdAt: initialData.createdAt,
+      } as ClassFormData);
     }
   }, [initialData]);
 
@@ -46,11 +43,11 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
+    await onSubmit({
       ...formData,
-    });
+    } as ClassFormData);
   };
 
   return (
@@ -79,7 +76,7 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
             maxStudents: '',
             schedule: '',
             activeAdventuresCount: 0,
-          })}
+          } as ClassFormData)}
           disabled={isLoading}
         >
           Reset

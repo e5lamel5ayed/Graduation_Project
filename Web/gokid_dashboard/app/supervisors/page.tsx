@@ -2,11 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DataTable, Button, HeadlessDialog, ConfirmDeleteDialog } from '@/src/components/ui';
-import { Plus, Trash2 } from 'lucide-react';
-import { SupervisorForm } from './SupervisorForm';
+import { DataTable, Button, HeadlessDialog } from '@/src/components/ui';
+import { Plus } from 'lucide-react';
+import { SupervisorForm, SupervisorFormData } from './SupervisorForm';
 import { supervisorService } from '@/src/services/supervisorService';
-import { Supervisor, SupervisorFormData } from '@/src/types/supervisor';
+import { Supervisor } from '@/src/types/supervisor';
 import { toast } from 'sonner';
 
 export default function SupervisorsPage() {

@@ -14,7 +14,7 @@ import {
     SupervisorAdventureChild,
     SupervisorChildHistory,
 } from '../types/adventure';
-import { ApiResponse } from '../types/shared';
+import { ApiResponse } from '../types/category';
 import { PaginatedResponse, SupervisorAdventureTask, SupervisorTaskReviewDto } from '../types/task';
 
 const BASE_PATH = '/Adventure';

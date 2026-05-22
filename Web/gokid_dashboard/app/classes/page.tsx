@@ -49,7 +49,7 @@ const mapApiClassToCard = (classItem: ClassApiItem): ClassCardItem => ({
   maxStudents: 30,
   schedule: 'TBD',
   childrenCount: classItem.childrenCount,
-  activeAdventuresCount: (classItem as any).activeAdventuresCount ?? 0,
+  activeAdventuresCount: classItem.activeAdventuresCount ?? 0,
   createdAt: (() => {
     const createdAt = new Date(classItem.createdAt);
     return Number.isNaN(createdAt.getTime()) ? '' : createdAt.toISOString().split('T')[0];
@@ -356,10 +356,7 @@ export default function ClassesPage() {
         maxWidth="lg"
       >
         <ClassForm
-          initialData={selectedClass ? {
-            id: selectedClass.id,
-            name: selectedClass.name,
-          } : undefined}
+          initialData={selectedClass ?? undefined}
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
         />

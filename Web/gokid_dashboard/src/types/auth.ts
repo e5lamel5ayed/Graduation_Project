@@ -1,4 +1,3 @@
-import { ApiResponse } from './shared';
 
 export type LoginAs = 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor' | 'Parent';
 

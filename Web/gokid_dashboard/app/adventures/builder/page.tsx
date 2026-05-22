@@ -109,21 +109,36 @@ export default function AdventureBuilderPage() {
         taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber, pageSize: PAGE_SIZE }),
       ]);
       
+      const textItems = text?.items ?? text?.data ?? [];
+      const voiceItems = voice?.items ?? voice?.data ?? [];
+      const rewardItems = rewards?.items ?? rewards?.data ?? [];
+      const evidenceItems = evidence?.items ?? evidence?.data ?? [];
+
       const newTasks = [
-        ...text.items,
-        ...voice.items,
-        ...rewards.items,
-        ...evidence.items
+        ...textItems,
+        ...voiceItems,
+        ...rewardItems,
+        ...evidenceItems,
       ];
 
       if (isInitial) {
         setTasks(newTasks);
       } else {
-        setTasks(prev => [...prev, ...newTasks]);
+        setTasks((prev) => [...prev, ...newTasks]);
       }
 
-      // Check if any category still has more items
-      const hasAnyMore = text.hasNextPage || voice.hasNextPage || rewards.hasNextPage || evidence.hasNextPage;
+      // Determine if any of the paginated responses indicates more pages
+      const checkHasMore = (resp: { pageNumber?: number; totalPages?: number; pageSize?: number; totalCount?: number } | undefined) => {
+        if (!resp) return false;
+        const pageNum = resp.pageNumber ?? 1;
+        const totalPages = resp.totalPages ?? 1;
+        if (pageNum < totalPages) return true;
+        const pageSize = resp.pageSize ?? PAGE_SIZE;
+        const totalCount = resp.totalCount ?? 0;
+        return pageNum * pageSize < totalCount;
+      };
+
+      const hasAnyMore = checkHasMore(text) || checkHasMore(voice) || checkHasMore(rewards) || checkHasMore(evidence);
       setHasMore(hasAnyMore);
     } catch {
       toast.error('Failed to load tasks library');
