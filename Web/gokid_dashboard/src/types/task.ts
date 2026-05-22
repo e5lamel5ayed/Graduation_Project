@@ -114,19 +114,29 @@ export interface TaskTemplateParams {
   pageSize?: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  pageNumber: number;
-  totalCount: number;
-  totalPages: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
+// Supervisor Adventure Review Task Types
+export type AdventureChildTaskStatus = 'Pending' | 'Completed' | 'Missed' | 'Locked';
+
+export interface SupervisorAdventureTask {
+  childAdventureTaskId: string;
+  childId: string;
+  childName: string;
+  childAvatarUrl?: string;
+  dayNumber: number;
+  taskTitleEn: string;
+  taskTitleAr: string;
+  evidenceUrl?: string;
+  status: AdventureChildTaskStatus;
+  submittedAt?: string;
+  isApproved?: boolean;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }
 
-export interface ApiResponse<T> {
-  statusCode: string;
-  succeeded: boolean;
-  message: string;
-  errors: any[] | null;
-  data: T;
+export interface SupervisorTaskReviewDto {
+  isApproved: boolean;
+  rejectionReason: string;
 }
+
+export { type ApiResponse, type PaginatedResponse };
+

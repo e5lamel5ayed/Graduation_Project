@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 type AuthContextType = {
   user: AuthUser | null;
-  login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin') => Promise<boolean>;
+  login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor') => Promise<boolean>;
   signup: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string, loginAs: 'PlatformAdmin' | 'InstitutionAdmin' = 'PlatformAdmin'): Promise<boolean> => {
+  const login = async (email: string, password: string, loginAs: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor' = 'PlatformAdmin'): Promise<boolean> => {
     try {
       // API login for both PlatformAdmin and InstitutionAdmin
       const response = await authService.login({
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.userId || '',
         name: data.displayName || data.email || '',
         email: data.email || email,
-        role: loginAs === 'InstitutionAdmin' ? 'institution' : (data.userType || 'platform'),
+        role: loginAs === 'InstitutionAdmin' ? 'institution' : (loginAs === 'Supervisor' ? 'supervisor' : (data.userType || 'platform')),
         token: data.accessToken,
       };
 

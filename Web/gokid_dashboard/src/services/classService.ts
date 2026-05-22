@@ -1,29 +1,71 @@
 import { axiosInstance } from '../lib/axios';
-import { Class, ApiResponse, CreateClassDto, UpdateClassDto } from '../types/class';
+import { ApiResponse } from '../types/shared';
+import {
+  ClassListResponse,
+  ClassQueryParams,
+  ClassDetailResponse,
+  CreateClassDto,
+  UpdateClassDto,
+  AssignSupervisorDto,
+} from '../types/class';
 
 export const classService = {
-    getAll: async () => {
-        const { data } = await axiosInstance.get<ApiResponse<{ items: Class[] }>>('/Class');
-        return data.data.items;
-    },
+  getAll: async (params: ClassQueryParams = {}) => {
+    const { data } = await axiosInstance.get<ApiResponse<ClassListResponse>>('/Class', {
+      params: {
+        pageNumber: params.pageNumber || 1,
+        pageSize: params.pageSize || 8,
+        SearchName: params.SearchName || undefined,
+      },
+    });
 
-    getById: async (id: string) => {
-        const { data } = await axiosInstance.get<ApiResponse<Class>>(`/Class/${id}`);
-        return data.data;
-    },
-    
-    create: async (classData: CreateClassDto) => {
-        const { data } = await axiosInstance.post<ApiResponse<Class>>('/Class', classData);
-        return data.data;
-    },
+    return data.data;
+  },
 
-    update: async (id: string, classData: UpdateClassDto) => {
-        const { data } = await axiosInstance.put<ApiResponse<Class>>(`/Class/${id}`, classData);
-        return data.data;
-    },
+  getAllForSupervisor: async (params: ClassQueryParams = {}) => {
+    const { data } = await axiosInstance.get<ApiResponse<ClassListResponse>>('/supervisor/classes', {
+      params: {
+        pageNumber: params.pageNumber || 1,
+        pageSize: params.pageSize || 8,
+        SearchName: params.SearchName || undefined,
+      },
+    });
 
-    delete: async (id: string) => {
-        const { data } = await axiosInstance.delete<ApiResponse<void>>(`/Class/${id}`);
-        return data;
-    },
+    return data.data;
+  },
+
+  getById: async (classId: string) => {
+    const { data } = await axiosInstance.get<ApiResponse<ClassDetailResponse>>(`/Class/${classId}`);
+    return data.data;
+  },
+
+  create: async (payload: CreateClassDto) => {
+    const { data } = await axiosInstance.post<ApiResponse<ClassDetailResponse>>('/Class', payload);
+    return data.data;
+  },
+
+  update: async (classId: string, payload: UpdateClassDto) => {
+    const { data } = await axiosInstance.put<ApiResponse<ClassDetailResponse>>(`/Class/${classId}`, payload);
+    return data.data;
+  },
+
+  delete: async (classId: string) => {
+    const { data } = await axiosInstance.delete<ApiResponse<void>>(`/Class/${classId}`);
+    return data;
+  },
+
+  assignSupervisor: async (classId: string, payload: AssignSupervisorDto) => {
+    const { data } = await axiosInstance.post<ApiResponse<void>>(
+      `/Class/assign-supervisor/${classId}`,
+      payload
+    );
+    return data;
+  },
+
+  unassignSupervisor: async (classId: string, supervisorId: string) => {
+    const { data } = await axiosInstance.delete<ApiResponse<void>>(
+      `/Class/${classId}/supervisors/${supervisorId}`
+    );
+    return data;
+  },
 };

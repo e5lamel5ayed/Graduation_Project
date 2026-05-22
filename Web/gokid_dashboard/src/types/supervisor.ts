@@ -4,6 +4,7 @@ export interface Supervisor {
   fullName: string;
   phoneNumber: string;
   avatarUrl?: string;
+  isAssignedToClass?: boolean;
 }
 
 export interface CreateSupervisorDto {

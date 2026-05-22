@@ -16,6 +16,13 @@ const institutionNavigation = [
   { name: 'Adventures', href: '/adventures', icon: Compass },
 ];
 
+const supervisorNavigation = [
+  { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+  { name: 'Classes', href: '/classes', icon: School },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
+  { name: 'Adventures', href: '/adventures', icon: Compass },
+];
+
 // Institution role has access to a limited set of pages
 const adminNavigation = [
   { name: 'Dashboard', href: '/home', icon: Home },
@@ -38,14 +45,20 @@ export default function AppLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const navigation = user?.role === 'institution' ? institutionNavigation : adminNavigation;
+  const navigation = user?.role === 'institution' 
+    ? institutionNavigation 
+    : user?.role === 'supervisor' 
+      ? supervisorNavigation 
+      : adminNavigation;
   const allowedPaths = navigation.map((item) => item.href);
 
   const roleLabel = user?.role === 'PlatformAdmin'
     ? 'Admin'
     : user?.role === 'institution'
       ? 'Institution'
-      : user?.role ?? '';
+      : user?.role === 'supervisor'
+        ? 'Supervisor'
+        : user?.role ?? '';
 
   useEffect(() => {
     if (!loading && !user) {

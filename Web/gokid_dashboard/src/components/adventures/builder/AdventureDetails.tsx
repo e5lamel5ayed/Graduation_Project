@@ -24,6 +24,8 @@ interface AdventureDetailsProps {
   setBonusPoints: (val: number) => void;
   descriptionVoiceFile: File | null;
   setDescriptionVoiceFile: (file: File | null) => void;
+  bannerImage: File | null;
+  setBannerImage: (file: File | null) => void;
   completedCount: number;
   totalDays: number;
   isComplete: boolean;
@@ -47,6 +49,8 @@ export const AdventureDetails = ({
   setBonusPoints,
   descriptionVoiceFile,
   setDescriptionVoiceFile,
+  bannerImage,
+  setBannerImage,
   completedCount,
   totalDays,
   isComplete,
@@ -126,6 +130,20 @@ export const AdventureDetails = ({
                   accept="audio/*"
                   className="hidden"
                   onChange={(e) => setDescriptionVoiceFile(e.target.files?.[0] ?? null)}
+                />
+              </label>
+            </div>
+
+            <div className="space-y-1 max-w-sm">
+              <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Banner Image</label>
+              <label className="h-11 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-600 flex items-center gap-2 cursor-pointer hover:bg-white transition-all">
+                <Upload className="h-4 w-4 text-purple-500" />
+                <span className="truncate">{bannerImage ? bannerImage.name : 'Upload banner image (optional)'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => setBannerImage(e.target.files?.[0] ?? null)}
                 />
               </label>
             </div>

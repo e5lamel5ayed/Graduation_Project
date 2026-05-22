@@ -18,8 +18,10 @@ const toFormData = (obj: Record<string, any>): FormData => {
 };
 
 export const supervisorService = {
-    getAll: async () => {
-        const { data } = await axiosInstance.get<ApiResponse<{ items: Supervisor[] }>>('/InstitutionSupervisor/supervisors');
+    getAll: async (classId?: string) => {
+        const { data } = await axiosInstance.get<ApiResponse<{ items: Supervisor[] }>>('/InstitutionSupervisor/supervisors', {
+            params: classId ? { classId } : undefined,
+        });
         return data.data.items;
     },
 

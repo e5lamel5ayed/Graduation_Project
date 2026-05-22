@@ -19,6 +19,10 @@ interface ClassFormProps {
 export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFormProps) {
   const [formData, setFormData] = useState<ClassFormData>({
     name: '',
+    teacher: '',
+    maxStudents: '',
+    schedule: '',
+    activeAdventuresCount: 0,
   });
 
   useEffect(() => {
@@ -26,6 +30,10 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
       setFormData({
         id: initialData.id,
         name: initialData.name || '',
+        teacher: initialData.teacher || '',
+        maxStudents: initialData.maxStudents || '',
+        schedule: initialData.schedule || '',
+          activeAdventuresCount: initialData.activeAdventuresCount || 0,
       });
     }
   }, [initialData]);
@@ -40,7 +48,9 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({
+      ...formData,
+    });
   };
 
   return (
@@ -65,12 +75,16 @@ export function ClassForm({ initialData, onSubmit, isLoading = false }: ClassFor
           variant="outline"
           onClick={() => setFormData({
             name: '',
+            teacher: '',
+            maxStudents: '',
+            schedule: '',
+            activeAdventuresCount: 0,
           })}
           disabled={isLoading}
         >
           Reset
         </Button>
-        <Button type="submit" isLoading={isLoading}>
+        <Button type="submit" isLoading={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
           {initialData ? 'Update' : 'Create'} Class
         </Button>
       </div>

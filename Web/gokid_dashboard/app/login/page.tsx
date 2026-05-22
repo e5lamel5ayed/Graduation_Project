@@ -63,19 +63,27 @@ const features = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth() as { login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin') => Promise<boolean> };
+  const { login } = useAuth() as { login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor') => Promise<boolean> };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginAsInstitution, setLoginAsInstitution] = useState(false);
+  const [loginAsSupervisor, setLoginAsSupervisor] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
     try {
-      const loginAs = loginAsInstitution ? 'InstitutionAdmin' : 'PlatformAdmin';
+      let loginAs: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor' = 'PlatformAdmin';
+      if (loginAsInstitution) {
+        loginAs = 'InstitutionAdmin';
+      } else if (loginAsSupervisor) {
+        loginAs = 'Supervisor';
+      }
+      
       const success = await login(email, password, loginAs);
       if (success) {
         router.push('/home');
@@ -84,6 +92,8 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError('An error occurred during login. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -203,21 +213,60 @@ export default function LoginPage() {
                     required
                   />
 
-                  {/* Login As Institution Admin Checkbox */}
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-                    <input
-                      type="checkbox"
-                      id="loginAsInstitution"
-                      checked={loginAsInstitution}
-                      onChange={(e) => setLoginAsInstitution(e.target.checked)}
-                      className="w-5 h-5 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163]"
-                    />
-                    <label
-                      htmlFor="loginAsInstitution"
-                      className="flex-1 text-sm font-medium text-[#5c5163] cursor-pointer select-none"
-                    >
-                      Login as Institution Admin
-                    </label>
+                  {/* Login As Selection */}
+                  <div className="grid grid-cols-1 gap-4">
+                    {/* Login As Institution Admin Checkbox */}
+                    <div className={cn(
+                      "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 cursor-pointer",
+                      loginAsInstitution 
+                        ? "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 shadow-sm" 
+                        : "bg-gray-50 border-gray-100 hover:border-purple-100"
+                    )}
+                    onClick={() => {
+                      setLoginAsInstitution(!loginAsInstitution);
+                      if (!loginAsInstitution) setLoginAsSupervisor(false);
+                    }}>
+                      <input
+                        type="checkbox"
+                        id="loginAsInstitution"
+                        checked={loginAsInstitution}
+                        onChange={() => {}} // Handled by div onClick
+                        className="w-5 h-5 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163]"
+                      />
+                      <label
+                        htmlFor="loginAsInstitution"
+                        className="flex-1 text-sm font-medium text-[#5c5163] cursor-pointer select-none"
+                      >
+                        Login as Institution Admin
+                      </label>
+                    </div>
+
+                    {/* Login As Supervisor Checkbox */}
+                    <div className={cn(
+                      "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 cursor-pointer",
+                      loginAsSupervisor 
+                        ? "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 shadow-sm" 
+                        : "bg-gray-50 border-gray-100 hover:border-purple-100"
+                    )}
+                    onClick={() => {
+                      setLoginAsSupervisor(!loginAsSupervisor);
+                      if (!loginAsSupervisor) setLoginAsInstitution(false);
+                    }}>
+                      <input
+                        type="checkbox"
+                        id="loginAsSupervisor"
+                        checked={loginAsSupervisor}
+                        onChange={() => {}} // Handled by div onClick
+                        className="w-5 h-5 text-[#5c5163] border-gray-300 rounded focus:ring-[#7b6c83] focus:ring-2 cursor-pointer accent-[#5c5163]"
+                      />
+                      <label
+                        htmlFor="loginAsSupervisor"
+                        className="flex-1 text-sm font-medium text-[#5c5163] cursor-pointer select-none"
+                        title="Login as Supervisor"
+                      >
+                        Login as Supervisor
+                      </label>
+                    </div>
                   </div>
 
                   {/* Remember & Forgot */}

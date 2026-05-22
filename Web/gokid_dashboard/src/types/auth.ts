@@ -1,4 +1,6 @@
-export type LoginAs = 'PlatformAdmin' | 'InstitutionAdmin' | 'Parent';
+import { ApiResponse } from './shared';
+
+export type LoginAs = 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor' | 'Parent';
 
 export interface LoginDto {
   identifier: string;
@@ -17,7 +19,7 @@ export interface AuthUser {
 export interface LoginCredentials {
   identifier: string;
   password: string;
-  loginAs: 'PlatformAdmin' | 'InstitutionAdmin';
+  loginAs: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor';
 }
 
 export interface LoginData {

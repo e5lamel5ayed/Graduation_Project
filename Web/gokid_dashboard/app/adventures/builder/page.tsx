@@ -55,6 +55,7 @@ export default function AdventureBuilderPage() {
   const [weekDuration, setWeekDuration] = useState(7);
   const [bonusPoints, setBonusPoints] = useState(0);
   const [descriptionVoiceFile, setDescriptionVoiceFile] = useState<File | null>(null);
+  const [bannerImage, setBannerImage] = useState<File | null>(null);
   
   // Pagination State
   const [page, setPage] = useState(1);
@@ -145,9 +146,11 @@ export default function AdventureBuilderPage() {
         const adventure = await adventureService.getById(adventureId);
 
         setAdventureTitleEn(adventure.title);
-        setAdventureTitleAr('');
+        setAdventureTitleAr(adventure.titleAr);
         setAdventureDescriptionEn(adventure.description);
-        setAdventureDescriptionAr('');
+        setAdventureDescriptionAr(adventure.descriptionAr);
+        setAdventureGoalEn(adventure.goalEn);
+        setAdventureGoalAr(adventure.goalAr);
         setWeekDuration(Math.max(1, adventure.weekDuration));
         setBonusPoints(adventure.bonusPoints);
 
@@ -265,7 +268,13 @@ export default function AdventureBuilderPage() {
 
   const submitAdventure = async (mode: 'save' | 'publish') => {
     const title = (adventureTitleEn || adventureTitleAr).trim();
+    const titleEn = adventureTitleEn.trim();
+    const titleAr = adventureTitleAr.trim();
     const description = (adventureDescriptionEn || adventureDescriptionAr).trim();
+    const descriptionEn = adventureDescriptionEn.trim();
+    const descriptionAr = adventureDescriptionAr.trim();
+    const goalEn = adventureGoalEn.trim();
+    const goalAr = adventureGoalAr.trim();
     const selectedTasks = days
       .filter((day) => day.task)
       .map((day) => ({
@@ -297,7 +306,14 @@ export default function AdventureBuilderPage() {
       setIsSubmitting(true);
       const payload = {
         title,
+        titleEn,
+        titleAr,
         description,
+        descriptionEn,
+        descriptionAr,
+        goalEn,
+        goalAr,
+        bannerImage,
         weekDuration,
         bonusPoints: bonusPoints > 0 ? bonusPoints : calculatedBonusPoints,
         descriptionVoiceFile,
@@ -345,6 +361,7 @@ export default function AdventureBuilderPage() {
           setSearchQuery('');
           setBonusPoints(0);
           setDescriptionVoiceFile(null);
+          setBannerImage(null);
           setWeekDuration(7);
           setDays(createEmptyDays(7));
           toast.success('Adventure reset successfully');
@@ -379,6 +396,7 @@ export default function AdventureBuilderPage() {
             weekDuration={weekDuration} setWeekDuration={setWeekDuration}
             bonusPoints={bonusPoints} setBonusPoints={setBonusPoints}
             descriptionVoiceFile={descriptionVoiceFile} setDescriptionVoiceFile={setDescriptionVoiceFile}
+            bannerImage={bannerImage} setBannerImage={setBannerImage}
             completedCount={completedCount}
             totalDays={days.length}
             isComplete={isComplete}
