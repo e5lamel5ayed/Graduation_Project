@@ -6,3 +6,4 @@ export * from './task';
 export * from './adventure';
 export * from './class';
 export * from './ui';
+export * from './gift';

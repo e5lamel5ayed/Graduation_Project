@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight, Gift } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, Compass } from 'lucide-react';
 
 const institutionNavigation = [
@@ -30,6 +30,7 @@ const adminNavigation = [
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Adventures', href: '/adventures', icon: Compass },
+  { name: 'Gifts', href: '/gifts', icon: Gift },
 
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
