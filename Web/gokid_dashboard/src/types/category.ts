@@ -1,5 +1,3 @@
-import { ApiResponse } from './shared';
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface CategoryIcon {
   url: string;
@@ -14,16 +12,6 @@ export interface Category {
   subCategoriesCount: number;
   icon?: CategoryIcon;
 }
-
-export interface CategoryFormData {
-  id?: string;
-  nameAr: string;
-  nameEn: string;
-  iconFile?: File | null;
-  existingIconUrl?: string | null;
-  colorHex: string;
-}
-
 
 export interface CategoryDetail extends Category {
   iconFile: string;
@@ -59,18 +47,13 @@ export interface CreateSubCategoryDto {
   categoryId?: string;
 }
 
-export interface SubCategoryFormData {
-  id?: string;
-  nameAr: string;
-  nameEn: string;
-  iconFile?: File | null;
-  existingIconUrl?: string | null;
-  categoryId?: string;
-}
-
-
 export type UpdateCategoryDto = Partial<CreateCategoryDto>;
 export type UpdateSubCategoryDto = Partial<CreateSubCategoryDto>;
 
-export { type ApiResponse };
-
+export interface ApiResponse<T> {
+  statusCode: string;
+  succeeded: boolean;
+  message: string;
+  errors: any[] | null;
+  data: T;
+}

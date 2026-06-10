@@ -1,13 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 'use client';
 
 import { useState } from 'react';
-import { Button, Pagination, ConfirmDeleteDialog } from '@/src/components/ui';
+import { Button, Pagination } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
-import { Plus, Pencil, Trash2, Loader2, FolderOpen, Tag, Layers } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, FolderOpen, Tag } from 'lucide-react';
 import { CategoryForm } from './SubCategoryForm';
-import type { SubCategoryFormData } from '@/src/types/category';
+import type { CategoryFormData } from './SubCategoryForm';
 import {
   useSubCategories,
   useCreateSubCategory,
@@ -16,7 +15,7 @@ import {
   useSubCategory,
 } from '@/src/hooks/useSubCategories';
 import { useCategories } from '@/src/hooks/useCategories';
-import type { SubCategory, Category } from '@/src/types/category';
+import type { SubCategory } from '@/src/types/category';
 
 export default function CategoriesPage() {
   const { data: subCategories, isLoading: isLoadingSub, error: subError } = useSubCategories();
@@ -27,7 +26,7 @@ export default function CategoriesPage() {
   const deleteMutation = useDeleteSubCategory();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<SubCategoryFormData | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFormData | null>(null);
   const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,7 +48,7 @@ export default function CategoriesPage() {
   };
 
   // Build initialData from fetched single category when available
-  const initialDataFromSelected: SubCategoryFormData | undefined = selectedFullCategory
+  const initialDataFromSelected: CategoryFormData | undefined = selectedFullCategory
     ? {
       id: selectedFullCategory.id,
       nameAr: selectedFullCategory.nameAr,
@@ -78,7 +77,7 @@ export default function CategoriesPage() {
     setCategoryToDelete(null);
   };
 
-  const handleSubmit = async (formData: SubCategoryFormData) => {
+  const handleSubmit = async (formData: CategoryFormData) => {
     try {
       if (formData.id) {
         await updateMutation.mutateAsync({  
@@ -101,8 +100,8 @@ export default function CategoriesPage() {
         }
       setIsDialogOpen(false);
       setSelectedId(null);
-    } catch (error) {
-      // Error handled by mutation
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -156,16 +155,17 @@ export default function CategoriesPage() {
                 const categoryColor = parentCategory?.colorHex || '#9333ea';
                 const categoryName = subCategory.categoryNameEn || parentCategory?.nameEn || 'General';
 
+                const cardStyle: Record<string, string> = {
+                  borderTopColor: categoryColor,
+                  borderTopWidth: '4px',
+                  '--category-color': categoryColor,
+                };
+
                 return (
                   <div
                     key={subCategory.id}
                     className="group flex flex-col justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative overflow-hidden"
-                    style={{ 
-                      borderTopColor: categoryColor, 
-                      borderTopWidth: '4px',
-                      // @ts-expect-error - CSS custom property for dynamic styling
-                      '--category-color': categoryColor
-                    }}
+                    style={cardStyle as React.CSSProperties}
                   >
                     {/* Decorative Gradient Background */}
                     <div 
@@ -285,13 +285,36 @@ export default function CategoriesPage() {
         )}
       </HeadlessDialog>
 
-      <ConfirmDeleteDialog
+      <HeadlessDialog
         isOpen={isDeleteDialogOpen}
         onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        itemName={categoryToDelete?.name}
-        isLoading={deleteMutation.isPending}
-      />
+        title="Confirm Delete"
+        maxWidth="sm"
+      >
+        <div className="mt-4">
+          <p className="text-gray-700">
+            {categoryToDelete
+              ? `Are you sure you want to delete "${categoryToDelete.name}"?`
+              : 'Are you sure you want to delete this category?'}
+          </p>
+          <div className="mt-6 flex justify-end space-x-2">
+            <Button
+              onClick={handleConfirmDelete}
+              isLoading={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </HeadlessDialog>
     </div>
   );
 }

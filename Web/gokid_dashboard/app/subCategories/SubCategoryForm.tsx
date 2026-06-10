@@ -6,18 +6,25 @@ import { useState, useEffect } from 'react';
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui';
 import { Upload, X } from 'lucide-react';
 import { useCategories } from '@/src/hooks/useCategories';
-import { SubCategoryFormData } from '@/src/types/category';
 
-interface SubCategoryFormProps {
-  initialData?: SubCategoryFormData | null;
-  onSubmit: (data: SubCategoryFormData) => void;
+export interface CategoryFormData {
+  id?: string;
+  nameAr: string;
+  nameEn: string;
+  iconFile?: File | null;
+  existingIconUrl?: string | null;
+  categoryId?: string;
+}
+
+interface CategoryFormProps {
+  initialData?: CategoryFormData | null;
+  onSubmit: (data: CategoryFormData) => void;
   isLoading?: boolean;
 }
 
-export function CategoryForm({ initialData, onSubmit, isLoading = false }: SubCategoryFormProps) {
-
+export function CategoryForm({ initialData, onSubmit, isLoading = false }: CategoryFormProps) {
   const { data: categories, isLoading: isLoadingCategories } = useCategories();
-  const [formData, setFormData] = useState<SubCategoryFormData>({
+  const [formData, setFormData] = useState<CategoryFormData>({
     nameAr: '',
     nameEn: '',
     iconFile: null,

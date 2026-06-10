@@ -1,5 +1,5 @@
 import { axiosInstance } from '../lib/axios';
-import { ApiResponse } from '../types/shared';
+import { ApiResponse } from '../types/category';
 import {
   ClassListResponse,
   ClassQueryParams,

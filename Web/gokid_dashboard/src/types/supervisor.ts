@@ -1,5 +1,3 @@
-import { ApiResponse } from './shared';
-
 export interface Supervisor {
   id: string;
   email: string;
@@ -25,16 +23,8 @@ export interface UpdateSupervisorDto {
   avatarFile?: File;
 }
 
-export interface SupervisorFormData {
-  id?: string;
-  fullName: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-  avatarFile?: File;
-  avatarUrl?: string;
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  success: boolean;
 }
-
-
-export { type ApiResponse };
-

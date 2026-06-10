@@ -1,4 +1,5 @@
-import { PaginatedResponse } from './shared';
+
+import type { PaginatedResponse } from './task';
 
 export interface ClassFormData {
   id?: string;
@@ -22,6 +23,7 @@ export interface ClassApiItem {
   name: string;
   childrenCount: number;
   supervisorsCount: number;
+  activeAdventuresCount?: number;
   createdAt: string;
 }
 

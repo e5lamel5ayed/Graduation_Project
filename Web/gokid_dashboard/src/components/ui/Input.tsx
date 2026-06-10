@@ -2,8 +2,16 @@ import * as React from 'react';
 const { forwardRef, useId } = React;
 import { cn } from '@/src/lib/utils';
 
-import { InputProps } from '@/src/types/ui';
-
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  containerClassName?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  className?: string;
+}
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (

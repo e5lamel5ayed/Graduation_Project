@@ -1,7 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosInstance } from '../lib/axios';
 import { SubCategory, CreateSubCategoryDto, UpdateSubCategoryDto, ApiResponse } from '../types/category';
-import { toFormData } from '../lib/utils';
 
+const toFormData = (obj: Record<string, any>): FormData => {
+  const formData = new FormData();
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key];
+    if (value !== null && value !== undefined) {
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else if (value !== '') {
+        formData.append(key, value);
+      }
+    }
+  });
+  return formData;
+};
 
 const BASE_PATH = '/TaskSubCategory';
 

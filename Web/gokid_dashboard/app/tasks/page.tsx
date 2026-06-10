@@ -90,18 +90,18 @@ export default function TasksPage() {
         ]);
 
         const allTasks = [
-          ...textQuestions.items,
-          ...voiceQuestions.items,
-          ...instantRewards.items,
-          ...evidenceSubmissions.items,
+          ...(textQuestions.items || []),
+          ...(voiceQuestions.items || []),
+          ...(instantRewards.items || []),
+          ...(evidenceSubmissions.items || []),
         ];
 
         setTasks(allTasks);
         setTaskCounts({
           all: allTasks.length,
-          voice: voiceQuestions.totalCount,
-          instantReward: instantRewards.totalCount,
-          evidenceSubmission: evidenceSubmissions.totalCount,
+          voice: voiceQuestions.totalCount || 0,
+          instantReward: instantRewards.totalCount || 0,
+          evidenceSubmission: evidenceSubmissions.totalCount || 0,
         });
       } else {
         const response = await taskService.getTaskTemplates({
@@ -109,11 +109,11 @@ export default function TasksPage() {
           pageNumber: 1,
           pageSize: 50,
         });
-        setTasks(response.items);
+        setTasks(response.items || []);
 
         setTaskCounts(prev => ({
           ...prev,
-          [activeTab]: response.totalCount,
+          [activeTab]: response.totalCount || 0,
         }));
       }
     } catch (error) {
@@ -439,3 +439,6 @@ export default function TasksPage() {
     </div>
   );
 }
+
+
+
