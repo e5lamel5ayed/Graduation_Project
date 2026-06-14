@@ -30,7 +30,7 @@ const adminNavigation = [
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Adventures', href: '/adventures', icon: Compass },
-  { name: 'Gifts', href: '/gifts', icon: Gift },
+  { name: 'Rewards', href: '/gifts', icon: Gift },
 
   // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
