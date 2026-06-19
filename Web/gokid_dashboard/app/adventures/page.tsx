@@ -761,6 +761,126 @@ export default function AdventuresPage() {
           </HeadlessDialog>
         </>
       )}
+
+      <HeadlessDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCancelDelete}
+        title="Confirm Delete"
+        maxWidth="sm"
+      >
+        <div className="mt-4">
+          <p className="text-gray-700">
+            {adventureToDelete
+              ? `Are you sure you want to delete "${adventureToDelete.title}"?`
+              : 'Are you sure you want to delete this adventure?'}
+          </p>
+          <div className="mt-6 flex justify-end space-x-2">
+            <Button
+              onClick={handleConfirmDelete}
+              isLoading={Boolean(deletingId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              disabled={Boolean(deletingId)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </HeadlessDialog>
+
+      <HeadlessDialog
+        isOpen={isStatusDialogOpen}
+        onClose={handleCancelStatusChange}
+        title="Confirm Status Change"
+        maxWidth="sm"
+      >
+        <div className="mt-4">
+          <p className="text-gray-700">
+            {adventureToChangeStatus
+              ? `Change status for "${adventureToChangeStatus.title}" to ${adventureToChangeStatus.status === 'Active' ? 'Inactive' : 'Active'}?`
+              : 'Are you sure you want to change adventure status?'}
+          </p>
+          <div className="mt-6 flex justify-end space-x-2">
+            <Button
+              onClick={handleConfirmStatusChange}
+              isLoading={Boolean(statusUpdatingId)}
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCancelStatusChange}
+              disabled={Boolean(statusUpdatingId)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </HeadlessDialog>
+
+      <HeadlessDialog
+        isOpen={isAssignDialogOpen}
+        onClose={handleCloseAssignDialog}
+        title="Assign Adventure To Class"
+        maxWidth="md"
+      >
+        <div className="mt-4 space-y-4">
+          <div className="rounded-xl border border-sky-100 bg-sky-50 p-3">
+            <p className="text-xs font-semibold text-sky-700">Selected Adventure</p>
+            <p className="text-sm font-bold text-sky-900 mt-1 truncate">{adventureToAssign?.title || '-'}</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-500">Class</label>
+            <Select value={selectedClassId} onValueChange={setSelectedClassId}>
+              <SelectTrigger className="h-11 rounded-xl border-gray-200">
+                <SelectValue placeholder={isLoadingClasses ? 'Loading classes...' : 'Select class'} />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((classItem) => (
+                  <SelectItem key={classItem.id} value={classItem.id}>
+                    {classItem.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="assignmentStartDate" className="text-xs font-bold uppercase tracking-wider text-gray-500">Start Date</label>
+            <input
+              id="assignmentStartDate"
+              title="Assignment start date"
+              type="datetime-local"
+              value={assignmentStartDate}
+              onChange={(e) => setAssignmentStartDate(e.target.value)}
+              className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-sky-500/20"
+            />
+          </div>
+
+          <div className="pt-2 flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCloseAssignDialog}
+              disabled={Boolean(assigningAdventureId)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmAssign}
+              isLoading={Boolean(assigningAdventureId)}
+              className="bg-sky-600 hover:bg-sky-700"
+            >
+              Assign To Class
+            </Button>
+          </div>
+        </div>
+      </HeadlessDialog>
     </div>
   );
 }

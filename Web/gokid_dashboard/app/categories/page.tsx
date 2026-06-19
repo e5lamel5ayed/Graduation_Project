@@ -1,14 +1,13 @@
-/* eslint-disable @next/next/no-img-element */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 'use client';
 
 import { useState } from 'react';
-import { Button, ConfirmDeleteDialog } from '@/src/components/ui';
+import { Button } from '@/src/components/ui/Button';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { CategoryForm } from './CategoryForm';
+import { CategoryForm, CategoryFormData } from './CategoryForm';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, useCategory } from '@/src/hooks/useCategories';
-import type { Category, CategoryFormData } from '@/src/types/category';
+import type { Category } from '@/src/types/category';
 
 export default function CategoriesPage() {
   const { data: categories, isLoading, error } = useCategories();
@@ -91,8 +90,8 @@ export default function CategoriesPage() {
       }
       setIsDialogOpen(false);
       setSelectedId(null);
-    } catch (error) {
-      // Error handled by mutation
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -159,26 +158,14 @@ export default function CategoriesPage() {
                     {category.subCategoriesCount} subcategories
                   </p>
                 </div>
-
-                <div className="mt-4 flex items-center justify-end space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(category)}
-                    className="flex items-center space-x-1"
-                  >
-                    <Pencil className="h-4 w-4" />
-                    <span>Edit</span>
+                <div className="mt-4 flex items-center justify-end gap-3">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteClick(category)}
-                    className="flex items-center space-x-1 text-red-600 border-red-200 hover:bg-red-50"
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span>Delete</span>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteClick(category)} className="text-red-500" disabled={deleteMutation.isPending}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -206,13 +193,36 @@ export default function CategoriesPage() {
         )}
       </HeadlessDialog>
 
-      <ConfirmDeleteDialog
+      <HeadlessDialog
         isOpen={isDeleteDialogOpen}
         onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        itemName={categoryToDelete?.name}
-        isLoading={deleteMutation.isPending}
-      />
+        title="Confirm Delete"
+        maxWidth="sm"
+      >
+        <div className="mt-4">
+          <p className="text-gray-700">
+            {categoryToDelete
+              ? `Are you sure you want to delete "${categoryToDelete.name}"?`
+              : 'Are you sure you want to delete this category?'}
+          </p>
+          <div className="mt-6 flex justify-end space-x-2">
+            <Button
+              onClick={handleConfirmDelete}
+              isLoading={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </HeadlessDialog>
     </div>
   );
 }

@@ -1,5 +1,3 @@
-import { ApiResponse, PaginatedResponse } from './shared';
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type TemplateType = 'InstantReward' | 'TextQuestion' | 'VoiceQuestion' | 'EvidenceSubmission';
 export type Difficulty = 'Easy' | 'Medium' | 'Hard';
@@ -140,5 +138,23 @@ export interface SupervisorTaskReviewDto {
   rejectionReason: string;
 }
 
-export { type ApiResponse, type PaginatedResponse };
+export interface PaginatedResponse<T> {
+  items?: T[];
+  data?: T[];
+  totalCount?: number;
+  totalPages?: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  success?: boolean;
+  statusCode?: string;
+  succeeded?: boolean;
+  errors?: any[] | null;
+}
+
+export { type ApiResponse as _ApiResponse, type PaginatedResponse as _PaginatedResponse };
 

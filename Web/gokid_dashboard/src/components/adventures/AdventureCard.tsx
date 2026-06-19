@@ -1,5 +1,6 @@
 'use client';
 
+import { Adventure } from '@/src/types/adventure';
 import { 
   Compass, 
   Calendar, 
@@ -9,8 +10,6 @@ import {
   School,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Adventure } from '@/src/types';
-
 
 interface AdventureCardProps {
   adventure: Adventure;
@@ -131,4 +130,3 @@ export const AdventureCard = ({
     </div>
   );
 };
-
