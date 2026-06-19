@@ -308,7 +308,7 @@ export const adventureService = {
             })),
         });
 
-        const { data } = await axiosInstance.post<ApiResponse<AdventureApiModel>>(
+        const response = await axiosInstance.post<any>(
             BASE_PATH,
             formData,
             {
@@ -318,7 +318,16 @@ export const adventureService = {
             }
         );
 
-        return data.data;
+        console.log('Raw response:', response);
+        console.log('Response.data:', response.data);
+        
+        const { data } = response;
+        const adventure = data?.data || data;
+        
+        console.log('Final adventure object:', adventure);
+        console.log('Adventure ID:', adventure?.id);
+        
+        return adventure;
     },
 
     getById: async (adventureId: string): Promise<AdventureBuilderData> => {
@@ -455,6 +464,15 @@ export const adventureService = {
         const { data } = await axiosInstance.put<ApiResponse<unknown>>(
             `/supervisor/tasks/${childAdventureTaskId}/review`,
             payload
+        );
+
+        return data;
+    },
+
+    generateStory: async (adventureId: string) => {
+        const { data } = await axiosInstance.post<ApiResponse<unknown>>(
+            `${BASE_PATH}/${adventureId}/generate-story`,
+            {}
         );
 
         return data;

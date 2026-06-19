@@ -292,6 +292,11 @@ export default function AdventureBuilderPage() {
       return;
     }
 
+    if (!goalEn && !goalAr) {
+      toast.error('Adventure goal is required');
+      return;
+    }
+
     if (selectedTasks.length === 0) {
       toast.error('Please assign at least one task before submitting');
       return;
@@ -320,10 +325,38 @@ export default function AdventureBuilderPage() {
         tasks: selectedTasks,
       };
 
+      let createdAdventureId: string | undefined;
+
       if (isEditMode && adventureId) {
         await adventureService.update(adventureId, payload);
       } else {
-        await adventureService.create(payload);
+        const createdAdventure = await adventureService.create(payload);
+        console.log('Created adventure object:', createdAdventure);
+        console.log('Adventure keys:', Object.keys(createdAdventure || {}));
+        console.log('Adventure entire response:', JSON.stringify(createdAdventure));
+        
+        // Try multiple ways to get the ID
+        createdAdventureId = createdAdventure?.id || 
+                            (createdAdventure as any)?.ID || 
+                            (createdAdventure as any)?.adventureId ||
+                            (createdAdventure as any)?.AdventureId;
+        
+        console.log('Extracted adventure ID:', createdAdventureId);
+        
+        if (createdAdventureId) {
+          // Call generate-story endpoint immediately after successful creation
+          try {
+            console.log('Calling generateStory with ID:', createdAdventureId);
+            await adventureService.generateStory(createdAdventureId);
+            toast.success('Story generated successfully');
+          } catch (storyError) {
+            console.error('Failed to generate story:', storyError);
+            // Don't throw - the adventure was created successfully, story generation failed
+          }
+        } else {
+          console.warn('Warning: Created adventure has no ID, skipping story generation');
+          console.warn('Full response:', createdAdventure);
+        }
       }
 
       if (isEditMode) {
