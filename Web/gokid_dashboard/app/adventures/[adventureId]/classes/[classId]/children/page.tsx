@@ -13,9 +13,9 @@ import { SupervisorChildHistory } from '@/src/types/adventure';
 import { FileText } from 'lucide-react';
 
 export default function ChildrenPage() {
-    const params = useParams() as { weeklyAdventureId?: string; classId?: string };
+    const params = useParams() as { adventureId?: string; classId?: string };
     const router = useRouter();
-    const weeklyAdventureId = params.weeklyAdventureId || '';
+    const adventureId = params.adventureId || '';
     const classId = params.classId || '';
 
     const [children, setChildren] = useState<SupervisorAdventureChild[]>([]);
@@ -25,12 +25,12 @@ export default function ChildrenPage() {
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
     useEffect(() => {
-        if (!weeklyAdventureId || !classId) return;
+        if (!adventureId || !classId) return;
 
         const fetchChildren = async () => {
             try {
                 setIsLoading(true);
-                const data = await adventureService.getSupervisorAdventureClassChildren(weeklyAdventureId, classId);
+                const data = await adventureService.getSupervisorAdventureClassChildren(adventureId, classId);
                 setChildren(data || []);
             } catch (err) {
                 console.error('Failed to load children', err);
@@ -42,7 +42,7 @@ export default function ChildrenPage() {
         };
 
         fetchChildren();
-    }, [weeklyAdventureId, classId]);
+    }, [adventureId, classId]);
 
     return (
         <div className="p-4 bg-gray-50 min-h-screen">
@@ -73,7 +73,7 @@ export default function ChildrenPage() {
                             onClick={async () => {
                                 try {
                                     setIsLoadingHistory(true);
-                                    const history = await adventureService.getSupervisorChildHistory(weeklyAdventureId, child.childId);
+                                    const history = await adventureService.getSupervisorChildHistory(adventureId, child.childId);
                                     setSelectedChildHistory(history);
                                     setIsPanelOpen(true);
                                 } catch (err) {

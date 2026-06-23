@@ -13,6 +13,7 @@ import {
     SupervisorAdventureClass,
     SupervisorAdventureChild,
     SupervisorChildHistory,
+    AdventureStory,
 } from '../types/adventure';
 import { ApiResponse } from '../types/category';
 import { PaginatedResponse, SupervisorAdventureTask, SupervisorTaskReviewDto } from '../types/task';
@@ -476,5 +477,20 @@ export const adventureService = {
         );
 
         return data;
+    },
+
+    getStory: async (adventureId: string): Promise<AdventureStory> => {
+        const { data } = await axiosInstance.get<ApiResponse<AdventureStory> | AdventureStory>(
+            `${BASE_PATH}/${adventureId}/story`
+        );
+
+        // Handle both wrapped and unwrapped responses
+        const story = (data as any)?.data || data;
+        
+        if (!story || typeof story !== 'object') {
+            throw new Error('Invalid story data');
+        }
+
+        return story as AdventureStory;
     },
 };

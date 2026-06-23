@@ -181,4 +181,26 @@ export interface AssignAdventureToClassDto {
   startDate: string;
 }
 
+export interface StoryPart {
+  title: string;
+  story: string;
+  voiceUrl?: string;
+}
+
+export interface StoryDay {
+  dayNumber: number;
+  adventureTaskId: string;
+  title: string;
+  story: string;
+  voiceUrl?: string;
+}
+
+export interface AdventureStory {
+  adventureId: string;
+  title: string;
+  intro: StoryPart;
+  days: StoryDay[];
+  outro: StoryPart;
+}
+
 // Reuse ApiResponse from ./shared.ts

@@ -8,6 +8,7 @@ import AppLayout from './app-layout';
 import './globals.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'sonner';
 
 // List of routes that should not use the app layout
 const noLayoutRoutes = ['/login'];
@@ -60,7 +61,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
         <QueryClientProvider client={queryClient}>
-
+          <Toaster position="top-center" richColors />
           <AuthProvider>
             {isPublicRoute || isNotFound ? (
               <>{children}</>

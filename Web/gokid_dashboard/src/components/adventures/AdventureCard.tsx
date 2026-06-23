@@ -2,7 +2,7 @@
 
 import { Adventure } from '@/src/types/adventure';
 import { 
-  Compass, 
+  BookOpen, 
   Calendar, 
   Trash2,
   ChevronRight,
@@ -36,9 +36,12 @@ export const AdventureCard = ({
     <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:border-purple-200 flex flex-col h-full">
       {/* Top Section */}
       <div className="p-5 pb-0 flex items-start justify-between mb-4">
-        <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-200 text-white group-hover:scale-110 transition-transform duration-300">
-          <Compass className="h-6 w-6" />
-        </div>
+        <Link 
+          href={`/adventures/${adventure.id}/story`}
+          className="w-12 h-12 rounded-2xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-200 text-white group-hover:scale-110 transition-transform duration-300 hover:from-purple-600 hover:to-purple-700"
+        >
+          <BookOpen className="h-6 w-6" />
+        </Link>
         
         <div className="flex items-start gap-2">
           <div className="flex flex-col items-end gap-1.5">
