@@ -3,8 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui';
 import { Upload, X } from 'lucide-react';
 import { GiftFormData } from '@/src/types/gift';
 
@@ -171,29 +170,30 @@ export function GiftForm({ initialData, onSubmit, isLoading = false }: GiftFormP
           />
         </div>
 
-        <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
             Gift Type <span className="text-red-500">*</span>
           </label>
-          <select
-            id="type"
-            name="type"
+          <Select
             value={formData.type}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
           >
-            {GIFT_TYPES.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+            <SelectTrigger className="h-14 rounded-2xl border-gray-200">
+              <SelectValue placeholder="Select gift type" />
+            </SelectTrigger>
+            <SelectContent>
+              {GIFT_TYPES.map(type => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* Image Upload */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-3">
-          Gift Image
+          Reward Image
         </label>
         <div className="space-y-4">
           {previewUrl && (
@@ -214,7 +214,7 @@ export function GiftForm({ initialData, onSubmit, isLoading = false }: GiftFormP
           )}
 
           {!formData.imageFile && !previewUrl && (
-            <label className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition">
+            <label className="block w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition">
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -229,7 +229,7 @@ export function GiftForm({ initialData, onSubmit, isLoading = false }: GiftFormP
           )}
 
           {formData.imageFile && (
-            <label className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 bg-purple-50">
+            <label className="block w-full border-2 border-dashed border-purple-300 rounded-lg p-8 text-center cursor-pointer hover:border-purple-500 bg-purple-50">
               <input
                 type="file"
                 onChange={handleFileChange}
@@ -251,7 +251,7 @@ export function GiftForm({ initialData, onSubmit, isLoading = false }: GiftFormP
           disabled={isLoading}
           className="bg-purple-600 hover:bg-purple-700 text-white"
         >
-          {isLoading ? 'Saving...' : 'Save Gift'}
+          {isLoading ? 'Saving...' : 'Save Reward'}
         </Button>
       </div>
     </form>
