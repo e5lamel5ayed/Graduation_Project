@@ -6,11 +6,12 @@ import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight, Gift } from 'lucide-react';
-import { LayoutDashboard, School, Users as Supervisors, Compass } from 'lucide-react';
+import { LayoutDashboard, School, Users as Supervisors, Compass, Smile } from 'lucide-react';
 
 const institutionNavigation = [
   { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
   { name: 'Classes', href: '/classes', icon: School },
+  { name: 'Children', href: '/children', icon: Smile },
   { name: 'Supervisors', href: '/supervisors', icon: Supervisors },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Adventures', href: '/adventures', icon: Compass },
@@ -29,10 +30,8 @@ const adminNavigation = [
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-  { name: 'Adventures', href: '/adventures', icon: Compass },
   { name: 'Rewards', href: '/gifts', icon: Gift },
 
-  // { name: 'Orders', href: '/orders', icon: ShoppingCart },
 ];
 
 export default function AppLayout({
