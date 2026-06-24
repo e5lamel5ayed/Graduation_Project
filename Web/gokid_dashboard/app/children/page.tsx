@@ -274,39 +274,24 @@ export default function ChildrenPage() {
               return (
                 <div
                   key={child.childId}
-                  className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:border-indigo-200 transition-all duration-300 group relative"
+                  className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 relative"
                 >
-                  {/* Delete Button - appears on hover */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteTarget(child);
-                    }}
-                    className="absolute top-3 right-3 z-20 p-1.5 bg-white/80 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm border border-slate-100 hover:border-red-200"
-                    title="Remove child from class"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-
-                  {/* Card Header with gradient */}
-                  <div className="h-20 w-full opacity-20 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-300 relative z-0" />
-
                   {/* Card Content */}
-                  <div className="px-6 pb-6 -mt-14 relative z-10">
-                    {/* Avatar and Basic Info */}
-                    <div className="flex items-end gap-4 mb-6">
+                  <div className="p-5">
+                    {/* Top Row: Avatar + Info + Delete */}
+                    <div className="flex items-start gap-3 mb-4">
                       {child.avatarUrl ? (
                         <Image
                           src={child.avatarUrl}
                           alt={child.childName}
-                          width={64}
-                          height={64}
-                          className="rounded-2xl border-4 border-white shadow-lg object-cover"
+                          width={48}
+                          height={48}
+                          className="rounded-xl shadow-sm object-cover flex-shrink-0"
                         />
                       ) : (
                         <div
                           className={cn(
-                            'w-16 h-16 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-base font-black',
+                            'w-12 h-12 rounded-xl shadow-sm flex items-center justify-center text-sm font-black flex-shrink-0',
                             avatarColor.bg,
                             avatarColor.text
                           )}
@@ -314,79 +299,60 @@ export default function ChildrenPage() {
                           {initials}
                         </div>
                       )}
-                      <div className="flex-1 mb-1">
-                        <h3 className="text-base font-black text-slate-800 leading-tight">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-black text-slate-800 leading-tight truncate">
                           {child.childName}
                         </h3>
                         {child.nickName && (
-                          <p className="text-xs text-slate-400 font-semibold italic">
+                          <p className="text-[11px] text-slate-400 font-medium italic truncate">
                             &quot;{child.nickName}&quot;
                           </p>
                         )}
-                        <p className="text-xs text-slate-400 font-bold mt-0.5">{child.age} years old</p>
+                        <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{child.age} years old</p>
                       </div>
+                      {/* Delete Button - always visible */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTarget(child);
+                        }}
+                        className="p-1.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-all duration-200 border border-slate-100 hover:border-red-200 flex-shrink-0"
+                        title="Remove child"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
 
-                    {/* Badge */}
-                    <div
-                      className={cn(
-                        'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase mb-4',
-                        badge.color
+                   
+
+                    {/* Stats Row */}
+                    <div className="flex items-center gap-2 mb-3">
+                      {child.className && (
+                        <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded-lg flex-1 min-w-0">
+                          <BookOpen className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                          <span className="text-[11px] font-semibold text-slate-500 truncate">{child.className}</span>
+                        </div>
                       )}
-                    >
-                      <BadgeIcon className="h-3 w-3" />
-                      {badge.label}
-                    </div>
-
-                    {/* Quick Stats */}
-                    <div className="space-y-3 mb-6 pb-6 border-b border-slate-100">
-                      {/* Class */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-slate-500">
-                          <BookOpen className="h-4 w-4" />
-                          <span className="text-xs font-semibold truncate">{child.className}</span>
-                        </div>
-                        <span className="text-xs font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-lg whitespace-nowrap">
-                          Class
-                        </span>
-                      </div>
-
-                      {/* Points Progress */}
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2 text-slate-500">
-                            <TrendingUp className="h-4 w-4" />
-                            <span className="text-xs font-semibold">Points</span>
-                          </div>
-                          <span className="text-xs font-black text-indigo-600">
-                            {child.totalPoints}
-                          </span>
-                        </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className={cn(
-                              'h-full bg-gradient-to-r transition-all duration-500',
-                              child.totalPoints >= 80
-                                ? 'from-emerald-400 to-emerald-500'
-                                : child.totalPoints >= 60
-                                  ? 'from-indigo-400 to-purple-500'
-                                  : 'from-yellow-400 to-orange-500'
-                            )}
-                            style={{ width: `${Math.min((child.totalPoints / 100) * 100, 100)}%` }}
-                          />
-                        </div>
+                      <div className="flex items-center gap-1.5 bg-indigo-50 px-2.5 py-1.5 rounded-lg flex-shrink-0">
+                        <TrendingUp className="h-3.5 w-3.5 text-indigo-500" />
+                        <span className="text-[11px] font-black text-indigo-600">{child.totalPoints} pts</span>
                       </div>
                     </div>
 
-                    {/* Points Card */}
-                    <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl mb-6 border border-indigo-100">
-                      <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-1">
-                        Total Achievements
-                      </p>
-                      <p className="text-xl font-black text-indigo-600">{child.totalPoints}</p>
-                      <p className="text-[9px] text-slate-400 font-semibold mt-1">Points Earned</p>
+                    {/* Points Progress Bar */}
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={cn(
+                          'h-full bg-gradient-to-r transition-all duration-500 rounded-full',
+                          child.totalPoints >= 80
+                            ? 'from-emerald-400 to-emerald-500'
+                            : child.totalPoints >= 60
+                              ? 'from-indigo-400 to-purple-500'
+                              : 'from-yellow-400 to-orange-500'
+                        )}
+                        style={{ width: `${Math.min((child.totalPoints / 100) * 100, 100)}%` }}
+                      />
                     </div>
-
                   </div>
                 </div>
               );

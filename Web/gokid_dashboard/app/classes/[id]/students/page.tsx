@@ -20,7 +20,7 @@ import {
 import Image from 'next/image';
 import { Button, Input } from '@/src/components/ui';
 import { cn } from '@/src/lib/utils';
-import { useChildren, useEnrollChild, useDeleteChild } from '@/src/hooks/useChildren';
+import { useChildren, useEnrollChildToClass, useDeleteChild } from '@/src/hooks/useChildren';
 import { useClassById } from '@/src/hooks/useClasses';
 import { Child } from '@/src/types/children';
 
@@ -68,7 +68,7 @@ export default function ClassStudentsPage() {
   // Delete confirm state
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null);
 
-  const { mutate: enrollChild, isPending: isEnrolling } = useEnrollChild();
+  const { mutate: enrollChild, isPending: isEnrolling } = useEnrollChildToClass();
   const { mutate: deleteChild, isPending: isDeleting } = useDeleteChild();
 
   // Debounced search
@@ -181,13 +181,13 @@ export default function ClassStudentsPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
-            <Button
+            <button
               onClick={() => setIsEnrollDialogOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 rounded-2xl h-[46px] px-6 shadow-lg shadow-indigo-100 border-none font-bold text-xs uppercase tracking-wider"
+              className="inline-flex cursor-pointer items-center justify-center rounded-2xl font-medium transition-colors bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg hover:from-purple-700 hover:to-purple-900 h-[46px] px-6 text-xs uppercase tracking-wider whitespace-nowrap"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Register Student
-            </Button>
+              Add Child
+            </button>
           </div>
         </div>
       </div>
@@ -195,7 +195,7 @@ export default function ClassStudentsPage() {
       {/* Students Grid */}
       {children.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
             {children.map((child) => {
               const badge = getChildBadge(child.totalPoints);
               const BadgeIcon = badge.icon;
@@ -205,57 +205,51 @@ export default function ClassStudentsPage() {
                 <div
                   key={child.childId}
                   onClick={() => router.push(`/classes/${classId}/students/${child.childId}`)}
-                  className="group relative p-5 rounded-[36px] bg-white border border-slate-100/50 transition-all duration-500 cursor-pointer text-center hover:shadow-[0_20px_50px_rgba(79,70,229,0.1)] hover:-translate-y-2 overflow-hidden"
+                  className="relative p-5 rounded-2xl bg-white border border-slate-200/60 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 cursor-pointer text-center group"
                 >
-                  {/* Delete button - appears on hover */}
+                  {/* Delete button - always visible */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setDeleteTarget(child);
                     }}
-                    className="absolute top-3 right-3 z-20 p-1.5 bg-white/80 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm border border-slate-100 hover:border-red-200"
+                    className="absolute top-3 right-3 z-20 p-1.5 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-all duration-200 border border-slate-100 hover:border-red-200"
                     title="Remove student from class"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
 
-                  {/* Top accent bar */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
                   {/* Avatar */}
-                  <div className="relative mx-auto w-20 h-20 mb-5">
-                    <div className="absolute inset-0 rounded-[28px] blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 bg-indigo-400" />
+                  <div className="relative mx-auto w-16 h-16 mb-4">
                     {child.avatarUrl ? (
                       <Image
                         src={child.avatarUrl}
                         alt={child.childName}
-                        width={80}
-                        height={80}
-                        className="relative w-full h-full rounded-[28px] object-cover transition-all duration-500 group-hover:scale-110 shadow-inner"
+                        width={64}
+                        height={64}
+                        className="w-full h-full rounded-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
                       <div
                         className={cn(
-                          'relative w-full h-full rounded-[28px] flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-inner',
+                          'w-full h-full rounded-full flex items-center justify-center transition-transform duration-300 group-hover:scale-105',
                           avatarColor.bg,
                           avatarColor.text
                         )}
                       >
-                        <Smile className="h-10 w-10 drop-shadow-sm" />
+                        <Smile className="h-8 w-8 drop-shadow-sm" />
                       </div>
                     )}
-                    {/* Online dot */}
-                    <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-[3px] border-white rounded-full shadow-lg z-10" />
                   </div>
 
                   {/* Name & Badge */}
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-black text-slate-700 tracking-tight group-hover:text-indigo-600 transition-colors truncate">
+                  <div className="space-y-2.5">
+                    <h4 className="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors truncate">
                       {child.childName.split(' ')[0]}
                     </h4>
                     <div
                       className={cn(
-                        'inline-flex items-center gap-1 py-1 px-3 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm transition-transform duration-300 group-hover:scale-105',
+                        'inline-flex items-center gap-1 py-1 px-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest',
                         badge.color
                       )}
                     >
