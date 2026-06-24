@@ -1,78 +1,103 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 
 interface StoryVoiceReadyPayload {
-  adventureId: string;
-  title: string;
-  message: string;
+    adventureId: string;
+    title: string;
+    message: string;
 }
 
 interface StoryVoiceFailedPayload {
-  adventureId: string;
-  message: string;
+    adventureId: string;
+    message: string;
 }
 
 interface UseStorySignalRProps {
-  onStoryReady?: (data: StoryVoiceReadyPayload) => void;
-  onStoryFailed?: (data: StoryVoiceFailedPayload) => void;
+    onStoryReady?: (data: StoryVoiceReadyPayload) => void;
+    onStoryFailed?: (data: StoryVoiceFailedPayload) => void;
 }
 
 let globalConnection: signalR.HubConnection | null = null;
-let hasConnectingRef = false;
 
 export const useStorySignalR = ({
-  onStoryReady,
-  onStoryFailed,
-}: UseStorySignalRProps): (() => Promise<void>) => {
-  const handlersRef = useRef({ onStoryReady, onStoryFailed });
+    onStoryReady,
+    onStoryFailed,
+}: UseStorySignalRProps) => {
+    // عشان نحتفظ بآخر نسخة من الـ handlers من غير ما نعيد connect
+    const handlersRef = useRef({ onStoryReady, onStoryFailed });
 
-  useEffect(() => {
-    handlersRef.current = { onStoryReady, onStoryFailed };
-  }, [onStoryReady, onStoryFailed]);
+    useEffect(() => {
+        handlersRef.current = { onStoryReady, onStoryFailed };
+    }, [onStoryReady, onStoryFailed]);
 
-  return async () => {
-    try {
-      // If already connected, just update handlers
-      if (globalConnection?.state === signalR.HubConnectionState.Connected) {
-        if (handlersRef.current.onStoryReady) {
-          globalConnection.off('StoryVoiceReady');
-          globalConnection.on('StoryVoiceReady', handlersRef.current.onStoryReady);
+    useEffect(() => {
+        // لو في connection قايمة، سجل الـ handlers عليها بس
+        if (globalConnection?.state === signalR.HubConnectionState.Connected) {
+            globalConnection.off('StoryVoiceReady');
+            globalConnection.off('StoryVoiceFailed');
+            globalConnection.on('StoryVoiceReady', (data) => handlersRef.current.onStoryReady?.(data));
+            globalConnection.on('StoryVoiceFailed', (data) => handlersRef.current.onStoryFailed?.(data));
+            return;
         }
-        if (handlersRef.current.onStoryFailed) {
-          globalConnection.off('StoryVoiceFailed');
-          globalConnection.on('StoryVoiceFailed', handlersRef.current.onStoryFailed);
-        }
-        return;
-      }
 
-      // Prevent multiple simultaneous connection attempts
-      if (hasConnectingRef) {
-        return;
-      }
+        // لو في connection بتتعمل، استنى
+        if (globalConnection?.state === signalR.HubConnectionState.Connecting) return;
 
-      hasConnectingRef = true;
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net/api';
+        const hubUrl = apiBaseUrl.replace('/api', '') + '/hubs/notifications';
 
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        console.log('SignalR connecting to:', hubUrl);
 
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${backendUrl}/storyhub`)
-        .withAutomaticReconnect([2000, 5000, 10000])
-        .build();
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(hubUrl, {
+                skipNegotiation: false,
+                transport: signalR.HttpTransportType.WebSockets,
+            })
+            .withAutomaticReconnect([2000, 5000, 10000])
+            .build();
 
-      if (handlersRef.current.onStoryReady) {
-        connection.on('StoryVoiceReady', handlersRef.current.onStoryReady);
-      }
-      if (handlersRef.current.onStoryFailed) {
-        connection.on('StoryVoiceFailed', handlersRef.current.onStoryFailed);
-      }
+        // سجل الـ handlers عن طريق الـ ref عشان دايماً آخر نسخة
+        connection.on('StoryVoiceReady', (data) => {
+            console.log('🔥 StoryVoiceReady:', data);
+            handlersRef.current.onStoryReady?.(data);
+        });
 
-      await connection.start();
-      console.log('✓ SignalR connected successfully');
-      globalConnection = connection;
-      hasConnectingRef = false;
-    } catch (error) {
-      hasConnectingRef = false;
-      console.log('Note: SignalR hub not available. Story regeneration notifications may not work.');
-    }
-  };
+        connection.on('StoryVoiceFailed', (data) => {
+            console.log('🔥 StoryVoiceFailed:', data);
+            handlersRef.current.onStoryFailed?.(data);
+        });
+
+        connection.onclose((err) => console.log('SignalR closed', err));
+        connection.onreconnecting((err) => console.log('SignalR reconnecting', err));
+        connection.onreconnected((id) => console.log('SignalR reconnected', id));
+
+        globalConnection = connection;
+        connection.start()
+            .then(async () => {
+                console.log('✓ SignalR connected');
+
+                // جيب الـ userId من localStorage
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                const userId = user?.id;
+
+                if (userId) {
+                    await connection.invoke("JoinUserGroup", userId);
+                    console.log('✓ Joined group:', userId);
+                } else {
+                    console.warn('No userId found!');
+                }
+            })
+            .catch((err) => {
+                console.error('SignalR error:', err);
+                globalConnection = null;
+            });
+        // cleanup لما الـ component يتشال
+        return () => {
+            connection.off('StoryVoiceReady');
+            connection.off('StoryVoiceFailed');
+        };
+    }, []); // بيتنادى مرة واحدة بس
 };

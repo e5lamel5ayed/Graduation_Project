@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -20,8 +21,20 @@ export default function StoryPage() {
   const [selectedDay, setSelectedDay] = useState(1);
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const setupSignalRRef = useRef<(() => Promise<void>) | null>(null);
+const [isRegenerating, setIsRegenerating] = useState(false);
 
+const handleRegenerateStory = async () => {
+  try {
+    setIsRegenerating(true);
+    await adventureService.generateStory(adventureId);
+    toast.success('Story regeneration started!');
+  } catch (error) {
+    console.error('Failed to regenerate story:', error);
+    toast.error('Failed to regenerate story');
+  } finally {
+    setIsRegenerating(false); // ← وقف اللود بعد الـ request في كل الحالات
+  }
+};
   useEffect(() => {
     const loadStory = async () => {
       try {
@@ -42,19 +55,42 @@ export default function StoryPage() {
   }, [adventureId]);
 
   // SignalR handlers
-  const handleStoryReady = async (data: { adventureId: string; title: string; message: string }) => {
-    console.log('Story voices ready:', data);
-  };
+const handleStoryReady = async (data: {
+  adventureId: string;
+  title: string;
+  message: string;
+}) => {
+  console.log('Story voices ready:', data);
 
-  const handleStoryFailed = (data: { adventureId: string; message: string }) => {
-    console.log('Story voice failed:', data);
-  };
+  toast.success(data.message);
 
+  try {
+    const updatedStory = await adventureService.getStory(
+      data.adventureId
+    );
+
+    setStory(updatedStory);
+  } catch (error) {
+    console.error(
+      'Failed to refresh story:',
+      error
+    );
+  }
+};
+
+const handleStoryFailed = (data: {
+  adventureId: string;
+  message: string;
+}) => {
+  console.log('Story voice failed:', data);
+
+  toast.error(data.message);
+};
   // Initialize SignalR connection hook (but don't connect yet)
-  setupSignalRRef.current = useStorySignalR({
-    onStoryReady: handleStoryReady,
-    onStoryFailed: handleStoryFailed,
-  });
+  useStorySignalR({
+  onStoryReady: handleStoryReady,
+  onStoryFailed: handleStoryFailed,
+});
 
   const playVoice = (voiceUrl?: string, voiceId?: string) => {
     if (!voiceUrl) return;
@@ -87,28 +123,6 @@ export default function StoryPage() {
     };
   };
 
-  const handleRegenerateStory = async () => {
-    try {
-      // Establish SignalR connection when user clicks Regenerate
-      if (setupSignalRRef.current) {
-        try {
-          await setupSignalRRef.current();
-        } catch (err) {
-          console.log('Note: SignalR connection setup attempted');
-        }
-      }
-      
-      // Call the generate story endpoint
-      await adventureService.generateStory(adventureId);
-      
-      // Navigate back immediately
-      toast.success('Story regeneration started!');
-      router.back();
-    } catch (error) {
-      console.error('Failed to regenerate story:', error);
-      toast.error('Failed to regenerate story');
-    }
-  };
 
   if (isLoading) {
     return (
@@ -149,13 +163,21 @@ export default function StoryPage() {
             Back
           </button>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex-1 text-center">{story.title}</h1>
-          <button
+          {/* <button
             onClick={handleRegenerateStory}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-bold text-sm"
           >
             <RotateCcw className="h-4 w-4" />
             Regenerate
-          </button>
+          </button> */}
+          <button
+  onClick={handleRegenerateStory}
+  disabled={isRegenerating} // ← منع الضغط تاني
+  className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+>
+  <RotateCcw className={`h-4 w-4 ${isRegenerating ? 'animate-spin' : ''}`} /> {/* ← سبينر */}
+  {isRegenerating ? 'Generating...' : 'Regenerate'}
+</button>
         </div>
       </div>
 
