@@ -46,6 +46,22 @@ export function useEnrollChild() {
   });
 }
 
+export function useEnrollChildToClass() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: EnrollChildDto) => childrenService.enrollChildToClass(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CLASS_QUERY_KEY] });
+      toast.success('تم تسجيل الطفل في الفصل بنجاح');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'حدث خطأ أثناء تسجيل الطفل');
+    },
+  });
+}
+
 export function useDeleteChild() {
   const queryClient = useQueryClient();
 

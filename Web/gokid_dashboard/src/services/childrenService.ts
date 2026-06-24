@@ -29,8 +29,16 @@ export const childrenService = {
 
   enrollChild: async ({ classId, registrationcode }: EnrollChildDto) => {
     const { data } = await axiosInstance.post<ApiResponse<{ success: boolean }>>(
+      `/Class/institution/enroll-child`,
+      registrationcode
+    );
+    return data;
+  },
+
+  enrollChildToClass: async ({ classId, registrationcode }: EnrollChildDto) => {
+    const { data } = await axiosInstance.post<ApiResponse<{ success: boolean }>>(
       `/Class/${classId}/enroll-child`,
-      { registrationcode }
+      { registrationCode: registrationcode }
     );
     return data;
   },
