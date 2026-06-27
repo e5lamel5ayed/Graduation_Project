@@ -1,4 +1,4 @@
-import { ApiResponse } from './shared';
+import { ApiResponse } from '../types/category';
 
 export interface GiftImage {
   imageUrl: string;

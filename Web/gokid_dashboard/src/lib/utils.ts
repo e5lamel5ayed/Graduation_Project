@@ -18,7 +18,7 @@ export function absoluteUrl(path: string) {
   return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
 }
 
-export function toFormData(obj: Record<string, unknown>): FormData {
+export function toFormData<T extends object>(obj: T): FormData {
   const formData = new FormData();
   Object.entries(obj).forEach(([key, value]) => {
     if (value === null || value === undefined) return;

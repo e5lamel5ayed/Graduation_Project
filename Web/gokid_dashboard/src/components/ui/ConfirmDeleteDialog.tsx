@@ -4,9 +4,11 @@ import { HeadlessDialog } from './HeadlessDialog';
 
 interface ConfirmDeleteDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  title?: string;
+  description?: string;
+  itemName?: string;
   onConfirm: () => void;
-  itemName?: string | null;
+  onClose: () => void;
   isLoading?: boolean;
 }
 
@@ -15,6 +17,8 @@ export function ConfirmDeleteDialog({
   onClose,
   onConfirm,
   itemName,
+  title = "Confirm Delete",         // default value
+  description,
   isLoading = false,
 }: ConfirmDeleteDialogProps) {
   return (
