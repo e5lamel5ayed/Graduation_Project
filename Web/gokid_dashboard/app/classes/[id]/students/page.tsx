@@ -204,8 +204,7 @@ export default function ClassStudentsPage() {
               return (
                 <div
                   key={child.childId}
-                  onClick={() => router.push(`/classes/${classId}/students/${child.childId}`)}
-                  className="relative p-5 rounded-2xl bg-white border border-slate-200/60 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 cursor-pointer text-center group"
+                  className="relative p-5 rounded-2xl bg-white border border-slate-200/60 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 text-center group"
                 >
                   {/* Delete button - always visible */}
                   <button
