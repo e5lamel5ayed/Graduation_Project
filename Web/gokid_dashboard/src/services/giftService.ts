@@ -4,11 +4,12 @@ import { toFormData } from '../lib/utils';
 
 export const giftService = {
   // Get all gifts
-getAll: async () => {
-  const { data } = await axiosInstance.get<ApiResponse<Gift[]>>('/Gifts');
-  const result = data.data as Gift[] | { items: Gift[] };
-  return Array.isArray(result) ? result : (result?.items || []);
-},
+  getAll: async () => {
+    const { data } = await axiosInstance.get<ApiResponse<Gift[]>>('/Gifts');
+    const result = data.data as Gift[] | { items: Gift[] };
+    return Array.isArray(result) ? result : (result?.items || []);
+  },
+
   // Get single gift
   getById: async (id: string) => {
     const { data } = await axiosInstance.get<ApiResponse<Gift>>(`/Gifts/${id}`);

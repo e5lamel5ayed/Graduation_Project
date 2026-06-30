@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
+import { Notification } from '@/src/types/notification';
 
 let globalConnection: signalR.HubConnection | null = null;
 
@@ -24,27 +25,41 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
       .withAutomaticReconnect([2000, 5000, 10000])
       .build();
 
-    connection.on('StoryVoiceReady', (data) => {
-      console.log('🔥 StoryVoiceReady:', data);
-      toast.success(data.message, {
-        description: data.title,
-        duration: 8000,
-        action: {
-          label: 'View Story',
-          onClick: () => window.location.href = `/adventures/${data.adventureId}/story`,
-        },
-      });
-    });
+    // ← listener واحد بس
+    connection.on('ReceiveNotification', (notification: Notification) => {
+      console.log('🔔 ReceiveNotification:', notification);
 
-    connection.on('StoryVoiceFailed', (data) => {
-      console.log('🔥 StoryVoiceFailed:', data);
-      toast.error(data.message);
+      switch (notification.type) {
+        case 'StoryVoiceReady':
+          toast.success(notification.title, {
+            description: notification.body,
+            duration: 8000,
+            action: notification.relatedEntityId ? {
+              label: 'View Story',
+              onClick: () => window.location.href = `/adventures/${notification.relatedEntityId}/story`,
+            } : undefined,
+          });
+          break;
+
+        case 'StoryVoiceFailed':
+          toast.error(notification.title, {
+            description: notification.body,
+          });
+          break;
+
+        default:
+          // أي notification تانية هتظهر كـ toast عادي
+          toast(notification.title, {
+            description: notification.body,
+          });
+          break;
+      }
     });
 
     connection.onreconnected(async () => {
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
-      if (user?.id) await connection.invoke("JoinUserGroup", user.id);
+      if (user?.id) await connection.invoke('JoinUserGroup', user.id);
     });
 
     connection.start()
@@ -53,7 +68,7 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
         const userStr = localStorage.getItem('user');
         const user = userStr ? JSON.parse(userStr) : null;
         if (user?.id) {
-          await connection.invoke("JoinUserGroup", user.id);
+          await connection.invoke('JoinUserGroup', user.id);
           console.log('✓ Joined group:', user.id);
         }
         globalConnection = connection;

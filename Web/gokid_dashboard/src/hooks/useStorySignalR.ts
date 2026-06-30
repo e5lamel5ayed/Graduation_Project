@@ -21,6 +21,11 @@ interface UseStorySignalRProps {
 
 let globalConnection: signalR.HubConnection | null = null;
 
+const isDev = process.env.NODE_ENV !== 'production';
+const devLog = (...args: unknown[]) => {
+    if (isDev) console.log(...args);
+};
+
 export const useStorySignalR = ({
     onStoryReady,
     onStoryFailed,
@@ -48,7 +53,7 @@ export const useStorySignalR = ({
         const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net/api';
         const hubUrl = apiBaseUrl.replace('/api', '') + '/hubs/notifications';
 
-        console.log('SignalR connecting to:', hubUrl);
+        devLog('SignalR connecting to:', hubUrl);
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl(hubUrl, {
@@ -60,23 +65,23 @@ export const useStorySignalR = ({
 
         // سجل الـ handlers عن طريق الـ ref عشان دايماً آخر نسخة
         connection.on('StoryVoiceReady', (data) => {
-            console.log('🔥 StoryVoiceReady:', data);
+            devLog('🔥 StoryVoiceReady:', data);
             handlersRef.current.onStoryReady?.(data);
         });
 
         connection.on('StoryVoiceFailed', (data) => {
-            console.log('🔥 StoryVoiceFailed:', data);
+            devLog('🔥 StoryVoiceFailed:', data);
             handlersRef.current.onStoryFailed?.(data);
         });
 
-        connection.onclose((err) => console.log('SignalR closed', err));
-        connection.onreconnecting((err) => console.log('SignalR reconnecting', err));
-        connection.onreconnected((id) => console.log('SignalR reconnected', id));
+        connection.onclose((err) => devLog('SignalR closed', err));
+        connection.onreconnecting((err) => devLog('SignalR reconnecting', err));
+        connection.onreconnected((id) => devLog('SignalR reconnected', id));
 
         globalConnection = connection;
         connection.start()
             .then(async () => {
-                console.log('✓ SignalR connected');
+                devLog('✓ SignalR connected');
 
                 // جيب الـ userId من localStorage
                 const userStr = localStorage.getItem('user');
@@ -85,7 +90,7 @@ export const useStorySignalR = ({
 
                 if (userId) {
                     await connection.invoke("JoinUserGroup", userId);
-                    console.log('✓ Joined group:', userId);
+                    devLog('✓ Joined group:', userId);
                 } else {
                     console.warn('No userId found!');
                 }
