@@ -11,7 +11,7 @@ import { Toaster } from 'sonner';
 import SignalRProvider from './signalr-provider'; // ← ضيف الـ import
 
 const noLayoutRoutes = ['/login'];
-const validAppRoutes = ['/home', '/users', '/classes', '/children', '/supervisors', '/categories', '/subCategories', '/tasks', '/adventures', '/gifts'];
+const validAppRoutes = ['/home', '/users', '/classes', '/children', '/supervisors', '/categories', '/subCategories', '/tasks', '/adventures', '/gifts', '/institutions', '/levels'];
 
 const getPageTitle = (pathname: string | null): string => {
   if (!pathname) return 'Dashboard';
@@ -29,6 +29,8 @@ const getPageTitle = (pathname: string | null): string => {
     '/adventures': 'Adventures',
     '/adventures/builder': 'Adventure Builder',
     '/gifts': 'Gifts',
+    '/institutions': 'Institutions',
+    '/levels': 'Levels',
   };
   return routeTitles[pathname] || 'Page Not Found';
 };

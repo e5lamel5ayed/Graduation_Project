@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight, Gift } from 'lucide-react';
+import { Settings, LogOut, Menu, X, FolderTree, Grid3X3, Home, CheckSquare, ChevronLeft, ChevronRight, Gift, Building2, Award } from 'lucide-react';
 import { LayoutDashboard, School, Users as Supervisors, Compass, Smile } from 'lucide-react';
 
 const institutionNavigation = [
@@ -27,6 +27,8 @@ const supervisorNavigation = [
 // Institution role has access to a limited set of pages
 const adminNavigation = [
   { name: 'Dashboard', href: '/home', icon: Home },
+  { name: 'Institutions', href: '/institutions', icon: Building2 },
+  { name: 'Levels', href: '/levels', icon: Award },
   { name: 'Categories', href: '/categories', icon: Grid3X3 },
   { name: 'SubCategories', href: '/subCategories', icon: FolderTree },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
