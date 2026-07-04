@@ -12,6 +12,7 @@ import { taskService } from '@/src/services/taskService';
 import { TaskTemplate, TemplateType, Difficulty } from '@/src/types/task';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/contexts/auth-context';
 
 // Mapping between tab IDs and API TemplateType
 const tabToTemplateTypeMap: Record<string, TemplateType | 'all'> = {
@@ -61,6 +62,7 @@ const tabConfig = {
 };
 
 export default function TasksPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,6 +75,7 @@ export default function TasksPage() {
     instantReward: 0,
     evidenceSubmission: 0,
   });
+  const canAddTasks = user?.role === 'PlatformAdmin';
 
   // Fetch tasks
   const fetchTasks = async () => {
@@ -300,7 +303,7 @@ export default function TasksPage() {
             <p className="text-gray-500 mt-1">{currentTabConfig.description}</p>
           </div>
         </div>
-        {activeTab !== 'all' && (
+        {canAddTasks && activeTab !== 'all' && (
           <Button onClick={handleAddNew} className={`bg-gradient-to-r ${currentTabConfig.gradient} hover:shadow-lg transition-all`}>
             <Plus className="h-4 w-4 mr-2" />
             New {currentTabConfig.title.replace(' Tasks', '')} Task
