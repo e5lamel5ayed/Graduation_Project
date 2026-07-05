@@ -21,4 +21,25 @@ export const authService = {
     const { data } = await axiosInstance.post('/Account/refresh-token', { refreshToken });
     return data;
   },
+
+  forgotPassword: async (email: string) => {
+    const { data } = await axiosInstance.post('/Account/forgot-password', { email });
+    return data;
+  },
+
+  verifyOtp: async (email: string, otp: string) => {
+    const { data } = await axiosInstance.post('/Account/verify-otp', { email, otp });
+    return data;
+  },
+
+  resetPassword: async (userId: string, otp: string, newPassword: string, confirmPassword: string) => {
+    const { data } = await axiosInstance.post('/Account/reset-password', { 
+      userId, 
+      otp, 
+      token: otp, 
+      newPassword, 
+      confirmPassword 
+    });
+    return data;
+  },
 };

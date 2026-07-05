@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/src/lib/utils';
 import {  
@@ -10,13 +10,16 @@ import {
   ArrowTrendingUpIcon, 
   ChartBarIcon, 
   ClipboardDocumentListIcon,
-  ArrowLeftOnRectangleIcon,
   EyeIcon,
   EyeSlashIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  XMarkIcon,
+  CheckCircleIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/solid';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle, FeatureCard, Input } from '@/src/components';
+import { authService } from '@/src/services/authService';
 
 // Password Input Component
 const PasswordInput = (props: React.ComponentProps<typeof Input>) => {
@@ -61,6 +64,354 @@ const features = [
   },
 ];
 
+// ─── Forgot Password Modal ───────────────────────────────────────────────────
+type ForgotStep = 'email' | 'otp' | 'newPassword' | 'success';
+
+function ForgotPasswordModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<ForgotStep>('email');
+  const [fpEmail, setFpEmail] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [userId, setUserId] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [fpError, setFpError] = useState('');
+  const [fpLoading, setFpLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Countdown for resend
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(c => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  // Auto-focus first OTP input when step changes
+  useEffect(() => {
+    if (step === 'otp') {
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    }
+  }, [step]);
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^[0-9]*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+    if (value && index < 5) otpRefs.current[index + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    const newOtp = [...otp];
+    pasted.split('').forEach((char, i) => { newOtp[i] = char; });
+    setOtp(newOtp);
+    const nextEmpty = newOtp.findIndex(v => !v);
+    otpRefs.current[nextEmpty === -1 ? 5 : nextEmpty]?.focus();
+  };
+
+  const sendOtp = async () => {
+    setFpError('');
+    setFpLoading(true);
+    try {
+      const response = await authService.forgotPassword(fpEmail);
+      const retrievedUserId = response?.data?.userId;
+      if (!retrievedUserId) {
+        throw new Error("Unable to retrieve user information. Please try again.");
+      }
+      setUserId(retrievedUserId);
+      setStep('otp');
+      setResendCooldown(60);
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || 
+                       (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat().join(', ') : '') ||
+                       err?.message || 
+                       'Failed to send OTP. Please check your email.';
+      setFpError(errorMsg);
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const verifyOtpAndProceed = () => {
+    const otpString = otp.join('');
+    if (otpString.length < 6) { 
+      setFpError('Please enter the full 6-digit code.'); 
+      return; 
+    }
+    setFpError('');
+    setStep('newPassword');
+  };
+
+  const handleResetPassword = async () => {
+    if (newPassword.length < 8) { setFpError('Password must be at least 8 characters.'); return; }
+    if (newPassword !== confirmPassword) { setFpError('Passwords do not match.'); return; }
+    setFpError('');
+    setFpLoading(true);
+    try {
+      await authService.resetPassword(userId, otp.join(''), newPassword, confirmPassword);
+      setStep('success');
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || 
+                       (err?.response?.data?.errors ? Object.values(err.response.data.errors).flat().join(', ') : '') ||
+                       'Failed to reset password. Please try again.';
+      setFpError(errorMsg);
+    } finally {
+      setFpLoading(false);
+    }
+  };
+
+  const stepInfo = {
+    email:       { num: 1, title: 'Forgot Password',    sub: 'Enter your email to receive a reset code' },
+    otp:         { num: 2, title: 'Enter Reset Code',   sub: `We sent a 6-digit code to ${fpEmail}` },
+    newPassword: { num: 3, title: 'Create New Password', sub: 'Choose a strong new password' },
+    success:     { num: 4, title: 'Password Reset!',    sub: '' },
+  };
+  const info = stepInfo[step];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0,0,0,0.45)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-[#5c5163] via-[#7b6c83] to-[#8b7a94] p-8 text-white">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200 hover:scale-110"
+          >
+            <XMarkIcon className="w-4 h-4" />
+          </button>
+
+          {step !== 'success' && (
+            <div className="flex items-center gap-2 mb-4">
+              {['email', 'otp', 'newPassword'].map((s, i) => (
+                <div key={s} className="flex items-center gap-2">
+                  <div className={cn(
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300',
+                    ['email','otp','newPassword'].indexOf(step) > i
+                      ? 'bg-white text-[#5c5163]'
+                      : step === s
+                        ? 'bg-white/30 border-2 border-white text-white'
+                        : 'bg-white/10 text-white/50'
+                  )}>{i + 1}</div>
+                  {i < 2 && (
+                    <div className={cn(
+                      'h-0.5 w-8 rounded transition-all duration-500',
+                      ['email','otp','newPassword'].indexOf(step) > i ? 'bg-white' : 'bg-white/20'
+                    )} />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {step === 'success' ? (
+            <div className="text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3 animate-bounce">
+                <CheckCircleIcon className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold">{info.title}</h2>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold">{info.title}</h2>
+              <p className="text-white/80 text-sm mt-1">{info.sub}</p>
+            </>
+          )}
+        </div>
+
+        {/* Body */}
+        <div className="p-8 space-y-5">
+          {/* Error */}
+          {fpError && (
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-xl text-sm flex items-center gap-2">
+              <XMarkIcon className="w-4 h-4 flex-shrink-0" />
+              {fpError}
+            </div>
+          )}
+
+          {/* Step 1: Email */}
+          {step === 'email' && (
+            <div className="space-y-4">
+              <Input
+                label="Email Address"
+                id="fp-email"
+                type="email"
+                placeholder="Enter your registered email"
+                value={fpEmail}
+                onChange={(e) => setFpEmail(e.target.value)}
+                leftIcon={<EnvelopeIcon className="w-5 h-5 text-gray-400" />}
+                required
+                autoFocus
+              />
+              <Button
+                onClick={sendOtp}
+                disabled={fpLoading || !fpEmail}
+                className="w-full bg-gradient-to-r from-[#5c5163] to-[#8b7a94] hover:from-[#7b6c83] hover:to-[#5c5163] text-white py-3 font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50"
+              >
+                {fpLoading ? (
+                  <span className="flex items-center gap-2">
+                    <ArrowPathIcon className="w-4 h-4 animate-spin" /> Sending...
+                  </span>
+                ) : 'Send Reset Code'}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 2: OTP */}
+          {step === 'otp' && (
+            <div className="space-y-5">
+              <div>
+                <p className="text-sm font-medium text-[#5c5163] mb-3 text-center">Enter 6-digit code</p>
+                <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
+                  {otp.map((digit, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => { otpRefs.current[i] = el; }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleOtpChange(i, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                      className={cn(
+                        'w-11 h-13 text-center text-xl font-bold border-2 rounded-xl outline-none transition-all duration-200',
+                        digit
+                          ? 'border-[#7b6c83] bg-purple-50 text-[#5c5163]'
+                          : 'border-gray-200 bg-gray-50 text-gray-800',
+                        'focus:border-[#5c5163] focus:bg-white focus:shadow-md'
+                      )}
+                      style={{ width: '2.75rem', height: '3.25rem' }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Button
+                onClick={verifyOtpAndProceed}
+                disabled={fpLoading || otp.join('').length < 6}
+                className="w-full bg-gradient-to-r from-[#5c5163] to-[#8b7a94] hover:from-[#7b6c83] hover:to-[#5c5163] text-white py-3 font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50"
+              >
+                {fpLoading ? (
+                  <span className="flex items-center gap-2">
+                    <ArrowPathIcon className="w-4 h-4 animate-spin" /> Verifying...
+                  </span>
+                ) : 'Verify Code'}
+              </Button>
+              <div className="text-center">
+                <button
+                  type="button"
+                  disabled={resendCooldown > 0 || fpLoading}
+                  onClick={sendOtp}
+                  className="text-sm text-[#5c5163] hover:underline disabled:text-gray-400 disabled:cursor-not-allowed transition-all"
+                >
+                  {resendCooldown > 0 ? `Resend code in ${resendCooldown}s` : 'Resend Code'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: New Password */}
+          {step === 'newPassword' && (
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  label="New Password"
+                  id="fp-new-password"
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder="At least 8 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
+                  rightIcon={
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="text-gray-400 hover:text-gray-600">
+                      {showNewPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                  }
+                />
+              </div>
+              <div className="relative">
+                <Input
+                  label="Confirm Password"
+                  id="fp-confirm-password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Repeat new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  leftIcon={<LockClosedIcon className="w-5 h-5 text-gray-400" />}
+                  rightIcon={
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-gray-400 hover:text-gray-600">
+                      {showConfirmPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                  }
+                />
+              </div>
+              {/* Password strength indicator */}
+              {newPassword.length > 0 && (
+                <div className="space-y-1">
+                  <div className="flex gap-1">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className={cn(
+                        'h-1 flex-1 rounded-full transition-all duration-300',
+                        newPassword.length >= i * 2 && newPassword.length < (i + 1) * 2
+                          ? 'bg-orange-400'
+                          : newPassword.length >= (i + 1) * 2
+                            ? i < 3 ? 'bg-green-400' : 'bg-green-500'
+                            : 'bg-gray-200'
+                      )} />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    {newPassword.length < 4 ? 'Too short' : newPassword.length < 8 ? 'Weak – keep going' : 'Strong password ✓'}
+                  </p>
+                </div>
+              )}
+              <Button
+                onClick={handleResetPassword}
+                disabled={fpLoading || !newPassword || !confirmPassword}
+                className="w-full bg-gradient-to-r from-[#5c5163] to-[#8b7a94] hover:from-[#7b6c83] hover:to-[#5c5163] text-white py-3 font-semibold transition-all duration-300 hover:scale-[1.02] disabled:opacity-50"
+              >
+                {fpLoading ? (
+                  <span className="flex items-center gap-2">
+                    <ArrowPathIcon className="w-4 h-4 animate-spin" /> Resetting...
+                  </span>
+                ) : 'Reset Password'}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 4: Success */}
+          {step === 'success' && (
+            <div className="text-center space-y-4 py-4">
+              <p className="text-[#7b6c83] leading-relaxed">
+                Your password has been reset successfully. You can now sign in with your new password.
+              </p>
+              <Button
+                onClick={onClose}
+                className="w-full bg-gradient-to-r from-[#5c5163] to-[#8b7a94] hover:from-[#7b6c83] hover:to-[#5c5163] text-white py-3 font-semibold transition-all duration-300 hover:scale-[1.02]"
+              >
+                Back to Sign In
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Login Page ───────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth() as { login: (email: string, password: string, loginAs?: 'PlatformAdmin' | 'InstitutionAdmin' | 'Supervisor') => Promise<boolean> };
@@ -70,6 +421,7 @@ export default function LoginPage() {
   const [loginAsSupervisor, setLoginAsSupervisor] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +459,7 @@ export default function LoginPage() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-[#faf8fb] via-white to-[#f5f0f7] flex items-center justify-center p-4">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -272,7 +625,8 @@ export default function LoginPage() {
                   {/* Remember & Forgot */}
                   <div className="flex items-center justify-between text-sm">
                     <button 
-                      type="button" 
+                      type="button"
+                      onClick={() => setShowForgotModal(true)}
                       className="text-[#5c5163] hover:text-[#8b7a94] font-medium hover:underline transition-all duration-200 hover:translate-x-1"
                     >
                       Forgot password?
@@ -328,5 +682,11 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <ForgotPasswordModal onClose={() => setShowForgotModal(false)} />
+      )}
+    </>
   );
 }
