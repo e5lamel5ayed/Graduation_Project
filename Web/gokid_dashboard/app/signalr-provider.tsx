@@ -1,14 +1,83 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
-import { Notification } from '@/src/types/notification';
+import type { Notification } from '@/src/types/notification';
+import { notificationService } from '@/src/services/notificationService';
+
+interface NotificationsContextValue {
+  notifications: Notification[];
+  unreadCount: number;
+  loading: boolean;
+  loadNotifications: () => Promise<void>;
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+}
+
+const NotificationsContext = createContext<NotificationsContextValue | null>(null);
+
+export function useNotifications() {
+  const ctx = useContext(NotificationsContext);
+  if (!ctx) throw new Error('useNotifications must be used within SignalRProvider');
+  return ctx;
+}
 
 let globalConnection: signalR.HubConnection | null = null;
 
-export default function SignalRProvider({ children }: { children: React.ReactNode }) {
+export default function SignalRProvider({ children }: { children: ReactNode }) {
   const connectionRef = useRef(false);
+  const notificationsLoadedRef = useRef(false);
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const loadNotifications = async () => {
+    setLoading(true);
+    try {
+      const data = await notificationService.getAll();
+      setNotifications(data);
+      notificationsLoadedRef.current = true;
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUnreadCount = async () => {
+    try {
+      const count = await notificationService.getUnreadCount();
+      setUnreadCount(count);
+    } catch (err) {
+      console.error('Failed to load unread count:', err);
+    }
+  };
+
+  const markAsRead = async (id: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    try {
+      await notificationService.markAsRead(id);
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadCount(0);
+    try {
+      await notificationService.markAllAsRead();
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err);
+    }
+  };
+
+  useEffect(() => {
+    void loadUnreadCount();
+  }, []);
 
   useEffect(() => {
     if (connectionRef.current) return;
@@ -25,9 +94,11 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
       .withAutomaticReconnect([2000, 5000, 10000])
       .build();
 
-    // ← listener واحد بس
     connection.on('ReceiveNotification', (notification: Notification) => {
       console.log('🔔 ReceiveNotification:', notification);
+
+      setUnreadCount((prev) => prev + 1);
+      setNotifications((prev) => (notificationsLoadedRef.current ? [notification, ...prev] : prev));
 
       switch (notification.type) {
         case 'StoryVoiceReady':
@@ -48,7 +119,6 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
           break;
 
         default:
-          // أي notification تانية هتظهر كـ toast عادي
           toast(notification.title, {
             description: notification.body,
           });
@@ -60,6 +130,7 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
       if (user?.id) await connection.invoke('JoinUserGroup', user.id);
+      void loadUnreadCount();
     });
 
     connection.start()
@@ -82,5 +153,11 @@ export default function SignalRProvider({ children }: { children: React.ReactNod
     };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <NotificationsContext.Provider
+      value={{ notifications, unreadCount, loading, loadNotifications, markAsRead, markAllAsRead }}
+    >
+      {children}
+    </NotificationsContext.Provider>
+  );
 }

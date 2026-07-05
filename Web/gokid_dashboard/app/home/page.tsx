@@ -46,6 +46,7 @@ import {
   DashboardTrendChart,
 } from '@/src/components/dashboard';
 import { InstitutionDashboardView } from './InstitutionDashboardView';
+import { SupervisorDashboardView } from './SupervisorDashboardView';
 
 const numberFormatter = new Intl.NumberFormat('en-US');
 const compactFormatter = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
@@ -120,6 +121,10 @@ export default function HomePage() {
 
   if (user.role === 'institution') {
     return <InstitutionDashboardView />;
+  }
+
+  if (user.role === 'supervisor') {
+    return <SupervisorDashboardView />;
   }
 
   return <PlatformDashboardView />;
@@ -202,6 +207,8 @@ function PlatformDashboardView() {
     { label: 'Adventures', value: formatNumber(d.recentActivity.adventuresCompleted), icon: Trophy, tone: 'violet' as const },
     { label: 'Rewards', value: formatNumber(d.recentActivity.giftsPurchased), icon: Gift, tone: 'rose' as const },
   ];
+
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
@@ -379,17 +386,17 @@ function PlatformDashboardView() {
               </div>
 
               <div className="space-y-3">
-                {d.tasks.topTemplates.length > 0 ? d.tasks.topTemplates.map((template, index) => (
+                {d.adventures.topByParticipation.length > 0 ? d.adventures.topByParticipation.map((adventure, index) => (
                   <DashboardLeaderboardItem
-                    key={template.id}
+                    key={adventure.adventureId}
                     rank={index + 1}
-                    title={template.titleEn}
-                    subtitle={template.type}
-                    value={`${formatNumber(template.usageCount)} uses`}
-                    icon={Star}
+                    title={adventure.titleEn}
+                    subtitle={`${formatNumber(adventure.assignedClassesCount)} classes · ${formatNumber(adventure.participatingChildrenCount)} children`}
+                    value={`${formatNumber(adventure.participatingChildrenCount)} participating`}
+                    icon={Trophy}
                   />
                 )) : (
-                  <DashboardEmptyState title="No task templates yet" description="Once templates are created, the most used ones will appear here." />
+                  <DashboardEmptyState title="No adventures yet" description="Adventure performance will appear here once the platform starts publishing weekly adventures." />
                 )}
               </div>
             </CardContent>
@@ -427,7 +434,7 @@ function PlatformDashboardView() {
                 icon={Building2}
               />
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <DashboardMetricCard label="Total institutions" value={formatNumber(d.institutions.total)} helper={`${formatNumber(d.institutions.withNoChildren)} without children`} icon={Landmark} tone="blue" />
                 <DashboardMetricCard label="Active institutions" value={formatNumber(d.institutions.withActiveAdventures)} helper="Institutions with active adventures" icon={Sparkles} tone="emerald" />
                 <DashboardMetricCard label="Active adventures" value={formatNumber(d.adventures.activeAdventures)} helper={`${formatNumber(d.adventures.inactiveAdventures)} inactive adventures`} icon={Trophy} tone="violet" />
@@ -485,11 +492,11 @@ function PlatformDashboardView() {
                 <p className="text-sm font-bold text-slate-900">Top adventures by participation</p>
                 {d.adventures.topByParticipation.length > 0 ? d.adventures.topByParticipation.map((adventure, index) => (
                   <DashboardLeaderboardItem
-                    key={adventure.id}
+                    key={adventure.adventureId}
                     rank={index + 1}
-                    title={adventure.title}
-                    subtitle={`${formatNumber(adventure.participatingChildren)} children · ${formatPercent(adventure.completionRate)} completion`}
-                    value={`${percentFormatter.format(adventure.averageStarsEarned)} stars`}
+                    title={adventure.titleEn}
+                    subtitle={`${formatNumber(adventure.assignedClassesCount)} classes · ${formatNumber(adventure.participatingChildrenCount)} children`}
+                    value={`${formatNumber(adventure.participatingChildrenCount)} participating`}
                     icon={Trophy}
                   />
                 )) : (
@@ -575,7 +582,7 @@ function PlatformDashboardView() {
                 icon={Gift}
               />
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <DashboardMetricCard label="Total gifts" value={formatNumber(d.gifts.totalGifts)} helper={`${formatNumber(d.gifts.activeGifts)} active`} icon={Gift} tone="rose" />
                 <DashboardMetricCard label="Purchases" value={formatNumber(d.gifts.totalPurchases)} helper={`${formatCompact(d.gifts.totalPointsSpent)} points spent`} icon={Coins} tone="amber" />
                 <DashboardMetricCard label="Active ratio" value={formatPercent(d.gifts.totalGifts ? (d.gifts.activeGifts / d.gifts.totalGifts) * 100 : 0)} helper={`${formatNumber(d.gifts.inactiveGifts)} inactive`} icon={TrendingUp} tone="emerald" />
@@ -676,7 +683,7 @@ function PlatformDashboardView() {
                 icon={Crown}
               />
 
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Children without points</p>
                   <p className="mt-2 text-2xl font-black text-slate-900">{formatNumber(d.pointsAndLevels.childrenWithZeroPoints)}</p>

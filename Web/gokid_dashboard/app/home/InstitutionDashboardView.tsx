@@ -152,6 +152,7 @@ export function InstitutionDashboardView() {
     { label: 'Gifts purchased', value: d.recentActivity.giftsPurchased, icon: Sparkles, tone: 'rose' as const },
     { label: 'Tasks reviewed', value: d.recentActivity.tasksReviewed, icon: CheckCircle2, tone: 'cyan' as const },
   ];
+  
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
@@ -218,7 +219,7 @@ export function InstitutionDashboardView() {
           </CardContent>
         </Card>
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2">
           {[
             { label: 'Classes', value: formatNumber(d.overview.totalClasses), helper: `${formatNumber(d.classes.classesWithSupervisor)} with supervisor`, icon: School2, tone: 'blue' as const },
             { label: 'Children', value: formatNumber(d.overview.totalChildren), helper: `${formatNumber(d.children.enrolledInClass)} enrolled in classes`, icon: UsersRound, tone: 'emerald' as const },
@@ -243,7 +244,7 @@ export function InstitutionDashboardView() {
                 icon={School2}
               />
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <DashboardMetricCard label="With supervisor" value={formatNumber(d.classes.classesWithSupervisor)} helper={`${formatPercent(d.classes.totalClasses ? (d.classes.classesWithSupervisor / d.classes.totalClasses) * 100 : 0)} of classes`} icon={ShieldCheck} tone="emerald" />
                 <DashboardMetricCard label="Without supervisor" value={formatNumber(d.classes.classesWithNoSupervisor)} helper="Needs assignment" icon={UserRound} tone="rose" />
                 <DashboardMetricCard label="With active adventure" value={formatNumber(d.classes.classesWithActiveAdventure)} helper="Classes currently engaged" icon={Sparkles} tone="violet" />
@@ -336,7 +337,7 @@ export function InstitutionDashboardView() {
                 icon={GraduationCap}
               />
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <DashboardMetricCard label="Total enrolled" value={formatNumber(d.children.totalEnrolled)} helper={`${formatNumber(d.children.enrolledInClass)} in classes`} icon={Users} tone="blue" />
                 <DashboardMetricCard label="Not in any class" value={formatNumber(d.children.notInAnyClass)} helper="Needs assignment" icon={Layers3} tone="amber" />
                 <DashboardMetricCard label="Zero completed tasks" value={formatNumber(d.children.withZeroCompletedTasks)} helper="Children who need momentum" icon={FileCheck2} tone="violet" />
@@ -434,7 +435,7 @@ export function InstitutionDashboardView() {
                 icon={FileCheck2}
               />
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <DashboardMetricCard label="Total assigned" value={formatNumber(d.tasks.totalAssigned)} helper={`${formatPercent(d.tasks.overallCompletionRate)} completion`} icon={FileCheck2} tone="blue" />
                 <DashboardMetricCard label="Avg completed / child" value={formatNumber(d.tasks.averageTasksCompletedPerChild)} helper={`${formatNumber(d.overview.totalChildren)} children tracked`} icon={Target} tone="emerald" />
                 <DashboardMetricCard label="Oldest review age" value={formatNumber(d.tasks.oldestPendingReviewAgeHours)} helper="Hours since oldest pending review" icon={Clock3} tone="amber" />

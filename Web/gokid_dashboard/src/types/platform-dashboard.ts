@@ -81,11 +81,10 @@ export interface DashboardTaskStats {
 }
 
 export interface DashboardAdventureItem {
-  id: string;
-  title: string;
-  participatingChildren: number;
-  completionRate: number;
-  averageStarsEarned: number;
+  adventureId: string;
+  titleEn: string;
+  assignedClassesCount: number;
+  participatingChildrenCount: number;
 }
 
 export interface DashboardAdventureStats {
