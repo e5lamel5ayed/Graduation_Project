@@ -1,6 +1,8 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 const { forwardRef, useId } = React;
 import { cn } from '@/src/lib/utils';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/solid';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -50,7 +52,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               'block w-full h-14 px-2 py-3 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-200 focus:border-purple-300 focus:outline-none transition-all duration-200 text-left',
               {
-                'pl-5': leftIcon,
+                'pl-11': leftIcon,
+                'pr-11': rightIcon,
                 'border-red-500': error,
                 'focus:border-red-500 focus:ring-red-200': error,
               },
@@ -62,15 +65,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {leftIcon && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <div className=" flex items-center justify-center text-gray-500  rounded-xl transition-colors duration-200">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <div className="flex items-center justify-center text-gray-500 rounded-xl transition-colors duration-200">
                 {React.cloneElement(leftIcon as React.ReactElement<{ className?: string }>, {
                   className: 'w-5 h-5',
                 })}
               </div>
             </div>
           )}
-  
+          {rightIcon && (
+            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center">
+              {rightIcon}
+            </div>
+          )}
         </div>
         {error && (
           <p className="mt-1 text-sm text-red-600 text-right">{error}</p>
@@ -94,9 +101,15 @@ export const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
         rightIcon={
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="text-gray-400  hover:text-purple-600 transition-colors"
+            onClick={() => setShowPassword((prev) => !prev)}
+            tabIndex={-1}
+            className="text-gray-400 hover:text-purple-600 transition-colors"
           >
+            {showPassword ? (
+              <EyeSlashIcon className="w-5 h-5" />
+            ) : (
+              <EyeIcon className="w-5 h-5" />
+            )}
           </button>
         }
         ref={ref}
@@ -107,4 +120,3 @@ export const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
 );
 
 PasswordInput.displayName = 'PasswordInput';
-

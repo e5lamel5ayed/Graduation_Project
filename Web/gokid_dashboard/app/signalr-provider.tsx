@@ -5,6 +5,7 @@ import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
 import type { Notification } from '@/src/types/notification';
 import { notificationService } from '@/src/services/notificationService';
+import { useAuth } from '@/lib/contexts/auth-context';
 
 interface NotificationsContextValue {
   notifications: Notification[];
@@ -26,6 +27,8 @@ export function useNotifications() {
 let globalConnection: signalR.HubConnection | null = null;
 
 export default function SignalRProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+
   const connectionRef = useRef(false);
   const notificationsLoadedRef = useRef(false);
 
@@ -35,6 +38,7 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
 
   const loadNotifications = async () => {
     setLoading(true);
+
     try {
       const data = await notificationService.getAll();
       setNotifications(data);
@@ -56,8 +60,11 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
   };
 
   const markAsRead = async (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    );
     setUnreadCount((prev) => Math.max(0, prev - 1));
+
     try {
       await notificationService.markAsRead(id);
     } catch (err) {
@@ -68,6 +75,7 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
   const markAllAsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
+
     try {
       await notificationService.markAllAsRead();
     } catch (err) {
@@ -76,14 +84,33 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+      notificationsLoadedRef.current = false;
+      return;
+    }
+
     void loadUnreadCount();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
+    if (!user) {
+      if (globalConnection) {
+        globalConnection.stop();
+        globalConnection = null;
+      }
+
+      connectionRef.current = false;
+      return;
+    }
+
     if (connectionRef.current) return;
     connectionRef.current = true;
 
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net/api';
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL || 'https://go-kid.runasp.net/api';
+
     const hubUrl = apiBaseUrl.replace('/api', '') + '/hubs/notifications';
 
     const connection = new signalR.HubConnectionBuilder()
@@ -98,17 +125,23 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
       console.log('🔔 ReceiveNotification:', notification);
 
       setUnreadCount((prev) => prev + 1);
-      setNotifications((prev) => (notificationsLoadedRef.current ? [notification, ...prev] : prev));
+
+      setNotifications((prev) =>
+        notificationsLoadedRef.current ? [notification, ...prev] : prev
+      );
 
       switch (notification.type) {
         case 'StoryVoiceReady':
           toast.success(notification.title, {
             description: notification.body,
             duration: 8000,
-            action: notification.relatedEntityId ? {
-              label: 'View Story',
-              onClick: () => window.location.href = `/adventures/${notification.relatedEntityId}/story`,
-            } : undefined,
+            action: notification.relatedEntityId
+              ? {
+                  label: 'View Story',
+                  onClick: () =>
+                    (window.location.href = `/adventures/${notification.relatedEntityId}/story`),
+                }
+              : undefined,
           });
           break;
 
@@ -127,21 +160,23 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
     });
 
     connection.onreconnected(async () => {
-      const userStr = localStorage.getItem('user');
-      const user = userStr ? JSON.parse(userStr) : null;
-      if (user?.id) await connection.invoke('JoinUserGroup', user.id);
+      if (user?.id) {
+        await connection.invoke('JoinUserGroup', user.id);
+      }
+
       void loadUnreadCount();
     });
 
-    connection.start()
+    connection
+      .start()
       .then(async () => {
         console.log('✓ SignalR connected globally');
-        const userStr = localStorage.getItem('user');
-        const user = userStr ? JSON.parse(userStr) : null;
+
         if (user?.id) {
           await connection.invoke('JoinUserGroup', user.id);
           console.log('✓ Joined group:', user.id);
         }
+
         globalConnection = connection;
       })
       .catch((err) => console.error('SignalR error:', err));
@@ -151,11 +186,18 @@ export default function SignalRProvider({ children }: { children: ReactNode }) {
       globalConnection = null;
       connectionRef.current = false;
     };
-  }, []);
+  }, [user]);
 
   return (
     <NotificationsContext.Provider
-      value={{ notifications, unreadCount, loading, loadNotifications, markAsRead, markAllAsRead }}
+      value={{
+        notifications,
+        unreadCount,
+        loading,
+        loadNotifications,
+        markAsRead,
+        markAllAsRead,
+      }}
     >
       {children}
     </NotificationsContext.Provider>
