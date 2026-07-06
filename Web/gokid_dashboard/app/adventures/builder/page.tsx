@@ -3,20 +3,20 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  DndContext, 
-  DragOverlay, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
   DragStartEvent,
   DragEndEvent,
   defaultDropAnimationSideEffects
 } from '@dnd-kit/core';
-import { 
-  sortableKeyboardCoordinates, 
+import {
+  sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { taskService } from '@/src/services/taskService';
 import { adventureService } from '@/src/services/adventureService';
@@ -25,11 +25,11 @@ import { toast } from 'sonner';
 
 // Import local components and types
 import { AdventureDay } from '@/src/types/adventure';
-import { 
-  DraggableTaskCard, 
-  AdventureDetails, 
-  TaskLibrary, 
-  TimelineList 
+import {
+  DraggableTaskCard,
+  AdventureDetails,
+  TaskLibrary,
+  TimelineList
 } from '@/src/components/adventures/builder';
 
 export default function AdventureBuilderPage() {
@@ -45,7 +45,7 @@ export default function AdventureBuilderPage() {
   const [isLoadingAdventure, setIsLoadingAdventure] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTask, setActiveTask] = useState<TaskTemplate | null>(null);
-  
+
   // Adventure Details State
   const [adventureTitleEn, setAdventureTitleEn] = useState('');
   const [adventureTitleAr, setAdventureTitleAr] = useState('');
@@ -57,13 +57,13 @@ export default function AdventureBuilderPage() {
   const [bonusPoints, setBonusPoints] = useState(0);
   const [descriptionVoiceFile, setDescriptionVoiceFile] = useState<File | null>(null);
   const [bannerImage, setBannerImage] = useState<File | null>(null);
-  
+
   // Pagination State
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const PAGE_SIZE = 12; // Tasks per type per page
-  
+
   // Timeline State
   const [days, setDays] = useState<AdventureDay[]>(
     Array.from({ length: 7 }, (_, i) => ({
@@ -109,7 +109,7 @@ export default function AdventureBuilderPage() {
         taskService.getTaskTemplates({ templateType: 'InstantReward', pageNumber, pageSize: PAGE_SIZE }),
         taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber, pageSize: PAGE_SIZE }),
       ]);
-      
+
       const textItems = text?.items ?? text?.data ?? [];
       const voiceItems = voice?.items ?? voice?.data ?? [];
       const rewardItems = rewards?.items ?? rewards?.data ?? [];
@@ -187,19 +187,22 @@ export default function AdventureBuilderPage() {
 
             const mappedFallbackTask = assignedTask && fallbackTask
               ? {
-                  id: assignedTask.taskTemplateId,
-                  titleEn: fallbackTask.titleEn || fallbackTask.title || 'Assigned Task',
-                  titleAr: fallbackTask.titleAr || '',
-                  descriptionEn: fallbackTask.descriptionEn || '',
-                  descriptionAr: fallbackTask.descriptionAr || '',
-                  iconUrl: fallbackTask.iconUrl || '',
-                  subCategoryId: '',
-                  subCategoryNameEn: '',
-                  difficulty: 'Easy' as Difficulty,
-                  basePoints: fallbackTask.basePoints ?? 0,
-                  templateType: normalizeTemplateType(fallbackTask.templateType),
-                  createdAt: '',
-                }
+                id: assignedTask.taskTemplateId,
+                titleEn: fallbackTask.titleEn || fallbackTask.title || 'Assigned Task',
+                titleAr: fallbackTask.titleAr || '',
+                descriptionEn: fallbackTask.descriptionEn || '',
+                descriptionAr: fallbackTask.descriptionAr || '',
+                iconUrl: fallbackTask.iconUrl || '',
+                subCategoryId: '',
+                subCategoryNameEn: '',
+                difficulty: 'Easy' as Difficulty,
+                basePoints: fallbackTask.basePoints ?? 0,
+                templateType: normalizeTemplateType(fallbackTask.templateType),
+                createdAt: '',
+                pageNumber: 0,
+                totalCount: 0,
+                totalPages: 0,
+              }
               : null;
 
             return {
@@ -243,7 +246,7 @@ export default function AdventureBuilderPage() {
   };
 
   // --- Helpers ---
-  const filteredTasks = tasks.filter(task => 
+  const filteredTasks = tasks.filter(task =>
     task.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
     task.titleAr.includes(searchQuery)
   );
@@ -260,11 +263,11 @@ export default function AdventureBuilderPage() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    
+
     if (over && over.id.toString().startsWith('day-')) {
       const dayId = over.id.toString();
       const task = tasks.find(t => t.id === active.id);
-      
+
       if (task) {
         setDays(prev => prev.map(day => {
           if (day.id === dayId) return { ...day, task };
@@ -277,7 +280,7 @@ export default function AdventureBuilderPage() {
   };
 
   const removeTaskFromDay = (dayId: string) => {
-    setDays(prev => prev.map(day => 
+    setDays(prev => prev.map(day =>
       day.id === dayId ? { ...day, task: null } : day
     ));
   };
@@ -350,15 +353,15 @@ export default function AdventureBuilderPage() {
         console.log('Created adventure object:', createdAdventure);
         console.log('Adventure keys:', Object.keys(createdAdventure || {}));
         console.log('Adventure entire response:', JSON.stringify(createdAdventure));
-        
+
         // Try multiple ways to get the ID
-        createdAdventureId = createdAdventure?.id || 
-                            (createdAdventure as any)?.ID || 
-                            (createdAdventure as any)?.adventureId ||
-                            (createdAdventure as any)?.AdventureId;
-        
+        createdAdventureId = createdAdventure?.id ||
+          (createdAdventure as any)?.ID ||
+          (createdAdventure as any)?.adventureId ||
+          (createdAdventure as any)?.AdventureId;
+
         console.log('Extracted adventure ID:', createdAdventureId);
-        
+
         if (createdAdventureId) {
           // Call generate-story endpoint immediately after successful creation
           try {
@@ -384,9 +387,9 @@ export default function AdventureBuilderPage() {
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
+          error !== null &&
+          'response' in error &&
+          typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
           ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
           : 'Failed to submit adventure';
       toast.error(message);
@@ -418,23 +421,23 @@ export default function AdventureBuilderPage() {
       },
       cancel: {
         label: 'Cancel',
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)] bg-gray-50/50">
-      <DndContext 
+      <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
         <div className="flex flex-col flex-1 p-4 sm:p-6 gap-6 max-w-full mx-auto w-full">
-          
+
           {/* Top Section - Adventure Details */}
-          <AdventureDetails 
+          <AdventureDetails
             isEditMode={isEditMode}
             titleEn={adventureTitleEn} setTitleEn={setAdventureTitleEn}
             titleAr={adventureTitleAr} setTitleAr={setAdventureTitleAr}
@@ -456,7 +459,7 @@ export default function AdventureBuilderPage() {
 
           <div className="flex flex-col xl:flex-row gap-6 flex-1">
             {/* Left Column - Task Library */}
-            <TaskLibrary 
+            <TaskLibrary
               tasks={tasks}
               filteredTasks={filteredTasks}
               searchQuery={searchQuery}
@@ -468,7 +471,7 @@ export default function AdventureBuilderPage() {
             />
 
             {/* Right Column - Adventure Timeline */}
-            <TimelineList 
+            <TimelineList
               days={days}
               onRemoveTask={removeTaskFromDay}
             />
