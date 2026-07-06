@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { CheckSquare, Plus, Calendar, User, Tag, Mic, Gift, FileCheck, LayoutGrid, Award, Star } from 'lucide-react';
 import { Tabs } from './taps';
-import { Button } from '@/src/components/ui';
+import { Button, Pagination } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { VoiceTaskForm, InstantRewardForm, EvidenceSubmissionForm } from './forms';
 import { taskService } from '@/src/services/taskService';
@@ -22,7 +22,6 @@ const tabToTemplateTypeMap: Record<string, TemplateType | 'all'> = {
   evidenceSubmission: 'EvidenceSubmission',
 };
 
-// تكوين العناوين والأوصاف الديناميكية لكل تاب
 const tabConfig = {
   all: {
     title: 'All Tasks',
@@ -65,6 +64,9 @@ export default function TasksPage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('all');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(5);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
@@ -84,12 +86,11 @@ export default function TasksPage() {
       const templateType = tabToTemplateTypeMap[activeTab];
 
       if (templateType === 'all') {
-        // Fetch all task types
         const [textQuestions, voiceQuestions, instantRewards, evidenceSubmissions] = await Promise.all([
-          taskService.getTaskTemplates({ templateType: 'TextQuestion', pageNumber: 1, pageSize: 50 }),
-          taskService.getTaskTemplates({ templateType: 'VoiceQuestion', pageNumber: 1, pageSize: 50 }),
-          taskService.getTaskTemplates({ templateType: 'InstantReward', pageNumber: 1, pageSize: 50 }),
-          taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber: 1, pageSize: 50 }),
+          taskService.getTaskTemplates({ templateType: 'TextQuestion', pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'VoiceQuestion', pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'InstantReward', pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber, pageSize }),
         ]);
 
         const allTasks = [
@@ -106,11 +107,20 @@ export default function TasksPage() {
           instantReward: instantRewards.totalCount || 0,
           evidenceSubmission: evidenceSubmissions.totalCount || 0,
         });
+
+        // خد أكبر totalPages من بين الأربعة (أو اعمل منطق تاني حسب احتياجك)
+        const maxPages = Math.max(
+          textQuestions.totalPages || 1,
+          voiceQuestions.totalPages || 1,
+          instantRewards.totalPages || 1,
+          evidenceSubmissions.totalPages || 1
+        );
+        setTotalPages(maxPages);
       } else {
         const response = await taskService.getTaskTemplates({
           templateType: templateType as TemplateType,
-          pageNumber: 1,
-          pageSize: 50,
+          pageNumber,
+          pageSize,
         });
         setTasks(response.items || []);
 
@@ -118,6 +128,8 @@ export default function TasksPage() {
           ...prev,
           [activeTab]: response.totalCount || 0,
         }));
+
+        setTotalPages(response.totalPages || 1);
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -130,8 +142,11 @@ export default function TasksPage() {
   // Fetch tasks when active tab changes
   useEffect(() => {
     fetchTasks();
-  }, [activeTab]);
-
+  }, [activeTab, pageNumber]);
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setPageNumber(1);
+  };
   const getTypeColor = (type: TemplateType) => {
     switch (type) {
       case 'TextQuestion':
@@ -290,8 +305,7 @@ export default function TasksPage() {
 
   return (
     <div className="p-6">
-      <Tabs activeTab={activeTab} onTabChange={setActiveTab} counts={taskCounts} />
-
+      <Tabs activeTab={activeTab} onTabChange={handleTabChange} counts={taskCounts} />
       {/* Dynamic Title Section */}
       <div className="flex justify-between items-center mb-6 mt-6">
         <div className="flex items-center gap-4">
@@ -415,12 +429,15 @@ export default function TasksPage() {
                     {task.difficulty}
                   </span>
                 </div>
-                <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium hover:underline">
-                  View Details →
-                </button>
               </div>
             </div>
           ))}
+          <Pagination
+            currentPage={pageNumber}
+            totalPages={totalPages}
+            onPageChange={setPageNumber}
+            className="mt-6"
+          />
         </div>
       ) : (
         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
@@ -438,6 +455,7 @@ export default function TasksPage() {
             View All Tasks
           </button>
         </div>
+
       )}
     </div>
   );

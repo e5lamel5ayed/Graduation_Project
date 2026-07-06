@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -281,7 +282,7 @@ export default function AdventureBuilderPage() {
     ));
   };
 
-  const submitAdventure = async (mode: 'save' | 'publish') => {
+  const submitAdventure = async (mode: 'publish') => {
     const title = (adventureTitleEn || adventureTitleAr).trim();
     const titleEn = adventureTitleEn.trim();
     const titleAr = adventureTitleAr.trim();
@@ -449,7 +450,6 @@ export default function AdventureBuilderPage() {
             totalDays={days.length}
             isComplete={isComplete}
             onReset={resetAdventure}
-            onSave={() => submitAdventure('save')}
             onPublish={() => submitAdventure('publish')}
             isSubmitting={isSubmitting || isLoadingAdventure}
           />

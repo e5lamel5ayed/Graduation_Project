@@ -283,8 +283,16 @@ export default function AppLayout({
                   <p className="text-sm font-medium text-gray-700">{user.name}</p>
                   <p className="text-xs text-gray-500">{roleLabel}</p>
                 </div>
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm">
-                  {user.name?.charAt(0).toUpperCase()}
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm overflow-hidden">
+                  {user.profileImageUrl ? (
+                    <img
+                      src={user.profileImageUrl}
+                      alt={user.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    user.name?.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <button
                   onClick={logout}

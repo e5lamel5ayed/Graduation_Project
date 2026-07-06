@@ -10,6 +10,7 @@ export interface LoginDto {
 export interface AuthUser {
   id: string;
   name: string;
+  profileImageUrl?: string | null;
   email: string;
   role: string;
   token?: string;

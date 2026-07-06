@@ -66,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: data.email || email,
         role: loginAs === 'InstitutionAdmin' ? 'institution' : (loginAs === 'Supervisor' ? 'supervisor' : (data.userType || 'platform')),
         token: data.accessToken,
+        profileImageUrl: (data as any).profileImageUrl || null,
       };
 
       // Store tokens

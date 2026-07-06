@@ -30,7 +30,6 @@ interface AdventureDetailsProps {
   totalDays: number;
   isComplete: boolean;
   onReset: () => void;
-  onSave: () => void;
   onPublish: () => void;
   isSubmitting: boolean;
 }
@@ -55,7 +54,6 @@ export const AdventureDetails = ({
   totalDays,
   isComplete,
   onReset,
-  onSave,
   onPublish,
   isSubmitting
 }: AdventureDetailsProps) => {
@@ -67,8 +65,8 @@ export const AdventureDetails = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Name (English)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={titleEn}
                   onChange={(e) => setTitleEn(e.target.value)}
                   className="text-lg font-bold text-gray-900 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2 w-full outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all"
@@ -77,8 +75,8 @@ export const AdventureDetails = ({
               </div>
               <div className="space-y-1 text-right">
                 <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 mr-1">الاسم (عربي)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={titleAr}
                   onChange={(e) => setTitleAr(e.target.value)}
                   className="text-lg font-bold text-gray-900 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2 w-full outline-none focus:ring-2 focus:ring-purple-500/20 focus:bg-white transition-all text-right"
@@ -120,35 +118,37 @@ export const AdventureDetails = ({
               </div>
             </div>
 
-            <div className="space-y-1 max-w-sm">
-              <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Description Voice File</label>
-              <label className="h-11 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-600 flex items-center gap-2 cursor-pointer hover:bg-white transition-all">
-                <Upload className="h-4 w-4 text-purple-500" />
-                <span className="truncate">{descriptionVoiceFile ? descriptionVoiceFile.name : 'Upload voice file (optional)'}</span>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  className="hidden"
-                  onChange={(e) => setDescriptionVoiceFile(e.target.files?.[0] ?? null)}
-                />
-              </label>
-            </div>
+            <div className="flex gap-4">
+              <div className="space-y-1 max-w-sm flex-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Description Voice File</label>
+                <label className="h-11 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-600 flex items-center gap-2 cursor-pointer hover:bg-white transition-all">
+                  <Upload className="h-4 w-4 text-purple-500" />
+                  <span className="truncate">{descriptionVoiceFile ? descriptionVoiceFile.name : 'Upload voice file (optional)'}</span>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={(e) => setDescriptionVoiceFile(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              </div>
 
-            <div className="space-y-1 max-w-sm">
-              <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Banner Image</label>
-              <label className="h-11 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-600 flex items-center gap-2 cursor-pointer hover:bg-white transition-all">
-                <Upload className="h-4 w-4 text-purple-500" />
-                <span className="truncate">{bannerImage ? bannerImage.name : 'Upload banner image (optional)'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => setBannerImage(e.target.files?.[0] ?? null)}
-                />
-              </label>
+              <div className="space-y-1 max-w-sm flex-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-purple-500 ml-1">Banner Image</label>
+                <label className="h-11 px-3 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-600 flex items-center gap-2 cursor-pointer hover:bg-white transition-all">
+                  <Upload className="h-4 w-4 text-purple-500" />
+                  <span className="truncate">{bannerImage ? bannerImage.name : 'Upload banner image (optional)'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => setBannerImage(e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              </div>
             </div>
           </div>
-          
+
           <div className="w-full md:w-auto flex flex-col items-center md:items-end shrink-0 gap-4">
             <div className="flex flex-col items-center md:items-end w-full">
               <div className="text-[10px] font-black text-gray-400 mb-2 uppercase tracking-[0.2em] hidden md:block">Adventure Progress</div>
@@ -161,21 +161,14 @@ export const AdventureDetails = ({
                 <span className="text-xl font-black text-purple-600 whitespace-nowrap">{completedCount}<span className="text-gray-300 mx-0.5">/</span>{totalDays}</span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 w-full md:w-auto">
               <Button variant="outline" onClick={onReset} className="flex-1 md:flex-none text-gray-500 gap-1.5 text-[11px] font-bold px-3 h-9 rounded-lg border-gray-200 hover:bg-gray-50">
                 <RotateCcw className="h-3.5 w-3.5" /> Reset
               </Button>
-              <Button
-                variant="outline"
-                onClick={onSave}
-                isLoading={isSubmitting}
-                className="flex-1 md:flex-none text-gray-500 gap-1.5 text-[11px] font-bold px-3 h-9 rounded-lg border-gray-200 hover:bg-gray-50"
-              >
-                <Save className="h-3.5 w-3.5" /> {isEditMode ? 'Update' : 'Save'}
-              </Button>
-              <Button 
-                disabled={!isComplete} 
+
+             <Button
+                disabled={!isComplete}
                 onClick={onPublish}
                 isLoading={isSubmitting}
                 className={`
@@ -195,13 +188,13 @@ export const AdventureDetails = ({
               <FileText className="h-3.5 w-3.5 text-purple-500" /> Description / الوصف
             </label>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <textarea 
+              <textarea
                 placeholder="English Description..."
                 value={descriptionEn}
                 onChange={(e) => setDescriptionEn(e.target.value)}
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:bg-white transition-all resize-none h-20"
               />
-              <textarea 
+              <textarea
                 placeholder="الوصف بالعربي..."
                 value={descriptionAr}
                 onChange={(e) => setDescriptionAr(e.target.value)}
@@ -212,22 +205,22 @@ export const AdventureDetails = ({
           </div>
           <div className="space-y-3">
             <label className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
-              <Target className="h-3.5 w-3.5 text-purple-500" /> Adventure Goal / الهدف 
+              <Target className="h-3.5 w-3.5 text-purple-500" /> Adventure Goal / الهدف
             </label>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <textarea 
+              <textarea
                 placeholder="English Goal..."
                 value={goalEn}
                 onChange={(e) => setGoalEn(e.target.value)}
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:bg-white transition-all resize-none h-20"
               />
-              <textarea 
+              <textarea
                 placeholder="الهدف بالعربي..."
                 value={goalAr}
                 onChange={(e) => setGoalAr(e.target.value)}
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/10 focus:bg-white transition-all resize-none h-20 text-right"
                 dir="rtl"
-              /> 
+              />
             </div>
           </div>
         </div>
