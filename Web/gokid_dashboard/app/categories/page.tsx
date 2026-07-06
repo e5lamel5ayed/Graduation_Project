@@ -129,47 +129,115 @@ export default function CategoriesPage() {
             No categories found. Click the button above to add a new category.
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="flex flex-col justify-between rounded-lg border border-gray-200 bg-linear-to-b from-purple-50/70 to-white p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition duration-150 relative"
-                style={{ borderTopColor: category.colorHex, borderTopWidth: '4px' }}
-              >
-                {category.icon?.url && (
-                    <img
-                      src={category.icon.url}
-                      alt={`${category.nameEn} icon`}
-                    className="absolute top-2 right-2 w-10 h-10 rounded-full border border-gray-200 object-cover bg-white"
-                    />
-                  )}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h2 className="text-lg font-semibold text-gray-900 truncate" title={category.nameEn}>
-                      {category.nameEn}
-                    </h2>
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: category.colorHex }}
-                    />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {categories.map((category) => {
+              const color = category.colorHex || '#9333ea';
+              const cardStyle: Record<string, string> = {
+                borderTopColor: color,
+                borderTopWidth: '4px',
+                '--category-color': color,
+              };
+
+              return (
+                <div
+                  key={category.id}
+                  className="group flex flex-col justify-between rounded-xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative overflow-hidden"
+                  style={cardStyle as React.CSSProperties}
+                >
+                  {/* Decorative Gradient Blob */}
+                  <div
+                    className="absolute -right-4 -top-4 w-40 h-40 blur-[80px] opacity-0 transition-opacity duration-700 group-hover:opacity-30"
+                    style={{ backgroundColor: 'var(--category-color)' }}
+                  />
+
+                  <div className="relative z-10">
+                    {/* Header: title + icon */}
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <div
+                            className="w-1.5 h-5 rounded-full"
+                            style={{ backgroundColor: 'var(--category-color)' }}
+                          />
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                            Category
+                          </span>
+                        </div>
+                        <h2
+                          className="text-xl font-extrabold text-gray-900 leading-tight group-hover:text-[var(--category-color)] transition-colors duration-300"
+                          title={category.nameEn}
+                        >
+                          {category.nameEn}
+                        </h2>
+                      </div>
+
+                      <div className="ml-4 shrink-0">
+                        {category.icon?.url ? (
+                          <img
+                            src={category.icon.url}
+                            alt={category.nameEn}
+                            className="w-14 h-14 rounded-2xl border border-gray-100 object-cover bg-white shadow-md ring-4 ring-gray-50/50 transform group-hover:rotate-6 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gray-50 border border-gray-100 shadow-inner group-hover:bg-white transition-colors duration-300"
+                            style={{ color: 'var(--category-color)' }}
+                          >
+                            <div
+                              className="w-6 h-6 rounded-full opacity-40 group-hover:opacity-100 transition-opacity"
+                              style={{ backgroundColor: 'var(--category-color)' }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Arabic name + subcategory count */}
+                    <div className="flex flex-col gap-3">
+                      <p
+                        className="text-sm font-semibold text-gray-400 bg-gray-50/50 px-4 py-2 rounded-2xl border border-gray-50 w-full text-right"
+                        dir="rtl"
+                      >
+                        {category.nameAr || 'لا يوجد اسم'}
+                      </p>
+
+                      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border border-transparent bg-gray-50/30 group-hover:bg-white group-hover:border-gray-100 transition-all duration-300 shadow-sm">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: 'var(--category-color)' }}
+                        />
+                        <span className="text-xs font-bold text-gray-600">
+                          {category.subCategoriesCount ?? 0} subcategories
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-1" dir="rtl">{category.nameAr}</p>
-                  <p className="text-xs text-gray-500">
-                    {category.subCategoriesCount} subcategories
-                  </p>
+
+                  {/* Actions */}
+                  <div className="mt-8 flex items-center justify-end gap-3 relative z-10 border-t border-gray-50 pt-5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(category)}
+                      className="h-10 px-5 rounded-2xl border-gray-100 text-gray-600 hover:bg-gray-50 hover:text-gray-600 hover:border-gray-100 hover:scale-105 transition-all duration-200"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      <span className="font-bold">Edit</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteClick(category)}
+                      className="h-10 px-5 rounded-2xl text-red-500 border-gray-100 hover:bg-red-50 hover:border-red-200 hover:scale-105 transition-all duration-200"
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      <span className="font-bold">Delete</span>
+                    </Button>
+                  </div>
                 </div>
-                <div className="mt-4 flex items-center justify-end gap-3">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(category)}>
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDeleteClick(category)} className="text-red-500" disabled={deleteMutation.isPending}>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ import { Button, ConfirmDeleteDialog, Pagination } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { Plus, Pencil, Trash2, Loader2, Gift as GiftIcon, Star } from 'lucide-react';
 import { GiftForm } from './GiftForm';
-import { useGifts, useCreateGift, useUpdateGift, useDeleteGift, useGift } from '@/src/hooks/useGifts';
+import { useGifts, useCreateGift, useUpdateGift, useDeleteGift } from '@/src/hooks/useGifts';
 import type { Gift, GiftFormData, CreateGiftDto } from '@/src/types/gift';
 
 export default function GiftsPage() {
@@ -21,33 +21,28 @@ export default function GiftsPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const { data: selectedFullGift, isLoading: isLoadingSelectedGift } = useGift(selectedId || '');
-
   const handleAddNew = () => {
     setSelectedGift(null);
-    setSelectedId(null);
     setIsDialogOpen(true);
   };
 
   const handleEdit = (gift: Gift) => {
-    setSelectedId(gift.id);
+    // Build form data directly from the list item — no API call needed
+    setSelectedGift({
+      id: gift.id,
+      nameAr: gift.nameAr,
+      nameEn: gift.nameEn,
+      descriptionAr: gift.descriptionAr,
+      descriptionEn: gift.descriptionEn,
+      pointsCost: gift.pointsCost,
+      type: gift.type,
+      imageFile: null,
+      existingImageUrl: gift.image?.imageUrl,
+    });
     setIsDialogOpen(true);
   };
 
-  const initialDataFromSelected: GiftFormData | undefined = selectedFullGift
-    ? {
-      id: selectedFullGift.id,
-      nameAr: selectedFullGift.nameAr,
-      nameEn: selectedFullGift.nameEn,
-      descriptionAr: selectedFullGift.descriptionAr,
-      descriptionEn: selectedFullGift.descriptionEn,
-      pointsCost: selectedFullGift.pointsCost,
-      type: selectedFullGift.type,
-      imageFile: null,
-      existingImageUrl: selectedFullGift.image?.imageUrl,
-    }
-    : selectedGift || undefined;
+  const initialDataFromSelected: GiftFormData | undefined = selectedGift || undefined;
 
   const handleSubmit = async (formData: GiftFormData) => {
     // Map GiftFormData → CreateGiftDto (imageFile → image)
@@ -68,7 +63,6 @@ export default function GiftsPage() {
           onSuccess: () => {
             setIsDialogOpen(false);
             setSelectedGift(null);
-            setSelectedId(null);
           },
         }
       );
@@ -282,15 +276,14 @@ export default function GiftsPage() {
         onClose={() => {
           setIsDialogOpen(false);
           setSelectedGift(null);
-          setSelectedId(null);
         }}
-        title={selectedId ? 'Edit Reward' : 'Add New Reward'}
+        title={selectedGift?.id ? 'Edit Reward' : 'Add New Reward'}
         maxWidth="3xl"
       >
         <GiftForm
           initialData={initialDataFromSelected}
           onSubmit={handleSubmit}
-          isLoading={createMutation.isPending || updateMutation.isPending || isLoadingSelectedGift}
+          isLoading={createMutation.isPending || updateMutation.isPending}
         />
       </HeadlessDialog>
 
