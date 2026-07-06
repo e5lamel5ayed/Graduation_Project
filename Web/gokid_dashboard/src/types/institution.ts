@@ -7,6 +7,8 @@ export interface InstitutionListItem {
   logoUrl?: string;
   adminName?: string;
   adminEmail?: string;
+  website ?: string;
+  adminPhoneNumber?: string;
   classCount: number;
   studentCount: number;
   supervisorCount: number;

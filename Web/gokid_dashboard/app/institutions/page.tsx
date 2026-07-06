@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Building2, Loader2, MapPin, Plus, Search, School, Users, Pencil, Trash2, Eye, Globe, Phone, Mail, CalendarDays, UserRound } from 'lucide-react';
+import { Building2, Loader2, MapPin, Plus, Search, School, Users, Pencil, Trash2, Eye, Globe, Mail, CalendarDays, UserRound } from 'lucide-react';
 import { Button, HeadlessDialog, Input, Pagination } from '@/src/components/ui';
 import { InstitutionForm, InstitutionFormData } from './InstitutionForm';
 import { useCreateInstitution, useDeleteInstitution, useInstitution, useInstitutions, useUpdateInstitution } from '@/src/hooks/useInstitutions';
@@ -245,17 +245,17 @@ export default function InstitutionsPage() {
                   </div>
 
                   <div className="mt-5 grid gap-3 rounded-3xl bg-slate-50/80 p-4 sm:grid-cols-3">
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Phone className="h-4 w-4 text-purple-500" />
-                      <span className="truncate">{institution.adminName || institution.adminEmail || 'Admin not available'}</span>
+                    <div className="flex items-center gap-2 text-sm text-slate-600" title="Admin name">
+                      <UserRound className="h-4 w-4 flex-shrink-0 text-purple-500" />
+                      <span className="truncate">{institution.adminPhoneNumber || '—'}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Mail className="h-4 w-4 text-purple-500" />
-                      <span className="truncate">{institution.adminEmail || 'N/A'}</span>
+                    <div className="flex items-center gap-2 text-sm text-slate-600" title="Admin email">
+                      <Mail className="h-4 w-4 flex-shrink-0 text-purple-500" />
+                      <span className="truncate">{institution.adminEmail || '—'}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Globe className="h-4 w-4 text-purple-500" />
-                      <span className="truncate">{institution.code || 'Institution profile'}</span>
+                    <div className="flex items-center gap-2 text-sm text-slate-600" title="Institution code">
+                      <Globe className="h-4 w-4 flex-shrink-0 text-purple-500" />
+                      <span className="truncate">{institution.website  || '—'}</span>
                     </div>
                   </div>
 
