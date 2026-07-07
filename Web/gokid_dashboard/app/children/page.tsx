@@ -53,7 +53,7 @@ const getAvatarColor = (childId: string, childName: string) => {
     { bg: 'bg-blue-50', text: 'text-blue-600' },
     { bg: 'bg-cyan-50', text: 'text-cyan-600' },
   ];
-  
+
   const hash = childId.charCodeAt(0) + childName.charCodeAt(0);
   return colors[hash % colors.length];
 };
@@ -286,16 +286,11 @@ export default function ChildrenPage() {
                           alt={child.childName}
                           width={48}
                           height={48}
+                          unoptimized={child.avatarUrl.includes('placehold.co')}
                           className="rounded-xl shadow-sm object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div
-                          className={cn(
-                            'w-12 h-12 rounded-xl shadow-sm flex items-center justify-center text-sm font-black flex-shrink-0',
-                            avatarColor.bg,
-                            avatarColor.text
-                          )}
-                        >
+                        <div className={cn('w-12 h-12 rounded-xl shadow-sm flex items-center justify-center text-sm font-black flex-shrink-0', avatarColor.bg, avatarColor.text)}>
                           {initials}
                         </div>
                       )}
@@ -323,7 +318,7 @@ export default function ChildrenPage() {
                       </button>
                     </div>
 
-                   
+
 
                     {/* Stats Row */}
                     <div className="flex items-center gap-2 mb-3">

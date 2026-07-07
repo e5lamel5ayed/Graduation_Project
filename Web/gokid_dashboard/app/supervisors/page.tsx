@@ -44,10 +44,6 @@ export default function SupervisorsPage() {
   };
 
   const handleDelete = async (supervisor: Supervisor) => {
-    if (!window.confirm('Are you sure you want to delete this supervisor?')) {
-      return;
-    }
-
     try {
       await supervisorService.delete(supervisor.id);
       toast.success('Supervisor deleted successfully');
