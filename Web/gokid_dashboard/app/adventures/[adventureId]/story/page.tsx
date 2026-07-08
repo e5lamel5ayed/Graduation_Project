@@ -45,7 +45,7 @@ export default function StoryPage() {
     try {
       setIsRegenerating(true);
       await adventureService.generateStory(adventureId);
-      toast.success('Story regeneration started!');
+      toast.success('Story regenerated! Story voice is being generated...');
     } catch (error) {
       console.error('Failed to regenerate story:', error);
       toast.error('Failed to regenerate story');
@@ -145,8 +145,8 @@ export default function StoryPage() {
                   if (tab === 'days') setSelectedDay(1);
                 }}
                 className={`px-6 py-4 font-bold text-sm uppercase tracking-wide transition-all border-b-2 whitespace-nowrap ${activeTab === tab
-                    ? 'text-purple-600 border-purple-600'
-                    : 'text-gray-500 border-transparent hover:text-gray-700'
+                  ? 'text-purple-600 border-purple-600'
+                  : 'text-gray-500 border-transparent hover:text-gray-700'
                   }`}
               >
                 {tab === 'intro' && 'Beginning'}
@@ -177,8 +177,8 @@ export default function StoryPage() {
                   <button
                     onClick={() => playVoice(story.intro.voiceUrl, 'intro')}
                     className={`flex items-center gap-3 px-6 py-3 rounded-xl font-bold text-sm transition-all ${playingVoiceId === 'intro'
-                        ? 'bg-purple-600 text-white shadow-lg'
-                        : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
+                      ? 'bg-purple-600 text-white shadow-lg'
+                      : 'bg-purple-100 text-purple-600 hover:bg-purple-200'
                       }`}
                   >
                     <Volume2 className="h-5 w-5" />
@@ -202,8 +202,8 @@ export default function StoryPage() {
                       key={day.dayNumber}
                       onClick={() => setSelectedDay(day.dayNumber)}
                       className={`w-full text-left px-4 py-3 rounded-xl font-bold text-sm transition-all ${selectedDay === day.dayNumber
-                          ? 'bg-purple-600 text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                         }`}
                     >
                       Day {day.dayNumber}
@@ -233,8 +233,8 @@ export default function StoryPage() {
                       <button
                         onClick={() => playVoice(currentDay.voiceUrl, `day-${currentDay.dayNumber}`)}
                         className={`flex items-center gap-3 px-6 py-3 rounded-xl font-bold text-sm transition-all ${playingVoiceId === `day-${currentDay.dayNumber}`
-                            ? 'bg-blue-600 text-white shadow-lg'
-                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                           }`}
                       >
                         <Volume2 className="h-5 w-5" />
@@ -269,8 +269,8 @@ export default function StoryPage() {
                   <button
                     onClick={() => playVoice(story.outro.voiceUrl, 'outro')}
                     className={`flex items-center gap-3 px-6 py-3 rounded-xl font-bold text-sm transition-all ${playingVoiceId === 'outro'
-                        ? 'bg-emerald-600 text-white shadow-lg'
-                        : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
+                      ? 'bg-emerald-600 text-white shadow-lg'
+                      : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200'
                       }`}
                   >
                     <Volume2 className="h-5 w-5" />

@@ -77,6 +77,7 @@ export interface AdventureApiModel {
   bonusPoints?: number;
   createdAt?: string;
   status?: string;
+    descriptionVoiceUrl?: string;
   tasks?: AdventureApiTask[];
 }
 
@@ -89,6 +90,7 @@ export interface SupervisorAdventureApiModel {
   classId: string;
   startDate: string;
   endDate: string;
+  descriptionVoiceUrl?: string;
   totalChildren: number;
   pendingReviewsCount: number;
 }
@@ -169,6 +171,7 @@ export interface AdventureBuilderData {
   descriptionAr: string;
   goalEn: string;
   goalAr: string;
+  descriptionVoiceUrl: string;
   weekDuration: number;
   bonusPoints: number;
   tasks: AdventureTaskAssignmentDto[];

@@ -255,7 +255,7 @@ export default function AppLayout({
           </button>
           <div className="flex-1 px-4 flex justify-between items-center">
             <div className="flex-1 flex max-w-2xl">
-              <div className="w-full flex">
+              {/* <div className="w-full flex">
                 <div className="relative w-full text-gray-400 focus-within:text-[#9a87a4]">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -270,7 +270,7 @@ export default function AppLayout({
                     name="search"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="flex items-center space-x-4">
@@ -283,8 +283,16 @@ export default function AppLayout({
                   <p className="text-sm font-medium text-gray-700">{user.name}</p>
                   <p className="text-xs text-gray-500">{roleLabel}</p>
                 </div>
-                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm">
-                  {user.name?.charAt(0).toUpperCase()}
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#b9a2c5] to-[#9a87a4] flex items-center justify-center text-white font-medium shadow-sm overflow-hidden">
+                  {user.profileImageUrl ? (
+                    <img
+                      src={user.profileImageUrl}
+                      alt={user.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    user.name?.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <button
                   onClick={logout}

@@ -27,13 +27,13 @@ export const childrenService = {
     return data.data;
   },
 
-  enrollChild: async ({ classId, registrationcode }: EnrollChildDto) => {
-    const { data } = await axiosInstance.post<ApiResponse<{ success: boolean }>>(
-      `/Class/institution/enroll-child`,
-      registrationcode
-    );
-    return data;
-  },
+enrollChild: async ({ classId, registrationcode }: EnrollChildDto) => {
+  const { data } = await axiosInstance.post<ApiResponse<{ success: boolean }>>(
+    `/Class/institution/enroll-child`,
+    { registrationCode: registrationcode }   // ✅ لف الـ value في object
+  );
+  return data;
+},
 
   enrollChildToClass: async ({ classId, registrationcode }: EnrollChildDto) => {
     const { data } = await axiosInstance.post<ApiResponse<{ success: boolean }>>(

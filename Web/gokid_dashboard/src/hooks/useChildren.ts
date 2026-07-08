@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { childrenService } from '@/src/services/childrenService';
 import { ChildQueryParams, Child, ChildsListResponse, EnrollChildDto, DeleteChildDto } from '@/src/types/children';
@@ -51,6 +52,7 @@ export function useEnrollChildToClass() {
 
   return useMutation({
     mutationFn: (data: EnrollChildDto) => childrenService.enrollChildToClass(data),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CLASS_QUERY_KEY] });

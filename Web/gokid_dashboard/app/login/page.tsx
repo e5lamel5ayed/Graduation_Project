@@ -6,6 +6,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/src/lib/utils';
+import { superMalibu } from "@/app/fonts";
 import {
   LockClosedIcon,
   ArrowTrendingUpIcon,
@@ -486,17 +487,26 @@ export default function LoginPage() {
 
             <div className="flex flex-col justify-center items-center text-[#7b6c83] p-12 relative z-10 w-full">
               {/* Logo with Enhanced Shadow */}
-              <div className="w-24 h-24 rounded-2xl flex items-center justify-center mb-8 shadow-2xl transform transition-transform duration-300 hover:scale-105 hover:rotate-3">
+
+              <div className="w-30 h-30 rounded-2xl flex items-center justify-center mb-5 shadow-2xl transform transition-transform duration-300 hover:scale-105 hover:rotate-3">
                 <img
-                  src="/photo_2025-10-31_21-33-23.jpg"
+                  src="/Logo.svg"
                   alt="GoKid Logo"
-                  className="w-full h-full object-contain rounded-2xl"
+                  className="w-full h-full object-contain bg-white rounded-2xl"
                 />
               </div>
 
+              <h1
+                className={`${superMalibu.className} text-4xl bg-clip-text text-transparent mb-2 text-center`}
+                style={{
+                  backgroundImage: 'linear-gradient(180deg, #5585F4 -28.29%, #A04BCF 32.54%, #B545C1 70.66%, #E15397 94.26%, #A640CD 118.07%)',
+                }}
+              >
+                GoKid
+              </h1>
               {/* System Name with Gradient */}
               <h2 className="text-2xl font-semibold bg-gradient-to-r from-[#5c5163] to-[#8b7a94] bg-clip-text text-transparent mb-12 text-center">
-                Smart Nursery Management System
+                A Unified Gamified Platform for Child Development
               </h2>
 
               {/* Features with Hover Effects */}
@@ -666,7 +676,7 @@ export default function LoginPage() {
                 </CardContent>
 
                 {/* Footer with Better Design */}
-                <CardFooter className="justify-center pt-6 border-t border-gray-100">
+                {/* <CardFooter className="justify-center pt-6 border-t border-gray-100">
                   <p className="text-sm text-gray-600">
                     Don't have an account?{' '}
                     <button
@@ -677,7 +687,7 @@ export default function LoginPage() {
                       Sign up now
                     </button>
                   </p>
-                </CardFooter>
+                </CardFooter> */}
               </Card>
             </div>
           </div>

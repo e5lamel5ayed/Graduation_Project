@@ -106,6 +106,9 @@ export interface TaskTemplate {
   basePoints: number;
   templateType: TemplateType;
   createdAt: string;
+  pageNumber?: number;
+  totalCount?: number;
+  totalPages?: number;
 }
 
 export interface TaskTemplateParams {

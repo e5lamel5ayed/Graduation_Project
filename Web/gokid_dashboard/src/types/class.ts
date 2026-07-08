@@ -23,14 +23,14 @@ export interface ClassApiItem {
   name: string;
   childrenCount: number;
   supervisorsCount: number;
-  activeAdventuresCount?: number;
+  adventuresCount?: number;
   createdAt: string;
 }
 
 export interface ClassCardItem extends ClassFormData {
   id: string;
   childrenCount: number;
-  activeAdventuresCount: number;
+  adventuresCount: number;
   createdAt: string;
 }
 

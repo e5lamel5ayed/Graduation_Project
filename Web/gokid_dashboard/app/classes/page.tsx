@@ -49,7 +49,7 @@ const mapApiClassToCard = (classItem: ClassApiItem): ClassCardItem => ({
   maxStudents: 30,
   schedule: 'TBD',
   childrenCount: classItem.childrenCount,
-  activeAdventuresCount: classItem.activeAdventuresCount ?? 0,
+  adventuresCount: classItem.adventuresCount ?? 0,
   createdAt: (() => {
     const createdAt = new Date(classItem.createdAt);
     return Number.isNaN(createdAt.getTime()) ? '' : createdAt.toISOString().split('T')[0];
@@ -308,7 +308,7 @@ export default function ClassesPage() {
                       Adventures
                     </div>
                     <div className="text-lg font-bold text-slate-800">
-                      {classItem.activeAdventuresCount}
+                      {classItem.adventuresCount}
                     </div>
                   </div>
                 </div>
@@ -330,9 +330,7 @@ export default function ClassesPage() {
           <div className="col-span-full bg-white rounded-3xl p-20 text-center border-2 border-dashed border-slate-100 flex flex-col items-center justify-center">
             <GraduationCap className="h-16 w-16 text-slate-200 mb-4" />
             <p className="text-slate-500 font-medium">No classes found.</p>
-            <Button onClick={handleAddNew} variant="ghost" className="mt-4">
-              Add your first class
-            </Button>
+           
           </div>
         )}
       </div>
