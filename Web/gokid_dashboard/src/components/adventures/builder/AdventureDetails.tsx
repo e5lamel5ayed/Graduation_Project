@@ -29,6 +29,7 @@ interface AdventureDetailsProps {
   completedCount: number;
   totalDays: number;
   isComplete: boolean;
+  existingVoiceUrl?: string | null;
   onReset: () => void;
   onPublish: () => void;
   isSubmitting: boolean;
@@ -48,6 +49,7 @@ export const AdventureDetails = ({
   setBonusPoints,
   descriptionVoiceFile,
   setDescriptionVoiceFile,
+  
   bannerImage,
   setBannerImage,
   completedCount,

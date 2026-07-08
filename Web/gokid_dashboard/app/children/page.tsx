@@ -294,6 +294,7 @@ export default function ChildrenPage() {
                           {initials}
                         </div>
                       )}
+                      
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-black text-slate-800 leading-tight truncate">
                           {child.childName}

@@ -24,6 +24,8 @@ interface SupervisorFormProps {
 }
 
 export function SupervisorForm({ initialData, onSubmit, isLoading = false }: SupervisorFormProps) {
+  const isEditMode = !!initialData;
+
   const [formData, setFormData] = useState<SupervisorFormData>({
     fullName: '',
     email: '',
@@ -89,6 +91,7 @@ export function SupervisorForm({ initialData, onSubmit, isLoading = false }: Sup
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email <span className="text-red-500">*</span>
+          {isEditMode && <span className="text-xs text-gray-400 font-normal ml-1">(cannot be changed)</span>}
         </label>
         <Input
           id="email"
@@ -98,13 +101,15 @@ export function SupervisorForm({ initialData, onSubmit, isLoading = false }: Sup
           onChange={handleChange}
           placeholder="e.g. john.doe@example.com"
           required
+          disabled={isEditMode}
+          className={isEditMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}
         />
       </div>
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
           Password {!initialData && <span className="text-red-500">*</span>}
-          {initialData && <span className="text-sm text-gray-500">(Leave empty to keep current)</span>}
+          {isEditMode && <span className="text-xs text-gray-400 font-normal ml-1">(cannot be changed here)</span>}
         </label>
         <Input
           id="password"
@@ -112,8 +117,10 @@ export function SupervisorForm({ initialData, onSubmit, isLoading = false }: Sup
           type="password"
           value={formData.password}
           onChange={handleChange}
-          placeholder="Enter password"
+          placeholder={isEditMode ? '••••••••' : 'Enter password'}
           required={!initialData}
+          disabled={isEditMode}
+          className={isEditMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}
         />
       </div>
 

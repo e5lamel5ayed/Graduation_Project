@@ -48,9 +48,10 @@ export default function SupervisorsPage() {
       await supervisorService.delete(supervisor.id);
       toast.success('Supervisor deleted successfully');
       fetchSupervisors();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting supervisor:', error);
-      toast.error('Failed to delete supervisor');
+      const errorMessage = error?.response?.data?.message || 'Failed to delete supervisor';
+      toast.error(errorMessage);
     }
   };
 
@@ -59,16 +60,11 @@ export default function SupervisorsPage() {
 
     try {
       if (formData.id) {
-        // Update existing supervisor
+        // Update existing supervisor - only fullName, phoneNumber, and avatar are editable
         const updateData: any = {
-          email: formData.email,
           fullName: formData.fullName,
           phoneNumber: formData.phoneNumber,
         };
-
-        if (formData.password) {
-          updateData.password = formData.password;
-        }
 
         if (formData.avatarFile) {
           updateData.avatarFile = formData.avatarFile;
@@ -90,9 +86,10 @@ export default function SupervisorsPage() {
 
       setIsDialogOpen(false);
       fetchSupervisors();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving supervisor:', error);
-      toast.error('Failed to save supervisor');
+      const errorMessage = error?.response?.data?.message || 'Failed to save supervisor';
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

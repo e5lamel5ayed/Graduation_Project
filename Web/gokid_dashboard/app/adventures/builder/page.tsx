@@ -40,13 +40,14 @@ export default function AdventureBuilderPage() {
 
   // --- State ---
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingAdventure, setIsLoadingAdventure] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTask, setActiveTask] = useState<TaskTemplate | null>(null);
-
+const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); // جديد
   // Adventure Details State
+
   const [adventureTitleEn, setAdventureTitleEn] = useState('');
   const [adventureTitleAr, setAdventureTitleAr] = useState('');
   const [adventureDescriptionEn, setAdventureDescriptionEn] = useState('');
@@ -169,7 +170,7 @@ export default function AdventureBuilderPage() {
         setAdventureGoalAr(adventure.goalAr);
         setWeekDuration(Math.max(1, adventure.weekDuration));
         setBonusPoints(adventure.bonusPoints);
-
+setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
         setDays(
           Array.from({ length: Math.max(1, adventure.weekDuration) }, (_, i) => {
             const dayNumber = i + 1;
@@ -413,6 +414,7 @@ export default function AdventureBuilderPage() {
           setSearchQuery('');
           setBonusPoints(0);
           setDescriptionVoiceFile(null);
+          setExistingVoiceUrl(null);
           setBannerImage(null);
           setWeekDuration(7);
           setDays(createEmptyDays(7));
@@ -452,6 +454,7 @@ export default function AdventureBuilderPage() {
             completedCount={completedCount}
             totalDays={days.length}
             isComplete={isComplete}
+            existingVoiceUrl={existingVoiceUrl}
             onReset={resetAdventure}
             onPublish={() => submitAdventure('publish')}
             isSubmitting={isSubmitting || isLoadingAdventure}

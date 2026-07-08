@@ -266,6 +266,7 @@ const mapToBuilderData = (adventure: AdventureApiModel): AdventureBuilderData =>
         goalAr: (adventure as Record<string, any>).goalAr ?? '',
         weekDuration: adventure.weekDuration ?? 7,
         bonusPoints: adventure.bonusPoints ?? 0,
+        descriptionVoiceUrl: adventure.descriptionVoiceUrl ?? '',
         tasks,
         rawTasks: adventure.tasks ?? [],
     };
