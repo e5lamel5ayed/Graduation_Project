@@ -19,7 +19,7 @@ export interface Class extends ClassFormData {
 }
 
 export interface ClassApiItem {
-  id: string;
+  classId: string;
   name: string;
   childrenCount: number;
   supervisorsCount: number;

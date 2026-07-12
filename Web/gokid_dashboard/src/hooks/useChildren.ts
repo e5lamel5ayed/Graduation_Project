@@ -7,13 +7,14 @@ import { toast } from 'sonner';
 const QUERY_KEY = 'children';
 const CLASS_QUERY_KEY = 'Class';
 
-export function useChildren(params: ChildQueryParams = {}) {
+export function useChildren(params: ChildQueryParams = {}, enabled: boolean = true) {
   return useQuery({
     queryKey: [QUERY_KEY, params],
     queryFn: async () => {
       const response = await childrenService.getAll(params);
       return response;
     },
+    enabled,
     staleTime: 0, // Always refetch after invalidation
     gcTime: 1000 * 60 * 10, // 10 minutes
   });

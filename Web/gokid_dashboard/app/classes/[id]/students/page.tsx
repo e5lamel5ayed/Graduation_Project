@@ -18,10 +18,9 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import Image from 'next/image';
-import { Button, Input } from '@/src/components/ui';
+import { Input } from '@/src/components/ui';
 import { cn } from '@/src/lib/utils';
 import { useChildren, useEnrollChildToClass, useDeleteChild } from '@/src/hooks/useChildren';
-import { useClassById } from '@/src/hooks/useClasses';
 import { Child } from '@/src/types/children';
 
 const PAGE_SIZE = 20;
@@ -57,7 +56,8 @@ const getAvatarColor = (childId: string, childName: string) => {
 export default function ClassStudentsPage() {
   const params = useParams();
   const router = useRouter();
-  const classId = params.id as string;
+  const classParam = (params.id ?? (params as Record<string, string | string[] | undefined>).classId) as string | string[] | undefined;
+  const classId = Array.isArray(classParam) ? (classParam[0] || '') : (classParam || '');
 
   const [searchInput, setSearchInput] = useState('');
   const [searchName, setSearchName] = useState('');
@@ -80,9 +80,6 @@ export default function ClassStudentsPage() {
     return () => window.clearTimeout(timer);
   }, [searchInput]);
 
-  // Fetch class info to display name
-  const { data: classData, isLoading: classLoading } = useClassById(classId);
-
   // Fetch students filtered by classId — same endpoint as Children page
   const {
     data: childrenData,
@@ -93,7 +90,7 @@ export default function ClassStudentsPage() {
     pageSize: PAGE_SIZE,
     classId,
     searchName: searchName || undefined,
-  });
+  }, !!classId);
 
   const children = useMemo(
     () => (childrenData?.items || []) as Child[],
@@ -119,7 +116,7 @@ export default function ClassStudentsPage() {
     );
   };
 
-  const isLoading = classLoading || (childrenLoading && children.length === 0);
+  const isLoading = childrenLoading && children.length === 0;
 
   if (isLoading) {
     return (
@@ -145,7 +142,7 @@ export default function ClassStudentsPage() {
     );
   }
 
-  const className = classData?.name || 'Class';
+  const className = 'Class';
 
   return (
     <div className="p-8 min-h-[calc(100vh-80px)] bg-[#fcfaff]">
