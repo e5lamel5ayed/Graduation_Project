@@ -43,7 +43,7 @@ import { supervisorService } from '@/src/services/supervisorService';
 const PAGE_SIZE = 8;
 
 const mapApiClassToCard = (classItem: ClassApiItem): ClassCardItem => ({
-  id: classItem.id,
+  id: classItem.classId ?? '',
   name: classItem.name,
   teacher: 'TBD',
   maxStudents: 30,

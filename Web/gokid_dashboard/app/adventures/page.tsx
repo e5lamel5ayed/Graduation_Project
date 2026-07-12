@@ -721,7 +721,7 @@ export default function AdventuresPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {classes.map((classItem) => (
-                      <SelectItem key={classItem.id} value={classItem.id}>
+                      <SelectItem key={classItem.classId} value={classItem.classId}>
                         {classItem.name}
                       </SelectItem>
                     ))}
@@ -843,7 +843,7 @@ export default function AdventuresPage() {
               </SelectTrigger>
               <SelectContent>
                 {classes.map((classItem) => (
-                  <SelectItem key={classItem.id} value={classItem.id}>
+                  <SelectItem key={classItem.classId} value={classItem.classId}>
                     {classItem.name}
                   </SelectItem>
                 ))}
