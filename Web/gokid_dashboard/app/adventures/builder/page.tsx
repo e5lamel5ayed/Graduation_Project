@@ -22,6 +22,7 @@ import { taskService } from '@/src/services/taskService';
 import { adventureService } from '@/src/services/adventureService';
 import { Difficulty, TaskTemplate, TemplateType } from '@/src/types/task';
 import { toast } from 'sonner';
+import { Button, Input } from '@/src/components/ui';
 
 // Import local components and types
 import { AdventureDay } from '@/src/types/adventure';
@@ -42,10 +43,11 @@ export default function AdventureBuilderPage() {
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [recommendedAgeFilter, setRecommendedAgeFilter] = useState('');
   const [isLoadingAdventure, setIsLoadingAdventure] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTask, setActiveTask] = useState<TaskTemplate | null>(null);
-const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); // جديد
+  const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); // جديد
   // Adventure Details State
 
   const [adventureTitleEn, setAdventureTitleEn] = useState('');
@@ -105,10 +107,10 @@ const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); /
       else setIsFetchingMore(true);
 
       const [text, voice, rewards, evidence] = await Promise.all([
-        taskService.getTaskTemplates({ templateType: 'TextQuestion', pageNumber, pageSize: PAGE_SIZE }),
-        taskService.getTaskTemplates({ templateType: 'VoiceQuestion', pageNumber, pageSize: PAGE_SIZE }),
-        taskService.getTaskTemplates({ templateType: 'InstantReward', pageNumber, pageSize: PAGE_SIZE }),
-        taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber, pageSize: PAGE_SIZE }),
+        taskService.getTaskTemplates({ templateType: 'TextQuestion', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize: PAGE_SIZE }),
+        taskService.getTaskTemplates({ templateType: 'VoiceQuestion', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize: PAGE_SIZE }),
+        taskService.getTaskTemplates({ templateType: 'InstantReward', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize: PAGE_SIZE }),
+        taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize: PAGE_SIZE }),
       ]);
 
       const textItems = text?.items ?? text?.data ?? [];
@@ -152,7 +154,7 @@ const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); /
 
   useEffect(() => {
     fetchTasks(1, true);
-  }, []);
+  }, [recommendedAgeFilter]);
 
   useEffect(() => {
     if (!adventureId) return;
@@ -170,7 +172,7 @@ const [existingVoiceUrl, setExistingVoiceUrl] = useState<string | null>(null); /
         setAdventureGoalAr(adventure.goalAr);
         setWeekDuration(Math.max(1, adventure.weekDuration));
         setBonusPoints(adventure.bonusPoints);
-setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
+        setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
         setDays(
           Array.from({ length: Math.max(1, adventure.weekDuration) }, (_, i) => {
             const dayNumber = i + 1;
@@ -251,6 +253,13 @@ setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
     task.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
     task.titleAr.includes(searchQuery)
   );
+
+  const handleRecommendedAgeChange = (value: string) => {
+    setRecommendedAgeFilter(value);
+    setPage(1);
+    setHasMore(true);
+    setTasks([]);
+  };
 
   const completedCount = days.filter(d => d.task).length;
   const isComplete = completedCount === days.length;
@@ -438,6 +447,7 @@ setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
       >
         <div className="flex flex-col flex-1 p-4 sm:p-6 gap-6 max-w-full mx-auto w-full">
 
+
           {/* Top Section - Adventure Details */}
           <AdventureDetails
             isEditMode={isEditMode}
@@ -471,8 +481,9 @@ setExistingVoiceUrl(adventure.descriptionVoiceUrl ?? null);
               isFetchingMore={isFetchingMore}
               onLoadMore={loadMoreTasks}
               hasMore={hasMore}
+              recommendedAgeFilter={recommendedAgeFilter}
+              onRecommendedAgeChange={handleRecommendedAgeChange}
             />
-
             {/* Right Column - Adventure Timeline */}
             <TimelineList
               days={days}

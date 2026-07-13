@@ -3,9 +3,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckSquare, Plus, Calendar, User, Tag, Mic, Gift, FileCheck, LayoutGrid, Award, Star } from 'lucide-react';
+import { CheckSquare, Plus, Calendar, User, Tag, Mic, Gift, FileCheck, LayoutGrid, Award, Star, Baby } from 'lucide-react';
 import { Tabs } from './taps';
-import { Button, Pagination } from '@/src/components/ui';
+import { Button, Input, Pagination } from '@/src/components/ui';
 import { HeadlessDialog } from '@/src/components/ui/HeadlessDialog';
 import { VoiceTaskForm, InstantRewardForm, EvidenceSubmissionForm } from './forms';
 import { taskService } from '@/src/services/taskService';
@@ -13,7 +13,7 @@ import { TaskTemplate, TemplateType, Difficulty } from '@/src/types/task';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/contexts/auth-context';
-
+import { Filter, X } from 'lucide-react';
 // Mapping between tab IDs and API TemplateType
 const tabToTemplateTypeMap: Record<string, TemplateType | 'all'> = {
   all: 'all',
@@ -71,6 +71,7 @@ export default function TasksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tasks, setTasks] = useState<TaskTemplate[]>([]);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [recommendedAgeFilter, setRecommendedAgeFilter] = useState('');
   const [taskCounts, setTaskCounts] = useState({
     all: 0,
     voice: 0,
@@ -87,10 +88,10 @@ export default function TasksPage() {
 
       if (templateType === 'all') {
         const [textQuestions, voiceQuestions, instantRewards, evidenceSubmissions] = await Promise.all([
-          taskService.getTaskTemplates({ templateType: 'TextQuestion', pageNumber, pageSize }),
-          taskService.getTaskTemplates({ templateType: 'VoiceQuestion', pageNumber, pageSize }),
-          taskService.getTaskTemplates({ templateType: 'InstantReward', pageNumber, pageSize }),
-          taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'TextQuestion', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'VoiceQuestion', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'InstantReward', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize }),
+          taskService.getTaskTemplates({ templateType: 'EvidenceSubmission', recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined, pageNumber, pageSize }),
         ]);
 
         const allTasks = [
@@ -119,6 +120,7 @@ export default function TasksPage() {
       } else {
         const response = await taskService.getTaskTemplates({
           templateType: templateType as TemplateType,
+          recommendedAge: recommendedAgeFilter ? Number(recommendedAgeFilter) : undefined,
           pageNumber,
           pageSize,
         });
@@ -142,9 +144,14 @@ export default function TasksPage() {
   // Fetch tasks when active tab changes
   useEffect(() => {
     fetchTasks();
-  }, [activeTab, pageNumber]);
+  }, [activeTab, pageNumber, recommendedAgeFilter]);
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
+    setPageNumber(1);
+  };
+
+  const handleRecommendedAgeChange = (value: string) => {
+    setRecommendedAgeFilter(value);
     setPageNumber(1);
   };
   const getTypeColor = (type: TemplateType) => {
@@ -218,12 +225,19 @@ export default function TasksPage() {
         return;
       }
 
+      if (formData.recommendedAgeFrom > formData.recommendedAgeTo) {
+        toast.error('Recommended age range is invalid');
+        return;
+      }
+
       if (activeTab === 'instantReward') {
         await taskService.createInstantReward({
           titleAr: formData.titleAr,
           titleEn: formData.titleEn,
           descriptionAr: formData.descriptionAr,
           descriptionEn: formData.descriptionEn,
+          recommendedAgeFrom: formData.recommendedAgeFrom,
+          recommendedAgeTo: formData.recommendedAgeTo,
           taskImageFile: formData.taskImageFile,
           iconFile: formData.iconFile,
           subCategoryId: formData.subCategoryId,
@@ -240,6 +254,8 @@ export default function TasksPage() {
           titleEn: formData.titleEn,
           descriptionAr: formData.descriptionAr,
           descriptionEn: formData.descriptionEn,
+          recommendedAgeFrom: formData.recommendedAgeFrom,
+          recommendedAgeTo: formData.recommendedAgeTo,
           taskImageFile: formData.taskImageFile,
           iconFile: formData.iconFile,
           subCategoryId: formData.subCategoryId,
@@ -259,6 +275,8 @@ export default function TasksPage() {
           titleEn: formData.titleEn,
           descriptionAr: formData.descriptionAr,
           descriptionEn: formData.descriptionEn,
+          recommendedAgeFrom: formData.recommendedAgeFrom,
+          recommendedAgeTo: formData.recommendedAgeTo,
           questionText: formData.questionText,
           expectedCorrectAnswer: formData.expectedCorrectAnswer,
           voicePrompt: formData.voicePrompt,
@@ -325,6 +343,38 @@ export default function TasksPage() {
         )}
       </div>
 
+      <div className="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 w-full lg:w-1/3">
+        <label
+          htmlFor="recommendedAgeFilter"
+          className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 uppercase tracking-wide mb-2"
+        >
+          <Filter className="h-3.5 w-3.5" />
+          Filter by Recommended Age
+        </label>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Input
+              id="recommendedAgeFilter"
+              type="number"
+              min={0}
+              value={recommendedAgeFilter}
+              onChange={(e) => handleRecommendedAgeChange(e.target.value)}
+              placeholder="e.g. 5"
+              className="bg-gray-50 border-gray-200 rounded-xl shadow-inner focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+            />
+          </div>
+          {recommendedAgeFilter && (
+            <button
+              type="button"
+              onClick={() => handleRecommendedAgeChange('')}
+              className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
+              title="Clear filter"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
       {/* Dialog for Forms */}
       <HeadlessDialog
         isOpen={isFormOpen}
@@ -365,26 +415,30 @@ export default function TasksPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1.5">
                     <h3 className="font-bold text-gray-900 text-base line-clamp-1">{task.titleEn}</h3>
-                    <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex-shrink-0 ${getTypeColor(task.templateType)}`}>
-                      {getTypeIcon(task.templateType)}
-                      <span className="hidden sm:inline">{task.templateType}</span>
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-sm">
+                        {task.recommendedAgeFrom}-{task.recommendedAgeTo} years
+                      </span>
+                      <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${getTypeColor(task.templateType)}`}>
+                        {getTypeIcon(task.templateType)}
+                        <span className="hidden sm:inline">{task.templateType}</span>
+                      </span>
+                    </div>
                   </div>
                   <p className="text-gray-600 text-sm line-clamp-1 mb-2">{task.descriptionEn}</p>
                 </div>
               </div>
-
               {/* Task Details Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3 p-2.5 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <User className="h-3.5 w-3.5 text-blue-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-500">Category</p>
-                    <p className="text-xs font-medium text-gray-900 truncate">{task.subCategoryNameEn || 'N/A'}</p>
-                  </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-3 p-2.5 bg-gray-50 rounded-lg">                <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <User className="h-3.5 w-3.5 text-blue-600" />
                 </div>
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500">Category</p>
+                  <p className="text-xs font-medium text-gray-900 truncate">{task.subCategoryNameEn || 'N/A'}</p>
+                </div>
+              </div>
 
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">

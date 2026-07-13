@@ -22,12 +22,18 @@ const toFormData = (obj: Record<string, any>): FormData => {
 export const taskService = {
   // Get task templates by type
   getTaskTemplates: async (params: TaskTemplateParams) => {
+    const queryParams: Record<string, string | number> = {
+      TemplateType: params.templateType,
+      pageNumber: params.pageNumber || 1,
+      pageSize: params.pageSize || 10,
+    };
+
+    if (params.recommendedAge !== undefined && params.recommendedAge !== null) {
+      queryParams.RecommendedAge = params.recommendedAge;
+    }
+
     const { data } = await axiosInstance.get<ApiResponse<PaginatedResponse<TaskTemplate>>>('/task-templates', {
-      params: {
-        TemplateType: params.templateType,
-        pageNumber: params.pageNumber || 1,
-        pageSize: params.pageSize || 10,
-      },
+      params: queryParams,
     });
     return data.data;
   },
@@ -39,6 +45,8 @@ export const taskService = {
       TitleEn: taskData.titleEn,
       DescriptionAr: taskData.descriptionAr,
       DescriptionEn: taskData.descriptionEn,
+      RecommendedAgeFrom: taskData.recommendedAgeFrom,
+      RecommendedAgeTo: taskData.recommendedAgeTo,
       TaskImageFile: taskData.taskImageFile,
       IconFile: taskData.iconFile,
       SubCategoryId: taskData.subCategoryId,
@@ -65,6 +73,8 @@ export const taskService = {
       TitleEn: taskData.titleEn,
       DescriptionAr: taskData.descriptionAr,
       DescriptionEn: taskData.descriptionEn,
+      RecommendedAgeFrom: taskData.recommendedAgeFrom,
+      RecommendedAgeTo: taskData.recommendedAgeTo,
       InstructionsText: taskData.instructionsText,
       EvidenceType: taskData.evidenceType,
       ReviewBy: taskData.reviewBy,
@@ -93,6 +103,8 @@ export const taskService = {
       TitleEn: taskData.titleEn,
       DescriptionAr: taskData.descriptionAr,
       DescriptionEn: taskData.descriptionEn,
+      RecommendedAgeFrom: taskData.recommendedAgeFrom,
+      RecommendedAgeTo: taskData.recommendedAgeTo,
       QuestionText: taskData.questionText,
       ExpectedCorrectAnswer: taskData.expectedCorrectAnswer,
       VoicePrompt: taskData.voicePrompt,

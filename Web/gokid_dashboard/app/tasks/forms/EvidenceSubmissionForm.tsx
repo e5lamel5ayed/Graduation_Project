@@ -23,6 +23,8 @@ export default function EvidenceSubmissionForm({ initialData, onSubmit, isLoadin
     titleEn: initialData?.titleEn || '',
     descriptionAr: initialData?.descriptionAr || '',
     descriptionEn: initialData?.descriptionEn || '',
+    recommendedAgeFrom: initialData?.recommendedAgeFrom || 3,
+    recommendedAgeTo: initialData?.recommendedAgeTo || 12,
     instructionsText: initialData?.instructionsText || '',
     evidenceType: initialData?.evidenceType || 'Image',
     reviewBy: initialData?.reviewBy || 'Parent',
@@ -55,7 +57,7 @@ export default function EvidenceSubmissionForm({ initialData, onSubmit, isLoadin
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'basePoints' ? parseInt(value) || 0 : value,
+      [name]: ['basePoints', 'recommendedAgeFrom', 'recommendedAgeTo'].includes(name) ? parseInt(value) || 0 : value,
     }));
   };
 
@@ -87,6 +89,11 @@ export default function EvidenceSubmissionForm({ initialData, onSubmit, isLoadin
       return;
     }
 
+    if (formData.recommendedAgeFrom > formData.recommendedAgeTo) {
+      alert('Recommended age range is invalid');
+      return;
+    }
+
     // Submit with only one file type based on what's selected
     onSubmit({
       ...formData,
@@ -103,6 +110,8 @@ export default function EvidenceSubmissionForm({ initialData, onSubmit, isLoadin
       titleEn: '',
       descriptionAr: '',
       descriptionEn: '',
+      recommendedAgeFrom: 3,
+      recommendedAgeTo: 12,
       instructionsText: '',
       evidenceType: 'Image',
       reviewBy: 'Parent',
@@ -201,7 +210,46 @@ export default function EvidenceSubmissionForm({ initialData, onSubmit, isLoadin
         </div>
       </div>
 
-      {/* Section 2: Submission Requirements */}
+      {/* Section 2: Recommended Age */}
+      <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 space-y-6">
+        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+          <span className="w-1 h-4 bg-cyan-500 rounded-full"></span>
+          Recommended Age
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <label htmlFor="recommendedAgeFrom" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Age From
+            </label>
+            <Input
+              id="recommendedAgeFrom"
+              name="recommendedAgeFrom"
+              type="number"
+              value={formData.recommendedAgeFrom}
+              onChange={handleChange}
+              min={0}
+              className="bg-white rounded-lg shadow-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="recommendedAgeTo" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Age To
+            </label>
+            <Input
+              id="recommendedAgeTo"
+              name="recommendedAgeTo"
+              type="number"
+              value={formData.recommendedAgeTo}
+              onChange={handleChange}
+              min={0}
+              className="bg-white rounded-lg shadow-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section 3: Submission Requirements */}
       <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 space-y-6">
         <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
           <span className="w-1 h-4 bg-green-500 rounded-full"></span>

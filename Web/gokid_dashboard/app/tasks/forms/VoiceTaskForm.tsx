@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui';
-import { Mic, Upload, Star, Image as ImageIcon, Sparkles, X, Settings2, HelpCircle } from 'lucide-react';
+import { Star, Image as ImageIcon, Sparkles, X, Settings2, HelpCircle } from 'lucide-react';
 import { VoiceTaskFormData } from '@/src/types/task';
 import { subCategoryService } from '@/src/services/subCategoryService';
 import { SubCategory } from '@/src/types/category';
@@ -23,6 +23,8 @@ export default function VoiceTaskForm({ initialData, onSubmit, isLoading = false
     titleEn: initialData?.titleEn || '',
     descriptionAr: initialData?.descriptionAr || '',
     descriptionEn: initialData?.descriptionEn || '',
+    recommendedAgeFrom: initialData?.recommendedAgeFrom || 3,
+    recommendedAgeTo: initialData?.recommendedAgeTo || 12,
     questionText: initialData?.questionText || '',
     expectedCorrectAnswer: initialData?.expectedCorrectAnswer || '',
     voicePrompt: initialData?.voicePrompt || '',
@@ -52,7 +54,7 @@ export default function VoiceTaskForm({ initialData, onSubmit, isLoading = false
   }, []);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const isNumber = ['maxVoiceAttempts', 'maxVoiceDurationSeconds', 'basePoints'].includes(name);
+    const isNumber = ['maxVoiceAttempts', 'maxVoiceDurationSeconds', 'basePoints', 'recommendedAgeFrom', 'recommendedAgeTo'].includes(name);
     setFormData(prev => ({
       ...prev,
       [name]: isNumber ? parseInt(value) || 0 : value,
@@ -85,6 +87,11 @@ export default function VoiceTaskForm({ initialData, onSubmit, isLoading = false
       return;
     }
 
+    if (formData.recommendedAgeFrom > formData.recommendedAgeTo) {
+      alert('Recommended age range is invalid');
+      return;
+    }
+
     onSubmit({
       ...formData,
       id: initialData?.id,
@@ -99,6 +106,8 @@ export default function VoiceTaskForm({ initialData, onSubmit, isLoading = false
       titleEn: '',
       descriptionAr: '',
       descriptionEn: '',
+      recommendedAgeFrom: 3,
+      recommendedAgeTo: 12,
       questionText: '',
       expectedCorrectAnswer: '',
       voicePrompt: '',
@@ -193,7 +202,46 @@ export default function VoiceTaskForm({ initialData, onSubmit, isLoading = false
         </div>
       </div>
 
-      {/* Section 2: Voice & Question Settings */}
+      {/* Section 2: Recommended Age */}
+      <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 space-y-6">
+        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
+          <span className="w-1 h-4 bg-cyan-500 rounded-full"></span>
+          Recommended Age
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-1.5">
+            <label htmlFor="recommendedAgeFrom" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Age From
+            </label>
+            <Input
+              id="recommendedAgeFrom"
+              name="recommendedAgeFrom"
+              type="number"
+              value={formData.recommendedAgeFrom}
+              onChange={handleChange}
+              min={0}
+              className="bg-white rounded-lg shadow-sm"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="recommendedAgeTo" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Age To
+            </label>
+            <Input
+              id="recommendedAgeTo"
+              name="recommendedAgeTo"
+              type="number"
+              value={formData.recommendedAgeTo}
+              onChange={handleChange}
+              min={0}
+              className="bg-white rounded-lg shadow-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section 3: Voice & Question Settings */}
       <div className="bg-gray-50/50 p-6 rounded-xl border border-gray-100 space-y-6">
         <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
           <span className="w-1 h-4 bg-blue-500 rounded-full"></span>

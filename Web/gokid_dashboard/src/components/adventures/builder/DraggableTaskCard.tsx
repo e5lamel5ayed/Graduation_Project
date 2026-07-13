@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, LayoutGrid, Mic, Gift, FileCheck } from 'lucide-react';
+import { GripVertical, LayoutGrid, Mic, Gift, FileCheck, Cake } from 'lucide-react';
 import { TaskTemplate, TemplateType } from '@/src/types/task';
 
 interface DraggableTaskCardProps {
@@ -87,7 +87,12 @@ export const DraggableTaskCard = ({ task, isOverlay = false }: DraggableTaskCard
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className="text-[13px] font-bold text-gray-900 truncate leading-tight transition-colors group-hover:text-purple-700">{task.titleEn}</h4>
+        <div className="flex items-center justify-between gap-1.5">
+          <h4 className="text-[13px] font-bold text-gray-900 truncate leading-tight transition-colors group-hover:text-purple-700">{task.titleEn}</h4>
+          <span className="flex-shrink-0 flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-black bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white shadow-sm">
+            {task.recommendedAgeFrom}-{task.recommendedAgeTo} years
+          </span>
+        </div>
         <div className="flex items-center gap-2 mt-0.5">
           <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase border transition-colors ${getTypeColor(task.templateType)}`}>
             {task.templateType.replace('Question', '')}

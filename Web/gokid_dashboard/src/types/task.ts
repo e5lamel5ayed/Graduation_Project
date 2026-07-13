@@ -10,6 +10,8 @@ export interface InstantRewardFormData {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   basePoints: number;
   difficulty: Difficulty;
   subCategoryId: string;
@@ -22,6 +24,8 @@ export interface CreateInstantRewardDto {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   taskImageFile?: File | null;
   iconFile?: File | null;
   subCategoryId: string;
@@ -34,6 +38,8 @@ export interface VoiceTaskFormData {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   questionText: string;
   expectedCorrectAnswer: string;
   voicePrompt: string;
@@ -50,6 +56,8 @@ export interface CreateVoiceQuestionDto {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   questionText: string;
   expectedCorrectAnswer: string;
   voicePrompt: string;
@@ -68,6 +76,8 @@ export interface EvidenceSubmissionFormData {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   instructionsText: string;
   evidenceType: EvidenceType;
   reviewBy: ReviewedBy;
@@ -83,6 +93,8 @@ export interface CreateEvidenceSubmissionDto {
   titleEn: string;
   descriptionAr: string;
   descriptionEn: string;
+  recommendedAgeFrom: number;
+  recommendedAgeTo: number;
   instructionsText: string;
   evidenceType: EvidenceType;
   reviewBy: ReviewedBy;
@@ -109,10 +121,13 @@ export interface TaskTemplate {
   pageNumber?: number;
   totalCount?: number;
   totalPages?: number;
+  recommendedAgeFrom?: number;
+  recommendedAgeTo?: number;
 }
 
 export interface TaskTemplateParams {
   templateType: TemplateType;
+  recommendedAge?: number;
   pageNumber?: number;
   pageSize?: number;
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Search, Filter, AlertCircle } from 'lucide-react';
+import { Search, Filter, AlertCircle, X } from 'lucide-react';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { TaskTemplate } from '@/src/types/task';
 import { DraggableTaskCard } from './DraggableTaskCard';
@@ -15,6 +15,8 @@ interface TaskLibraryProps {
   isFetchingMore: boolean;
   onLoadMore: () => void;
   hasMore: boolean;
+  recommendedAgeFilter: string;
+  onRecommendedAgeChange: (val: string) => void;
 }
 
 export const TaskLibrary = ({
@@ -25,9 +27,15 @@ export const TaskLibrary = ({
   isLoading,
   isFetchingMore,
   onLoadMore,
-  hasMore
+  hasMore,
+  recommendedAgeFilter,
+  onRecommendedAgeChange,
 }: TaskLibraryProps) => {
   const scrollRef = React.useRef<HTMLDivElement>(null);
+  const filterRef = React.useRef<HTMLDivElement>(null);
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+
+  const hasActiveFilter = Boolean(recommendedAgeFilter);
 
   const handleScroll = () => {
     if (!scrollRef.current || isFetchingMore || !hasMore) return;
@@ -38,6 +46,17 @@ export const TaskLibrary = ({
       onLoadMore();
     }
   };
+
+  // Close the filter popover when clicking outside of it
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="w-full xl:w-[380px] flex flex-col bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden h-[640px]">
@@ -60,10 +79,58 @@ export const TaskLibrary = ({
           />
         </div>
 
-        <div className="flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-xs font-bold text-gray-600 border border-gray-100 transition-colors">
-            <Filter className="h-3.5 w-3.5" /> Filters
+        <div className="flex gap-2 relative" ref={filterRef}>
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen((prev) => !prev)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold border transition-colors ${
+              hasActiveFilter
+                ? 'bg-purple-50 border-purple-200 text-purple-700'
+                : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border-gray-100'
+            }`}
+          >
+            <Filter className="h-3.5 w-3.5" />
+            Filters
+            {hasActiveFilter && (
+              <span className="ml-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-purple-600 text-white text-[10px] font-bold">
+                1
+              </span>
+            )}
           </button>
+
+          {isFilterOpen && (
+            <div className="absolute z-20 top-full mt-2 left-0 w-full sm:w-72 bg-white rounded-2xl shadow-xl border border-gray-100 p-4">
+              <label
+                htmlFor="recommendedAgeFilter"
+                className="flex items-center gap-1.5 text-xs font-bold text-purple-600 uppercase tracking-wide mb-2"
+              >
+                <Filter className="h-3.5 w-3.5" />
+                Filter by Recommended Age
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="recommendedAgeFilter"
+                  type="number"
+                  min={0}
+                  value={recommendedAgeFilter}
+                  onChange={(e) => onRecommendedAgeChange(e.target.value)}
+                  placeholder="e.g. 5"
+                  autoFocus
+                  className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-inner focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 transition-all"
+                />
+                {hasActiveFilter && (
+                  <button
+                    type="button"
+                    onClick={() => onRecommendedAgeChange('')}
+                    title="Clear filter"
+                    className="flex-shrink-0 w-10 h-9 flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
