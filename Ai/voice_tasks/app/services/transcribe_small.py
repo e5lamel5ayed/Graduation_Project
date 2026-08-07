@@ -1,0 +1,15 @@
+from models import whisper_small
+
+def transcribe_audio(fpath: str):
+    model = whisper_small.small
+    if model is None:
+        raise RuntimeError("Whisper model not loaded")
+    segments, info = model.transcribe(
+        fpath,
+        language="en",
+        vad_filter=True,
+        beam_size=5,
+        condition_on_previous_text=False,
+    )
+    text = " ".join([segment.text for segment in segments])
+    return text
